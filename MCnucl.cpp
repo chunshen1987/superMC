@@ -444,6 +444,14 @@ void MCnucl::getTA2()
   double nucleon_width;
   if (shape_of_nucleons>=2 && shape_of_nucleons<=9) nucleon_width = gaussCal->width;
   double dc_sq_max_gaussian = 25.*nucleon_width*nucleon_width;
+  double *part_x, *part_y;
+  part_x = new double [npart];
+  part_y = new double [npart];
+  for(int i = 0; i < npart; i++)
+  {
+      part_x[i] = participant[i]->getX();
+      part_y[i] = participant[i]->getY();
+  }
 
   for(int ix=0;ix<Maxx;ix++)
   for(int iy=0;iy<Maxy;iy++) {
@@ -453,9 +461,9 @@ void MCnucl::getTA2()
     TA2[ix][iy]=0.0;
 
     // loop over nucleons which overlap the grid point (xg,yg)
-    for(unsigned int ipart=0; ipart<participant.size(); ipart++) {
-      double x = participant[ipart]->getX();
-      double y = participant[ipart]->getY();
+    for(unsigned int ipart=0; ipart<npart; ipart++) {
+      double x = part_x[ipart];
+      double y = part_y[ipart];
       double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
       if (shape_of_nucleons==1) // "Checker" nucleons:
       {
@@ -498,6 +506,8 @@ void MCnucl::getTA2()
        exit(0);
      }
   }
+  delete [] part_x;
+  delete [] part_y;
 }
 
 // calculate the binary collision density in the transverse plane
@@ -505,6 +515,15 @@ void MCnucl::calculate_rho_binary()
 {
    int ncoll=binaryCollision.size();
    double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
+   double *binary_x, *binary_y;
+   binary_x = new double [ncoll];
+   binary_y = new double [ncoll];
+   for(int icoll = 0; icoll < ncoll; icoll++)
+   {
+       binary_x[icoll] = binaryCollision[icoll]->getX();
+       binary_y[icoll] = binaryCollision[icoll]->getY();
+   }
+
    for(int ir=0;ir<Maxx;ir++)  // loop over 2d transverse grid
    {
       for(int jr=0;jr<Maxy;jr++)
@@ -514,8 +533,8 @@ void MCnucl::calculate_rho_binary()
          double tab = 0.0;
          for(int icoll = 0; icoll < ncoll; icoll++)
          {
-            double x = binaryCollision[icoll]->getX();
-            double y = binaryCollision[icoll]->getY();
+            double x = binary_x[icoll];
+            double y = binary_y[icoll];
             double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
             if (shape_of_nucleons == 1)
             {
@@ -533,6 +552,8 @@ void MCnucl::calculate_rho_binary()
          rho_binary[ir][jr] = tab;
       }
    }
+   delete [] binary_x;
+   delete [] binary_y;
 }
 
 // --- initializes dN/dyd2rt (or dEt/...) on 2d grid for rapidity slice iy
@@ -557,8 +578,24 @@ void MCnucl::setDensity(int iy, int ipt)
 
   rapidity=rapMin + (rapMax-rapMin)/binRapidity*iy;
   dndy=0.0;
-  
+ 
   double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
+  int npart = participant.size();
+  double *part_x = new double [npart];
+  double *part_y = new double [npart];
+  for(int i = 0; i < npart; i++)
+  {
+      part_x[i] = participant[i]->getX();
+      part_y[i] = participant[i]->getY();
+  }
+  int ncoll = binaryCollision.size();
+  double *binary_x = new double [ncoll];
+  double *binary_y = new double [ncoll];
+  for(int i = 0; i < ncoll; i++)
+  {
+      binary_x[i] = binaryCollision[i]->getX();
+      binary_y[i] = binaryCollision[i]->getY();
+  }
 
   for(int ir=0;ir<Maxx;ir++)  // loop over 2d transv. grid
   for(int jr=0;jr<Maxy;jr++) {
@@ -601,8 +638,8 @@ void MCnucl::setDensity(int iy, int ipt)
               //rhop = (TA1[ir][jr]+TA2[ir][jr])*(1.0-Alpha)/2;
               double fluctfactor = 1.0;
               for(unsigned int ipart=0; ipart<participant.size(); ipart++) {
-                double x = participant[ipart]->getX();
-                double y = participant[ipart]->getY();
+                double x = part_x[ipart];
+                double y = part_y[ipart];
                 double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
                 if (shape_of_nucleons==1) // "Checker" nucleons:
                 {
@@ -645,8 +682,8 @@ void MCnucl::setDensity(int iy, int ipt)
               {
                   for(int icoll=0;icoll<ncoll;icoll++)
                   {
-                    double x = binaryCollision[icoll]->getX();
-                    double y = binaryCollision[icoll]->getY();
+                    double x = binary_x[icoll];
+                    double y = binary_y[icoll];
                     double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
                     if(CCFluctuationModel > 5)
                        fluctfactor = binaryCollision[icoll]->getfluctfactor();
@@ -657,8 +694,8 @@ void MCnucl::setDensity(int iy, int ipt)
               {
                   for(int icoll=0;icoll<ncoll;icoll++)
                   {
-                    double x = binaryCollision[icoll]->getX();
-                    double y = binaryCollision[icoll]->getY();
+                    double x = binary_x[icoll];
+                    double y = binary_y[icoll];
                     double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
                     if (dc > dc_sq_max_gaussian) continue; // skip small numbers to speed up
                     if(CCFluctuationModel > 5)
@@ -686,6 +723,10 @@ void MCnucl::setDensity(int iy, int ipt)
   // Should I include additional fluctuation for MCKLN?
   if (CCFluctuationModel>0 && CCFluctuationModel <= 5) fluctuateCurrentDensity(iy);
 
+  delete [] part_x;
+  delete [] part_y;
+  delete [] binary_x;
+  delete [] binary_y;
 }
 
 
