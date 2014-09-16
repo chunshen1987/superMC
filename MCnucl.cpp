@@ -84,11 +84,14 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   shape_of_nucleons = paraRdr->getVal("shape_of_nucleons");
 
   gaussCal = NULL;
+  entropy_gaussian_width = 0.0;
   if (shape_of_nucleons>=2 && shape_of_nucleons<=9) // Gaussian nucleons
   {
     paraRdr->setVal("siginNN", siginNN);
     gaussCal = new GaussianNucleonsCal(paraRdr); // for Gaussian-shaped nucleons calculations
+    entropy_gaussian_width = gaussCal->entropy_gaussian_width;
   }
+  entropy_gaussian_width_sq = entropy_gaussian_width*entropy_gaussian_width;
 
 
   dndyTable=0;    // lookup table pointers not valid yet
@@ -440,6 +443,7 @@ void MCnucl::getTA2()
 
   double nucleon_width;
   if (shape_of_nucleons>=2 && shape_of_nucleons<=9) nucleon_width = gaussCal->width;
+  double dc_sq_max_gaussian = 25.*nucleon_width*nucleon_width;
 
   for(int ix=0;ix<Maxx;ix++)
   for(int iy=0;iy<Maxy;iy++) {
@@ -468,7 +472,7 @@ void MCnucl::getTA2()
       else if (shape_of_nucleons>=2 && shape_of_nucleons<=9) // Gaussian nucleons:
       {
         // skip distant nucleons, speeds things up; one may need to relax
-        if (dc>25.*nucleon_width*nucleon_width) continue;
+        if (dc>dc_sq_max_gaussian) continue;
         double density = GaussianNucleonsCal::get2DHeightFromWidth(nucleon_width)*exp(-dc/(2.*nucleon_width*nucleon_width)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
         if(participant[ipart]->isNucl() == 1) {
             TA1[ix][iy] += density;
@@ -500,6 +504,7 @@ void MCnucl::getTA2()
 void MCnucl::calculate_rho_binary()
 {
    int ncoll=binaryCollision.size();
+   double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
    for(int ir=0;ir<Maxx;ir++)  // loop over 2d transverse grid
    {
       for(int jr=0;jr<Maxy;jr++)
@@ -519,9 +524,9 @@ void MCnucl::calculate_rho_binary()
             }
             else if (shape_of_nucleons>=2 && shape_of_nucleons<=9)
             {
-               if (dc > (5.*gaussCal->entropy_gaussian_width)*(5.*gaussCal->entropy_gaussian_width)) 
+               if (dc > dc_sq_max_gaussian) 
                   continue; // skip small numbers to speed up
-               tab += GaussianNucleonsCal::get2DHeightFromWidth(gaussCal->entropy_gaussian_width)*exp(-dc/(2*gaussCal->entropy_gaussian_width*gaussCal->entropy_gaussian_width)); 
+               tab += GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2*entropy_gaussian_width_sq)); 
                // this density is normalized to 1, to be consistent with the disk-like treatment; 
             }
          }
@@ -552,6 +557,8 @@ void MCnucl::setDensity(int iy, int ipt)
 
   rapidity=rapMin + (rapMax-rapMin)/binRapidity*iy;
   dndy=0.0;
+  
+  double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
 
   for(int ir=0;ir<Maxx;ir++)  // loop over 2d transv. grid
   for(int jr=0;jr<Maxy;jr++) {
@@ -607,10 +614,9 @@ void MCnucl::setDensity(int iy, int ipt)
                 }
                 else if (shape_of_nucleons>=2 && shape_of_nucleons<=9) // Gaussian nucleons:
                 {
-                  double nucleon_width = gaussCal->width;
                   // skip distant nucleons, speeds things up; one may need to relax
-                  if (dc>25.*nucleon_width*nucleon_width) continue;
-                  double density = GaussianNucleonsCal::get2DHeightFromWidth(nucleon_width)*exp(-dc/(2.*nucleon_width*nucleon_width)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                  if (dc>dc_sq_max_gaussian) continue;
+                  double density = GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2.*entropy_gaussian_width_sq)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
                   if(CCFluctuationModel > 5)
                      fluctfactor = participant[ipart]->getfluctfactor();
                   rhop += fluctfactor*density;
@@ -654,10 +660,10 @@ void MCnucl::setDensity(int iy, int ipt)
                     double x = binaryCollision[icoll]->getX();
                     double y = binaryCollision[icoll]->getY();
                     double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
-                    if (dc > (5.*gaussCal->entropy_gaussian_width)*(5.*gaussCal->entropy_gaussian_width)) continue; // skip small numbers to speed up
+                    if (dc > dc_sq_max_gaussian) continue; // skip small numbers to speed up
                     if(CCFluctuationModel > 5)
                        fluctfactor = binaryCollision[icoll]->getfluctfactor();
-                    tab += fluctfactor*GaussianNucleonsCal::get2DHeightFromWidth(gaussCal->entropy_gaussian_width)*exp(-dc/(2*gaussCal->entropy_gaussian_width*gaussCal->entropy_gaussian_width))*(Alpha + (1.-Alpha)*binaryCollision[icoll]->additional_weight); // this density is normalized to 1, to be consisitent with the disk-like treatment; second part in the last parathesis is for Uli-Glb model
+                    tab += fluctfactor*GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2*entropy_gaussian_width_sq))*(Alpha + (1.-Alpha)*binaryCollision[icoll]->additional_weight); // this density is normalized to 1, to be consisitent with the disk-like treatment; second part in the last parathesis is for Uli-Glb model
                   }
               }
           } else {

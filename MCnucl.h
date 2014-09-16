@@ -72,6 +72,7 @@ protected:
     int shape_of_nucleons;
     int which_mc_model;
     int sub_model;
+    double entropy_gaussian_width, entropy_gaussian_width_sq;
 
 public:
     MCnucl(ParameterReader*);
