@@ -100,10 +100,10 @@ void GlueDensity::getCMAngle(const int iy, int n)
     Ycm2[iy] /= weight;
     XYcm[iy] /= weight;
     dNdy[iy] = weight;
-    sigX = Xcm2[iy] - Xcm[iy]*Xcm[iy];
-    sigY = Ycm2[iy] - Ycm[iy]*Ycm[iy];
-    sigXY = XYcm[iy] - Xcm[iy]*Ycm[iy];
-    AngleG[iy]=atan2(2*sigXY,sigY-sigX)/2;
+    //sigX = Xcm2[iy] - Xcm[iy]*Xcm[iy];
+    //sigY = Ycm2[iy] - Ycm[iy]*Ycm[iy];
+    //sigXY = XYcm[iy] - Xcm[iy]*Ycm[iy];
+    //AngleG[iy]=atan2(2*sigXY,sigY-sigX)/2;
     // cout << "old: " << AngleG[iy] << endl;
 
     // for re-centerd profile
@@ -125,7 +125,7 @@ void GlueDensity::getCMAngle(const int iy, int n)
             exit(0);
     }
     int rand_orientation = rand() % n; //random integer from 0 to n-1
-    AngleG[iy] = -atan2(-Num_imag, -Num_real)/n + 2*M_PI*rand_orientation/n; //AngleG takes the range from -pi to pi
+    AngleG[iy] = -atan2(Num_imag, Num_real)/n + 2*M_PI*rand_orientation/n; //AngleG takes the range from -pi to pi
     // cout << "imag=" << Num_imag << "," << "real=" << Num_real << endl;
     // cout << "new: " << AngleG[iy] << "," << "order=" << n << endl;
 }
@@ -134,14 +134,12 @@ void GlueDensity::getCMAngle(const int iy, int n)
 void GlueDensity::rotateParticle(vector<Participant*> participant,
     vector<CollisionPair*> binaryCollision, const int iy)
 {
-    double xcm=Xcm[iy];
-    double ycm=Ycm[iy];
     double ang0 = AngleG[iy];
 
     int npart = participant.size();
     for(int i=0;i<npart;i++) {
-      double x = participant[i]->getX()-xcm;
-      double y = participant[i]->getY()-ycm;
+      double x = participant[i]->getX();
+      double y = participant[i]->getY();
       double ang = MCnucl::Angle(x,y);
       double r=sqrt(x*x+y*y);
       double x0 = r*cos(ang+ang0);
@@ -152,14 +150,38 @@ void GlueDensity::rotateParticle(vector<Participant*> participant,
 
     int ncoll=binaryCollision.size();
     for(int icoll=0;icoll<ncoll;icoll++) {
-      double x = binaryCollision[icoll]->getX()-xcm;
-      double y = binaryCollision[icoll]->getY()-ycm;
+      double x = binaryCollision[icoll]->getX();
+      double y = binaryCollision[icoll]->getY();
       double ang = MCnucl::Angle(x,y);
       double r=sqrt(x*x+y*y);
       double x0 = r*cos(ang+ang0);
       double y0 = r*sin(ang+ang0);
       binaryCollision[icoll]->setX(x0);
       binaryCollision[icoll]->setY(y0);
+    }
+
+}
+
+void GlueDensity::recenterParticle(vector<Participant*> participant,
+    vector<CollisionPair*> binaryCollision, const int iy)
+{
+    double xcm=Xcm[iy];
+    double ycm=Ycm[iy];
+
+    int npart = participant.size();
+    for(int i=0;i<npart;i++) {
+      double x_shifted = participant[i]->getX()-xcm;
+      double y_shifted = participant[i]->getY()-ycm;
+      participant[i]->setX(x_shifted);
+      participant[i]->setY(y_shifted);
+    }
+
+    int ncoll=binaryCollision.size();
+    for(int icoll=0;icoll<ncoll;icoll++) {
+      double x_shifted = binaryCollision[icoll]->getX()-xcm;
+      double y_shifted = binaryCollision[icoll]->getY()-ycm;
+      binaryCollision[icoll]->setX(x_shifted);
+      binaryCollision[icoll]->setY(y_shifted);
     }
 
 }

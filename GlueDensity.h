@@ -48,6 +48,8 @@ public:
     void rotateParticle(std::vector<Participant*> participant,
 			std::vector<CollisionPair*> binaryCollision,
 			const int iy);
+    void recenterParticle(std::vector<Participant*> participant,
+                          std::vector<CollisionPair*> binaryCollision, const int iy);
 
 };
 

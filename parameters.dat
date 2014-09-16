@@ -58,7 +58,7 @@ cutdSdy_upperBound =  10000000.0       # upper bound of the allowed total entrop
 
 
 # Monte Carlo Optns
-nev = 500000              # Number of collision events simulated
+nev = 100                 # Number of collision events simulated
 randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
 backup_number = 10000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off
@@ -75,23 +75,22 @@ operation = 3             # (1) Generate n transverse density profiles for n eve
                           # the data in a table
 
 # Operation Mode Sub-Optns
-finalFactor = 1.0        # 1,3,9-> Scale the final density profile by this factor
+finalFactor = 1.0       # 1,3,9-> Scale the final density profile by this factor
 average_from_order = 2    # 3-> Generate rotated and averaged profiles for each order 
                           # beginning with this order
 average_to_order = 3      # 3-> Generate rotated and averaged profiles for each order 
-                                 # ending with this order
+                          # ending with this order
 ecc_from_order = 1        # 9-> Calculate the eccentricity of the profile for each order 
-                                  # beginning with this order
+                          # beginning with this order
 ecc_to_order = 9          # 9-> Calculate the eccentricity of the profile for each order 
-                                 # ending with this order
-
+                          # ending with this order
 
 # Print to File Optns
 use_sd = 1                # Boolean toggle to print the raw CGC and Glauber output 
                           # (CGC: gluon density; Glb: (1-alpha)/2*WN + alpha*BC) 
 use_ed = 1                # Boolean toggle to covert the entropy profile using the 
                           # EOS and print the energy profile (do not use if Et=1)
-use_4col = 0              # Boolean toggle to print 4 column format (rap, x, y, data)
+use_4col = 1              # Boolean toggle to print 4 column format (rap, x, y, data)
 use_block = 1             # Boolean toggle to print matrix format (good for matlab)
 use_5col = 0              # Boolean toggle to print 5 column format (rap, x, y, pt, data)
 use_ptCol = 0             # Boolean toggle to print pt-unintegrated table, working in mixed mode
@@ -122,3 +121,8 @@ cc_fluctuation_Gamma_theta = 0.9175    # the scale parameter for Gamma distribut
 output_TATB = 1           # 1: output; 0: no output; only effective when generating averaged profiles
 output_rho_binary = 1     # 1: output binary collision density
 output_TA = 1             # 1: output nuclear thickness function
+
+generate_reaction_plane_avg_profile = 1    # switch to generate smooth event-averaged 
+                                           # profile with respect to reaction plane defined 
+                                           # by the direction of the impact parameter 
+                                           # and the beam direction

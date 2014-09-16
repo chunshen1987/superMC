@@ -109,6 +109,7 @@ public:
                 {NpartMax=Nmax; NpartMin=Nmin;}
     void getEccentricityGrid(double& ecc, double& eccp, double& area, double& areap, int iy);
     double getCMAng();
+    void recenterGrid(int iy, int n=2);
     void rotateGrid(int iy, int n=2);
     void makeTable();
     void makeTable(double, double, int);

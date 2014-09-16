@@ -939,11 +939,16 @@ double MCnucl::Angle(const double x,const double y)
     return angl;
 }
 
-
+void MCnucl::recenterGrid(int iy, int n)
+{
+  rho->getCMAngle(iy, n);
+  rho->recenterParticle(participant, binaryCollision, iy);
+}
 
 void MCnucl::rotateGrid(int iy, int n)
 {
   rho->getCMAngle(iy, n);
+  rho->recenterParticle(participant, binaryCollision, iy);
   rho->rotateParticle(participant, binaryCollision, iy);
 }
 
