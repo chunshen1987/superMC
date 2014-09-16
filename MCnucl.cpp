@@ -52,7 +52,7 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
       PT_order = paraRdr->getVal("PT_order");   
   else
       PT_order = 1; //does not apply when there is no PT integration
-
+  
   //.... NN cross sections in mb
   double ecm = paraRdr->getVal("ecm");
   double sig = hadronxsec::totalXsection(200.0,0);
@@ -106,11 +106,18 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
 
   TA1 = new double* [Maxx];    // 2d grid for proj/targ. thickness functions
   TA2 = new double* [Maxx];
-  for(int ix=0;ix<Maxx;ix++) {
-    TA1[ix] = new double[Maxy];
-    for(int iy=0;iy<Maxy;iy++) TA1[ix][iy] = 0;
-    TA2[ix] = new double[Maxy];
-    for(int iy=0;iy<Maxy;iy++) TA2[ix][iy] = 0;
+  rho_binary = new double* [Maxx];  // 2d grid for the binary density
+  for(int ix=0;ix<Maxx;ix++)
+  {
+    TA1[ix] = new double [Maxy];
+    TA2[ix] = new double [Maxy];
+    rho_binary[ix] = new double [Maxy];
+    for(int iy = 0; iy < Maxy; iy++)
+    {
+       TA1[ix][iy] = 0;
+       TA2[ix][iy] = 0;
+       rho_binary[ix][iy] = 0;
+    }
   }
 
   rho = new GlueDensity(Xmax,Ymax,PTmin,PTmax,dx,dy,dpt,binRapidity,rapMin,rapMax);
@@ -122,12 +129,15 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
 
 MCnucl::~MCnucl()
 {
-  for(int ix=0;ix<Maxx;ix++) {
+  for(int ix = 0; ix < Maxx; ix++)
+  {
     delete [] TA1[ix];
     delete [] TA2[ix];
+    delete [] rho_binary[ix];
   }
   delete [] TA1;
   delete [] TA2;
+  delete [] rho_binary;
 
   delete  rho;
 
@@ -162,7 +172,7 @@ MCnucl::~MCnucl()
 */
 void MCnucl::generateNucleus(double b, OverLap* proj, OverLap* targ)
 {
-  double rmin=0.4*0.4; // minimal nucleon separation (squared; in fm^2).
+  double rmin=0.9*0.9; // minimal nucleon separation (squared; in fm^2).
   double cx, phi;
   for(int ie=0;ie<overSample;ie++) {
 
@@ -486,7 +496,39 @@ void MCnucl::getTA2()
   }
 }
 
-
+// calculate the binary collision density in the transverse plane
+void MCnucl::calculate_rho_binary()
+{
+   int ncoll=binaryCollision.size();
+   for(int ir=0;ir<Maxx;ir++)  // loop over 2d transverse grid
+   {
+      for(int jr=0;jr<Maxy;jr++)
+      {
+         double xg = Xmin + ir*dx;
+         double yg = Ymin + jr*dy;
+         double tab = 0.0;
+         for(int icoll = 0; icoll < ncoll; icoll++)
+         {
+            double x = binaryCollision[icoll]->getX();
+            double y = binaryCollision[icoll]->getY();
+            double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
+            if (shape_of_nucleons == 1)
+            {
+               if(dc <= dsq) 
+                  tab += (10.0/siginNN);
+            }
+            else if (shape_of_nucleons>=2 && shape_of_nucleons<=9)
+            {
+               if (dc > (5.*gaussCal->entropy_gaussian_width)*(5.*gaussCal->entropy_gaussian_width)) 
+                  continue; // skip small numbers to speed up
+               tab += GaussianNucleonsCal::get2DHeightFromWidth(gaussCal->entropy_gaussian_width)*exp(-dc/(2*gaussCal->entropy_gaussian_width*gaussCal->entropy_gaussian_width)); 
+               // this density is normalized to 1, to be consistent with the disk-like treatment; 
+            }
+         }
+         rho_binary[ir][jr] = tab;
+      }
+   }
+}
 
 // --- initializes dN/dyd2rt (or dEt/...) on 2d grid for rapidity slice iy
 //     and integrates it to obtain dN/dy (or dEt/dy) ---
@@ -766,9 +808,10 @@ void MCnucl::makeTable(double ptmin, double dpt, int iPtmax)
     }
   }
 
+  
+  int progress_counter = 0, progress_percent = 0, last_update = 0;
+  //===========================================================================
 
-int progress_counter = 0, progress_percent = 0, last_update = 0;
-//===========================================================================
   for(int iy=0;iy<binRapidity;iy++) { // loop over rapidity bins
     double y = rapMin+(rapMax-rapMin)/binRapidity*iy;
     for (int i=0; i<tmaxPt; i++) {   // loop over proj thickness
@@ -822,7 +865,6 @@ void MCnucl::dumpdNdyTable4Col(char filename[], double *** dNdyTable, const int 
      of.close();
 }
 
-
 void MCnucl::dumpdNdydptTable5Col(char filename[], double **** dNdydptTable, const int iy)
 {
   ofstream of;
@@ -850,6 +892,7 @@ void MCnucl::dumpdNdydptTable5Col(char filename[], double **** dNdydptTable, con
     }
      of.close();
 }
+
 
 void MCnucl::deleteNucleus()
 {
@@ -973,6 +1016,7 @@ void MCnucl::dumpparticipantTable(char filename[])
   }
   of.close();
 }
+
 
 int MCnucl::getSpectators()
 {

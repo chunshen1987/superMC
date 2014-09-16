@@ -31,6 +31,7 @@ protected:
     GaussianNucleonsCal *gaussCal; // for Gaussian shaped nucleons calculations
     Large_x* val;
     double **TA1,**TA2;
+    double **rho_binary;
     GlueDensity *rho;
     int tmax, tmaxPt;
     double dT;
@@ -41,7 +42,7 @@ protected:
     int isKLN;
     double Xmin, Ymin, Xmax, Ymax;
     double PTinte, PTmax, PTmin, dpt, MaxPT;
-    int    PT_order;
+    int PT_order;
     double dx,dy;
     double siginNN, siginNN200;
     double rapidity;
@@ -82,6 +83,7 @@ public:
 
     double getTA1(int x,int y) {return TA1[x][y];}
     double getTA2(int x,int y) {return TA2[x][y];}
+    double get_rho_binary(int x, int y) {return rho_binary[x][y];}
     double getRho(int i, int x,int y) {return rho->getDensity(i,x,y);}
     double getRho(int i, int x,int y, int pt) {return rho->getDensity(i,x,y,pt);}
     void setRho(int i, int x,int y, double val) {rho->setDensity(i,x,y,val);}
@@ -89,8 +91,10 @@ public:
     int getNpart1() {return Npart1;}
     int getNpart2() {return Npart2;}
     double getdNdy() 
-    {if(PTinte) return dndy*dx*dy; 
-        else return dndy*dx*dy*dpt;}
+    {
+        if(PTinte) return dndy*dx*dy; 
+        else return dndy*dx*dy*dpt;
+    }
 
     void setOverSample(int i) {overSample=i;}
     void setRapidity(double y) {rapidity=y;}
@@ -98,6 +102,7 @@ public:
     void deleteNucleus();
     void setDensity(int iy, int ipt); // ipt<0: no dN/dydpt table used
     void getTA2();
+    void calculate_rho_binary();    // calculate binary collision density in the transverse plane
     int  getBinaryCollision();
     int  CentralityCut();
     void setCentralityCut(int Nmin, int Nmax)
