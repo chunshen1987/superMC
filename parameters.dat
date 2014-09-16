@@ -47,8 +47,8 @@ gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
 
 # Collision Optns
 ecm = 2760                # Beam Energy sqrt(s) in GeV
-bmin = 10                  # Minimum sampled impact parameter
-bmax = 15.0                  # Maximum sampled impact parameter
+bmin = 5.0                  # Minimum sampled impact parameter
+bmax = 10.0                  # Maximum sampled impact parameter
 Npmin = 1                 # Minimum participant nucleon cut
 Npmax = 1000              # Maximum participant nucleon cut
 
