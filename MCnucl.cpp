@@ -470,9 +470,9 @@ void MCnucl::getTA2()
     int x_idx_right = (int)((x + d_max - Xmin)/dx);
     int y_idx_left = (int)((y - d_max - Ymin)/dy);
     int y_idx_right = (int)((y + d_max - Ymin)/dy);
-    x_idx_left = min(0, x_idx_left);
+    x_idx_left = max(0, x_idx_left);
     x_idx_right = min(Maxx, x_idx_right);
-    y_idx_left = min(0, y_idx_left);
+    y_idx_left = max(0, y_idx_left);
     y_idx_right = min(Maxy, y_idx_right);
     for(int ix = x_idx_left; ix < x_idx_right; ix++)
     {
@@ -568,9 +568,9 @@ void MCnucl::calculate_rho_binary()
        int x_idx_right = (int)((x + d_max - Xmin)/dx);
        int y_idx_left = (int)((y - d_max - Ymin)/dy);
        int y_idx_right = (int)((y + d_max - Ymin)/dy);
-       x_idx_left = min(0, x_idx_left);
+       x_idx_left = max(0, x_idx_left);
        x_idx_right = min(Maxx, x_idx_right);
-       y_idx_left = min(0, y_idx_left);
+       y_idx_left = max(0, y_idx_left);
        y_idx_right = min(Maxy, y_idx_right);
        for(int ir = x_idx_left; ir < x_idx_right; ir++)
        {
@@ -704,9 +704,9 @@ void MCnucl::setDensity(int iy, int ipt)
             int x_idx_right = (int)((x + d_max - Xmin)/dx);
             int y_idx_left = (int)((y - d_max - Ymin)/dy);
             int y_idx_right = (int)((y + d_max - Ymin)/dy);
-            x_idx_left = min(0, x_idx_left);
+            x_idx_left = max(0, x_idx_left);
             x_idx_right = min(Maxx, x_idx_right);
-            y_idx_left = min(0, y_idx_left);
+            y_idx_left = max(0, y_idx_left);
             y_idx_right = min(Maxy, y_idx_right);
             for(int ir = x_idx_left; ir < x_idx_right; ir++)
             {
@@ -763,9 +763,9 @@ void MCnucl::setDensity(int iy, int ipt)
               int x_idx_right = (int)((x + d_max - Xmin)/dx);
               int y_idx_left = (int)((y - d_max - Ymin)/dy);
               int y_idx_right = (int)((y + d_max - Ymin)/dy);
-              x_idx_left = min(0, x_idx_left);
+              x_idx_left = max(0, x_idx_left);
               x_idx_right = min(Maxx, x_idx_right);
-              y_idx_left = min(0, y_idx_left);
+              y_idx_left = max(0, y_idx_left);
               y_idx_right = min(Maxy, y_idx_right);
               for(int ir = x_idx_left; ir < x_idx_right; ir++)
               {
