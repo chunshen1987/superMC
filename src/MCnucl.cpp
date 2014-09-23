@@ -444,7 +444,11 @@ void MCnucl::getTA2()
   double nucleon_width;
   if (shape_of_nucleons>=2 && shape_of_nucleons<=9) nucleon_width = gaussCal->width;
   double dc_sq_max_gaussian = 25.*nucleon_width*nucleon_width;
-  double d_max = 5.*nucleon_width;
+  double d_max;
+  if (shape_of_nucleons == 1)
+      d_max = 2.*sqrt(dsq);
+  if (shape_of_nucleons >= 2 && shape_of_nucleons <=9)
+      d_max = 5.*nucleon_width;
   double *part_x, *part_y;
   part_x = new double [npart];
   part_y = new double [npart];
@@ -547,7 +551,11 @@ void MCnucl::calculate_rho_binary()
 {
    int ncoll=binaryCollision.size();
    double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
-   double d_max = 5.*entropy_gaussian_width;
+   double d_max;
+   if (shape_of_nucleons == 1)
+       d_max = 2.*sqrt(dsq);
+   if (shape_of_nucleons >= 2 && shape_of_nucleons <=9)
+       d_max = 5.*entropy_gaussian_width;
    double *binary_x, *binary_y;
    binary_x = new double [ncoll];
    binary_y = new double [ncoll];
@@ -622,7 +630,11 @@ void MCnucl::setDensity(int iy, int ipt)
   dndy=0.0;
  
   double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
-  double d_max = 5.*entropy_gaussian_width;
+  double d_max;
+  if (shape_of_nucleons == 1)
+      d_max = 2.*sqrt(dsq);
+  if (shape_of_nucleons >= 2 && shape_of_nucleons <=9)
+      d_max = 5.*entropy_gaussian_width;
   int npart = participant.size();
   double *part_x = new double [npart];
   double *part_y = new double [npart];
