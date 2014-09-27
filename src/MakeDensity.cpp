@@ -1072,11 +1072,11 @@ void MakeDensity::generate_profile_average(int nevent)
   long event = 1;
 
   // prepare to use ArraySaver class to auto-backup intermediate results
-  long auto_backup_after_number_of_averaging = paraRdr->getVal("backup_number")-1;
-  ArraySaver<double> dens1_saver("backup/dens1.dat", dens1, 4, Maxy, Maxx, binRapidity, number_of_orders);
-  ArraySaver<double> dens2_saver("backup/dens2.dat", dens2, 4, Maxy, Maxx, binRapidity, number_of_orders);
-  long backup_counter = auto_backup_after_number_of_averaging;
-  ArraySaver<long> event_index_saver("backup/event_index.dat", &event, 1, 1);
+  //long auto_backup_after_number_of_averaging = paraRdr->getVal("backup_number")-1;
+  //ArraySaver<double> dens1_saver("backup/dens1.dat", dens1, 4, Maxy, Maxx, binRapidity, number_of_orders);
+  //ArraySaver<double> dens2_saver("backup/dens2.dat", dens2, 4, Maxy, Maxx, binRapidity, number_of_orders);
+  //long backup_counter = auto_backup_after_number_of_averaging;
+  //ArraySaver<long> event_index_saver("backup/event_index.dat", &event, 1, 1);
 
   // event start.
   while (event<=nevent)
@@ -1367,14 +1367,14 @@ void MakeDensity::generate_profile_average(int nevent)
     mc->deleteNucleus();
 
     // auto-backup
-    if (backup_counter>0) backup_counter--; // autobackup turned on; keep track of counter
-    else if (backup_counter==0) // autobackup turned on; time for output!
-    {
-      if (use_sd) dens1_saver.snapshot();
-      if (use_ed) dens2_saver.snapshot();
-      event_index_saver.snapshot();
-      backup_counter = auto_backup_after_number_of_averaging;
-    }
+    //if (backup_counter>0) backup_counter--; // autobackup turned on; keep track of counter
+    //else if (backup_counter==0) // autobackup turned on; time for output!
+    //{
+    //  if (use_sd) dens1_saver.snapshot();
+    //  if (use_ed) dens2_saver.snapshot();
+    //  event_index_saver.snapshot();
+    //  backup_counter = auto_backup_after_number_of_averaging;
+    //}
 
     if(cutdSdypassFlag)
     {

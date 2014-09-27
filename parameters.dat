@@ -3,21 +3,21 @@
 ###############################################
 
 # Model Optns           
-which_mc_model = 5        # (1) MC-CGC 
+which_mc_model = 1        # (1) MC-CGC 
                           # (5) MC-Glb            
 
 # Sub-Model Optns                 
-sub_model = 1             # CGC-> (7) KLN model model described in
+sub_model = 7             # CGC-> (7) KLN model model described in
                           # CGC-> (100) rcbk model described in
                           # Glb-> (1) WN entropy deposited at WN positions. 
                           # Glb-> (2) WN entropy deposited (fractionally) amongst 
                           # BC midpoints: Heinz, Qiu and Moreland.
 
 # KLN Sub-Model Optns
-lambda = 0.288            # Lambda in the def. of (Qs)^2 which is prop. to (x0/x)^lambda 
+lambda = 0.138            # Lambda in the def. of (Qs)^2 which is prop. to (x0/x)^lambda 
 Et = 0                    # (0) Output gluon density; (1) Output energy density.
 lgX = 0                   # (0) Ignore large-x effects; (1) Include large-x effects.
-tmax = 51                 # Used to generate the T_A, T_B double integral lookup table. 
+tmax = 71                 # Used to generate the T_A, T_B double integral lookup table. 
 tmax_subdivision = 3      # Its reciprocal gives the step used to generate the T_A, T_B 
                           # double integral lookup table
 
@@ -47,20 +47,20 @@ gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
 
 # Collision Optns
 ecm = 2760                # Beam Energy sqrt(s) in GeV
-bmin = 5.0                  # Minimum sampled impact parameter
-bmax = 10.0                  # Maximum sampled impact parameter
-Npmin = 1                 # Minimum participant nucleon cut
-Npmax = 1000              # Maximum participant nucleon cut
+bmin = 5.24                  # Minimum sampled impact parameter
+bmax = 10.05                  # Maximum sampled impact parameter
+Npmin = 100                 # Minimum participant nucleon cut
+Npmax = 300              # Maximum participant nucleon cut
 
 cutdSdy = 1               # cut centrality with additional requirements on total entropy density (without normalization factor)
-cutdSdy_lowerBound =  1.0          # lower bound of the allowed total entropy density
-cutdSdy_upperBound =  10000000.0       # upper bound of the allowed total entropy density
+cutdSdy_lowerBound =  593.51          # lower bound of the allowed total entropy density
+cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy density
 
 
 # Monte Carlo Optns
-nev = 1000                 # Number of collision events simulated
+nev = 1000               # Number of collision events simulated
 randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
-backup_number = 10000     # Backs up the averaged profile every "n" events. 0 means 
+backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off
 
 # Operation Mode Optns
@@ -90,7 +90,7 @@ use_sd = 1                # Boolean toggle to print the raw CGC and Glauber outp
                           # (CGC: gluon density; Glb: (1-alpha)/2*WN + alpha*BC) 
 use_ed = 1                # Boolean toggle to covert the entropy profile using the 
                           # EOS and print the energy profile (do not use if Et=1)
-use_4col = 1              # Boolean toggle to print 4 column format (rap, x, y, data)
+use_4col = 0              # Boolean toggle to print 4 column format (rap, x, y, data)
 use_block = 1             # Boolean toggle to print matrix format (good for matlab)
 use_5col = 0              # Boolean toggle to print 5 column format (rap, x, y, pt, data)
 use_ptCol = 0             # Boolean toggle to print pt-unintegrated table, working in mixed mode
@@ -113,7 +113,7 @@ ny = 1                    # Number of rapidity bins (do not set to zero)
 ymax = 0                  # Maximum rapidity value (symmetric -ymax to ymax)
 
 # CC fluctions
-cc_fluctuation_model = 6  # 0: no fluctuations; 1: NBD constant k; 2: NBD use TA TB to determine n; 6: MCGlb: Gamma distribution for each collision and wounded nucleon
+cc_fluctuation_model = 0  # 0: no fluctuations; 1: NBD constant k; 2: NBD use TA TB to determine n; 6: MCGlb: Gamma distribution for each collision and wounded nucleon
 cc_fluctuation_k = 0.75   # constant k; used when cc_fluctuation_model is set to 1.
 cc_fluctuation_Gamma_theta = 0.9175    # the scale parameter for Gamma distribution theta = 0.9175 (from KNO scaling)
 
