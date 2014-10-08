@@ -182,44 +182,62 @@ void MCnucl::generateNucleus(double b, OverLap* proj, OverLap* targ)
     // nucleus 1
     double xcm=0.0, ycm=0.0, zcm=0.0;
     int nn=proj->getAtomic();
-
     cx = 1.0-2.0*drand48();
     phi = 2*M_PI*drand48();
     lastCx1=cx;
     lastPh1=phi;
     proj ->setRotation(cx, phi);
-
-    for(int ia=0;ia<nn;ia++) {
-      double x,y,z;
-      int icon=0;
-      do {
-        proj->getDeformRandomWS(x,y,z);
-        icon=0;
-        for(int i=ie*nn; i<(int)nucl1.size();i++) {
-          double x1=nucl1[i]->getX();
-          double y1=nucl1[i]->getY();
-          double z1=nucl1[i]->getZ();
-          double r2 = (x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1);
-          if(r2 < rmin) {
-            icon=1;
-            break;
-          }
-        }
-      } while(icon==1);
-
-      xcm +=x;
-      ycm +=y;
-      zcm +=z;
-      nucl1.push_back(new Particle(x,y,z));
+    if (nn==2) // in the case of a deuteron (added by Brian Baker)
+    {
+      double x1, y1, z1, x2, y2, z2;
+         
+      proj-> GetDeuteronPosition(x1,y1,z1,x2,y2,z2);
+      nucl1.push_back(new Particle(x1+(b/2.0),y1,z1)); // shift along x-axis
+      nucl1.push_back(new Particle(x2+(b/2.0),y2,z2));
     }
+    else if(nn==3) // in the case of 3He
+    {
+      double x1, x2, x3, y1, y2, y3, z1, z2, z3;
+      proj->GetTritonPosition(x1,y1,z1,x2,y2,z2,x3,y3,z3); // Triton data points from Carlson have center of mass (0,0,0).
+      nucl1.push_back(new Particle(x1+(b/2.0),y1,z1));
+      nucl1.push_back(new Particle(x2+(b/2.0),y2,z2));
+      nucl1.push_back(new Particle(x3+(b/2.0),y3,z3));
+    }
+    else 
+    {
+      // for large nuclei
+      for(int ia=0;ia<nn;ia++) {
+        double x,y,z;
+        int icon=0;
+        do {
+          proj->getDeformRandomWS(x,y,z);
+          icon=0;
+          for(int i=ie*nn; i<(int)nucl1.size();i++) {
+            double x1=nucl1[i]->getX();
+            double y1=nucl1[i]->getY();
+            double z1=nucl1[i]->getZ();
+            double r2 = (x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1);
+            if(r2 < rmin) {
+              icon=1;
+              break;
+            }
+          }
+        } while(icon==1);
 
-    for(int ia=0;ia<nn;ia++) { // shift center of nucleus
-      double x = nucl1[ia]->getX() - xcm/nn + b/2.0;
-      double y = nucl1[ia]->getY() - ycm/nn;
-      double z = nucl1[ia]->getZ() - zcm/nn;
-      nucl1[ia]->setX(x);
-      nucl1[ia]->setY(y);
-      nucl1[ia]->setZ(z);
+        xcm +=x;
+        ycm +=y;
+        zcm +=z;
+        nucl1.push_back(new Particle(x,y,z));
+      }
+
+      for(int ia=0;ia<nn;ia++) { // shift center of nucleus
+        double x = nucl1[ia]->getX() - xcm/nn + b/2.0;
+        double y = nucl1[ia]->getY() - ycm/nn;
+        double z = nucl1[ia]->getZ() - zcm/nn;
+        nucl1[ia]->setX(x);
+        nucl1[ia]->setY(y);
+        nucl1[ia]->setZ(z);
+      }
     }
 
 
@@ -232,37 +250,56 @@ void MCnucl::generateNucleus(double b, OverLap* proj, OverLap* targ)
     targ->setRotation(cx, phi);
     lastCx2=cx;
     lastPh2=phi;
-    for(int ia=0;ia<nn;ia++) {
-      double x,y,z;
-      int icon=0;
-      do {
-        targ->getDeformRandomWS(x,y,z);
-        icon=0;
-        for(int i=ie*nn; i<(int)nucl2.size();i++) {
-          double x1=nucl2[i]->getX();
-          double y1=nucl2[i]->getY();
-          double z1=nucl2[i]->getZ();
-          double r2 = (x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1);
-          if(r2 < rmin) {
-            icon=1;
-            break;
-          }
-        }
-      } while(icon==1);
-
-      xcm +=x;
-      ycm +=y;
-      zcm +=z;
-      nucl2.push_back(new Particle(x,y,z));
+    if (nn==2) // in the case of a deuteron (added by Brian Baker)
+    {
+      double x1, y1, z1, x2, y2, z2;
+         
+      targ-> GetDeuteronPosition(x1,y1,z1,x2,y2,z2);
+      nucl2.push_back(new Particle(x1-(b/2.0),y1,z1)); // shift along x-axis
+      nucl2.push_back(new Particle(x2-(b/2.0),y2,z2));
     }
+    else if(nn==3) // in the case of 3He
+    {
+      double x1, x2, x3, y1, y2, y3, z1, z2, z3;
+      targ->GetTritonPosition(x1,y1,z1,x2,y2,z2,x3,y3,z3); // Triton data points from Carlson have center of mass (0,0,0).
+      nucl2.push_back(new Particle(x1-(b/2.0),y1,z1));
+      nucl2.push_back(new Particle(x2-(b/2.0),y2,z2));
+      nucl2.push_back(new Particle(x3-(b/2.0),y3,z3));
+    }
+    else 
+    {
+      for(int ia=0;ia<nn;ia++) {
+        double x,y,z;
+        int icon=0;
+        do {
+          targ->getDeformRandomWS(x,y,z);
+          icon=0;
+          for(int i=ie*nn; i<(int)nucl2.size();i++) {
+            double x1=nucl2[i]->getX();
+            double y1=nucl2[i]->getY();
+            double z1=nucl2[i]->getZ();
+            double r2 = (x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1);
+            if(r2 < rmin) {
+              icon=1;
+              break;
+            }
+          }
+        } while(icon==1);
 
-    for(int ia=0;ia<nn;ia++) {
-      double x = nucl2[ia]->getX() - xcm/nn - b/2.0;
-      double y = nucl2[ia]->getY() - ycm/nn;
-      double z = nucl2[ia]->getZ() - zcm/nn;
-      nucl2[ia]->setX(x);
-      nucl2[ia]->setY(y);
-      nucl2[ia]->setZ(z);
+        xcm +=x;
+        ycm +=y;
+        zcm +=z;
+        nucl2.push_back(new Particle(x,y,z));
+      }
+
+      for(int ia=0;ia<nn;ia++) {
+        double x = nucl2[ia]->getX() - xcm/nn - b/2.0;
+        double y = nucl2[ia]->getY() - ycm/nn;
+        double z = nucl2[ia]->getZ() - zcm/nn;
+        nucl2[ia]->setX(x);
+        nucl2[ia]->setY(y);
+        nucl2[ia]->setZ(z);
+      }
     }
   }
 
