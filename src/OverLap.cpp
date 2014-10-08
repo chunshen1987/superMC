@@ -101,12 +101,85 @@ OverLap::OverLap(int a, double signnin, int deformed_in)
     beta2 = 0.0; beta4 = 0.0;
   }
 
+  if (atomic == 3) // read in triton position
+  {
+    readin_triton_position();
+  }
+  
 }
 
 OverLap::~OverLap()
 {
 }
 
+void OverLap::GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,double& y2,double& z2)
+{
+   //get proton/neutron separation d (fm)
+   double d;
+   
+   d=sample_deuteron.rand(); //now sample random rotation of deuteron
+   x1 = (d/2.0);
+   y1 = 0;
+   z1 = 0;
+
+   Point3D p3d(x1,y1,z1);
+   p3d.rotate(ctr, phir);
+   x1 = p3d.x; y1 = p3d.y; z1 = p3d.z;
+
+   x2 = -x1;
+   y2 = -y1;
+   z2 = -z1;
+}
+
+void OverLap::readin_triton_position()
+{
+   ifstream triton_position("tables/triton_positions.dat");
+   double x1, y1, z1, x2, y2, z2, x3, y3, z3;
+   triton_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
+   while(!triton_position.eof())
+   {
+       vector<double> temp;
+       temp.push_back(x1);
+       temp.push_back(y1);
+       temp.push_back(z1);
+       temp.push_back(x2);
+       temp.push_back(y2);
+       temp.push_back(z2);
+       temp.push_back(x3);
+       temp.push_back(y3);
+       temp.push_back(z3);
+       triton_pos.push_back(temp);
+       triton_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
+   }
+}
+
+void OverLap::GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3)
+{
+   int num_configuration = triton_pos.size();
+   int rand_num = (int) drand48()*num_configuration;
+   
+   x1 = triton_pos[rand_num][0];
+   y1 = triton_pos[rand_num][1];
+   z1 = triton_pos[rand_num][2];
+   x2 = triton_pos[rand_num][3];
+   y2 = triton_pos[rand_num][4];
+   z2 = triton_pos[rand_num][5];
+   x3 = triton_pos[rand_num][6];
+   y3 = triton_pos[rand_num][7];
+   z3 = triton_pos[rand_num][8];
+
+   Point3D p3d1(x1,y1,z1);
+   p3d1.rotate(ctr, phir);
+   x1 = p3d1.x; y1 = p3d1.y; z1 = p3d1.z;
+
+   Point3D p3d2(x2,y2,z2);
+   p3d2.rotate(ctr, phir);
+   x2 = p3d2.x; y2 = p3d2.y; z2 = p3d2.z;
+
+   Point3D p3d3(x3,y3,x3);
+   p3d3.rotate(ctr, phir);
+   x3 = p3d3.x; y3 = p3d3.y; z3 = p3d3.z;
+}
 
 // *** this function applies to deformed nuclei ***
 void OverLap::getDeformRandomWS(double& x, double& y, double& z)

@@ -18,6 +18,7 @@ add_executable (superMC.e
   RandomVariable.cpp
   TableFunction.cpp 
   Table.cpp
+  HulthenFunc.cpp
   )
 target_link_libraries (superMC.e ${LIBS})
 
