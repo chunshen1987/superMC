@@ -156,7 +156,9 @@ void OverLap::readin_triton_position()
 void OverLap::GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3)
 {
    int num_configuration = triton_pos.size();
-   int rand_num = (int) drand48()*num_configuration;
+   int rand_num = rand() % num_configuration;
+
+   cout << num_configuration << "   " << rand_num << endl;
    
    x1 = triton_pos[rand_num][0];
    y1 = triton_pos[rand_num][1];
@@ -176,7 +178,7 @@ void OverLap::GetTritonPosition(double& x1,double& y1,double& z1,double &x2,doub
    p3d2.rotate(ctr, phir);
    x2 = p3d2.x; y2 = p3d2.y; z2 = p3d2.z;
 
-   Point3D p3d3(x3,y3,x3);
+   Point3D p3d3(x3,y3,z3);
    p3d3.rotate(ctr, phir);
    x3 = p3d3.x; y3 = p3d3.y; z3 = p3d3.z;
 }
