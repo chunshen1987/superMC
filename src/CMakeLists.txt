@@ -19,6 +19,8 @@ add_executable (superMC.e
   TableFunction.cpp 
   Table.cpp
   HulthenFunc.cpp
+  GaussianDistribution.cpp
+  Particle.cpp
   )
 target_link_libraries (superMC.e ${LIBS})
 

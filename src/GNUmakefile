@@ -28,7 +28,8 @@ SRC		=	main.cpp Bases.cpp MCnucl.cpp GlueDensity.cpp MakeDensity.cpp \
 			KLNModel.cpp OverLap.cpp Largex.cpp Regge96.cpp rcBKfunc.cpp \
 			MathBasics.cpp ParameterReader.cpp arsenal.cpp EOS.cpp \
 			GaussianNucleonsCal.cpp NBD.cpp RandomVariable.cpp \
-			TableFunction.cpp Table.cpp \
+			TableFunction.cpp Table.cpp HulthenFunc.cpp \
+                  GaussianDistribution.cpp Particle.cpp
 
 INC		= 	ArraySaver.h Bases.h CollisionPair.h EOS.h GaussianNucleonsCal.h \
 			GlueDensity.h Integral.h KLNModel.h KLNfunc.h Largex.h \
@@ -36,6 +37,7 @@ INC		= 	ArraySaver.h Bases.h CollisionPair.h EOS.h GaussianNucleonsCal.h \
 			ParamDefs.h ParameterReader.h Participant.h Particle.h \
                   RandomVariable.h Regge96.h Stopwatch.h Table.h TableFunction.h \
                   UnintegPartonDist.h arsenal.h rcBKfunc.h Spectator.h \
+                  HulthenFunc.h GaussianDistribution.h
 
 
 # -------------------------------------------------
@@ -87,7 +89,7 @@ install:	$(TARGET)
 ./GlueDensity.cpp: MCnucl.h Participant.h CollisionPair.h
 ./KLNModel.cpp: Regge96.h kkp.cpp Bases.h ParamDefs.h UnintegPartonDist.h OverLap.h
 ./Largex.cpp: KLNModel.h rcBKfunc.h
-./MCnucl.cpp: Regge96.h arsenal.h GaussianNucleonsCal.h ParameterReader.h NBD.h Particle.h OverLap.h KLNModel.h Participant.h GlueDensity.h CollisionPair.h Largex.h 
+./MCnucl.cpp: Regge96.h arsenal.h GaussianNucleonsCal.h ParameterReader.h NBD.h Particle.h OverLap.h KLNModel.h Participant.h GlueDensity.h CollisionPair.h Largex.h HulthenFunc.h
 ./MakeDensity.cpp: Regge96.h KLNfunc.h rcBKfunc.h ParamDefs.h MCnucl.h EOS.h ParameterReader.h ArraySaver.h Stopwatch.h OverLap.h UnintegPartonDist.h
 ./NBD.cpp: arsenal.h RandomVariable.h
 ./OverLap.cpp: MathBasics.h
@@ -98,3 +100,6 @@ install:	$(TARGET)
 ./TableFunction.cpp: arsenal.h Table.h 
 ./main.cpp: MakeDensity.h ParamDefs.h ParameterReader.h
 ./rcBKfunc.cpp: ParamDefs.h UnintegPartonDist.h
+./HulthenFunc.cpp: HulthenFunc.h RandomVariable.h
+./GaussianDistribution.cpp : GaussianDistribution.h RandomVariable.h
+./Particle.cpp: Particle.h GaussianDistribution.h
