@@ -82,6 +82,12 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   which_mc_model = paraRdr->getVal("which_mc_model");
   sub_model = paraRdr->getVal("sub_model");
   shape_of_nucleons = paraRdr->getVal("shape_of_nucleons");
+  
+  // adding quark substructure Fluctuations (from Kevin Welsh)
+  shape_of_entropy = paraRdr->getVal("shape_of_entropy"); //For separation of entropy to collision detection (Kevin)
+  quark_dist_width = paraRdr->getVal("quark_distribution_width");
+  if(shape_of_entropy==3)
+    gaussDist = new GaussianDistribution(0,quark_dist_width);
 
   gaussCal = NULL;
   entropy_gaussian_width = 0.0;

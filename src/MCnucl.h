@@ -12,6 +12,7 @@
 #include "Spectator.h"
 
 #include "GaussianNucleonsCal.h"
+#include "GaussianDistribution.h"
 #include "ParameterReader.h"
 #include "NBD.h"
 
@@ -70,6 +71,11 @@ protected:
 
     ParameterReader* paraRdr;
     int shape_of_nucleons;
+
+    int shape_of_entropy;
+    double quark_dist_width;
+    GaussianDistribution* gaussDist;
+
     int which_mc_model;
     int sub_model;
     double entropy_gaussian_width, entropy_gaussian_width_sq;

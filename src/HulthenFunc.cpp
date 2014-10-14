@@ -37,5 +37,5 @@ double HulthenFunc::CDF(double r)
 
 double HulthenFunc::invCDF(double x)
 {
-  return invertFunc(&HulthenFunc::CDF,x,0,20.0,0.001,1.0,0.001);
+  return invertFunc(&HulthenFunc::CDF,x,0,100.0,0.001,1.0,0.001);
 }
