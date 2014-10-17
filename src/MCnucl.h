@@ -72,8 +72,11 @@ protected:
     ParameterReader* paraRdr;
     int shape_of_nucleons;
 
+    // add by Kelvin Welsh
     int shape_of_entropy;
-    double quark_dist_width;
+    //quark_width^2 + quark_dist_width^2 = nucleon_width^2
+    double quark_dist_width; // quark_dist_width: the width of the Gaussian for the probability distribution of valence quark inside nucleon
+    double quark_width; // quark_width: the width of the Gaussian for the entropy (energy) deposition for each quark 
     GaussianDistribution* gaussDist;
 
     int which_mc_model;

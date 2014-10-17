@@ -83,11 +83,6 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   sub_model = paraRdr->getVal("sub_model");
   shape_of_nucleons = paraRdr->getVal("shape_of_nucleons");
   
-  // adding quark substructure Fluctuations (from Kevin Welsh)
-  shape_of_entropy = paraRdr->getVal("shape_of_entropy"); //For separation of entropy to collision detection (Kevin)
-  quark_dist_width = paraRdr->getVal("quark_distribution_width");
-  if(shape_of_entropy==3)
-    gaussDist = new GaussianDistribution(0, quark_dist_width);
 
   gaussCal = NULL;
   entropy_gaussian_width = 0.0;
@@ -99,6 +94,13 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   }
   entropy_gaussian_width_sq = entropy_gaussian_width*entropy_gaussian_width;
 
+  // adding quark substructure Fluctuations (from Kevin Welsh)
+  shape_of_entropy = paraRdr->getVal("shape_of_entropy"); //For separation of entropy to collision detection (Kevin)
+  quark_width = paraRdr->getVal("quark_width");
+  double nucleon_width = gaussCal->width;
+  quark_dist_width = sqrt(nucleon_width*nucleon_width - quark_width*quark_width);
+  if(shape_of_entropy==3)
+    gaussDist = new GaussianDistribution(0, quark_dist_width);
 
   dndyTable=0;    // lookup table pointers not valid yet
   dndydptTable=0;
@@ -803,7 +805,7 @@ void MCnucl::setDensity(int iy, int ipt)
                      double density;
                      if (shape_of_entropy == 3)
                      {
-                        density = participant[ipart]->getParticle()->getInternalStructDensity(xg,yg,quark_dist_width,gaussDist); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                        density = participant[ipart]->getParticle()->getInternalStructDensity(xg, yg, quark_width, gaussDist); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
                      }
                      else
                      {
