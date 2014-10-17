@@ -87,7 +87,7 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   shape_of_entropy = paraRdr->getVal("shape_of_entropy"); //For separation of entropy to collision detection (Kevin)
   quark_dist_width = paraRdr->getVal("quark_distribution_width");
   if(shape_of_entropy==3)
-    gaussDist = new GaussianDistribution(0,quark_dist_width);
+    gaussDist = new GaussianDistribution(0, quark_dist_width);
 
   gaussCal = NULL;
   entropy_gaussian_width = 0.0;
@@ -338,7 +338,17 @@ int MCnucl::getBinaryCollision()
         {
           participant.push_back(new Participant(nucl1[i],1));
           if(CCFluctuationModel > 5)
-             participant.back()->setfluctfactor(sampleFluctuationFactorforParticipant());
+          {
+            if(shape_of_entropy == 3)
+            {
+              double f1 = sampleFluctuationFactorforParticipant();
+              double f2 = sampleFluctuationFactorforParticipant();
+              double f3 = sampleFluctuationFactorforParticipant();
+              participant.back()->getParticle()->setfluctfactorQuarks(f1,f2,f3);
+            }
+            else
+              participant.back()->setfluctfactor(sampleFluctuationFactorforParticipant());
+          }
           mapping_table1[i] = participant.size()-1;
         }
         nucl2[j]->setNumberOfCollision();
@@ -347,7 +357,17 @@ int MCnucl::getBinaryCollision()
         {
           participant.push_back(new Participant(nucl2[j],2));
           if(CCFluctuationModel > 5)
-             participant.back()->setfluctfactor(sampleFluctuationFactorforParticipant());
+          {
+            if(shape_of_entropy == 3)
+            {
+              double f1 = sampleFluctuationFactorforParticipant();
+              double f2 = sampleFluctuationFactorforParticipant();
+              double f3 = sampleFluctuationFactorforParticipant();
+              participant.back()->getParticle()->setfluctfactorQuarks(f1,f2,f3);
+            }
+            else
+              participant.back()->setfluctfactor(sampleFluctuationFactorforParticipant());
+          }
           mapping_table2[j] = participant.size()-1;
         }
         // Take care of binary collision registration:
@@ -770,17 +790,25 @@ void MCnucl::setDensity(int iy, int ipt)
                {
                    double yg = Ymin + jr*dy;
                    double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
-                   if (shape_of_nucleons==1) // "Checker" nucleons:
+                   if (shape_of_entropy==1) // "Checker" nucleons:
                    {
                      if(dc>dsq) continue;
                      double areai = 10.0/siginNN;
                      rhop[ir][jr] += fluctfactor*areai;
                    }
-                   else if (shape_of_nucleons>=2 && shape_of_nucleons<=9) // Gaussian nucleons:
+                   else if (shape_of_entropy>=2 && shape_of_entropy<=9) // Gaussian nucleons:
                    {
                      // skip distant nucleons, speeds things up; one may need to relax
                      if (dc>dc_sq_max_gaussian) continue;
-                     double density = GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2.*entropy_gaussian_width_sq)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                     double density;
+                     if (shape_of_entropy == 3)
+                     {
+                        density = participant[ipart]->getParticle()->getInternalStructDensity(xg,yg,quark_dist_width,gaussDist); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                     }
+                     else
+                     {
+                        density = GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2.*entropy_gaussian_width_sq)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                     }
                      rhop[ir][jr] += fluctfactor*density;
                    }
                }
@@ -829,12 +857,12 @@ void MCnucl::setDensity(int iy, int ipt)
                  {
                      double yg = Ymin + jr*dy;
                      double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
-                     if (shape_of_nucleons==1)
+                     if (shape_of_entropy==1)
                      {
                          if(dc <= dsq) 
                              tab[ir][jr] += fluctfactor*(10.0/siginNN)*(Alpha + (1.-Alpha)*binaryCollision[icoll]->additional_weight); // second part in the paranthesis is for Uli-Glb model
                      }
-                     else if (shape_of_nucleons>=2 && shape_of_nucleons<=9)
+                     else if (shape_of_entropy>=2 && shape_of_entropy<=9)
                      {
                          if (dc <= dc_sq_max_gaussian)
                              tab[ir][jr] += fluctfactor*GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2*entropy_gaussian_width_sq))*(Alpha + (1.-Alpha)*binaryCollision[icoll]->additional_weight); // this density is normalized to 1, to be consisitent with the disk-like treatment; second part in the last parathesis is for Uli-Glb model
