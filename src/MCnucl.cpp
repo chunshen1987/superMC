@@ -807,9 +807,9 @@ void MCnucl::setDensity(int iy, int ipt)
                      }
                      else
                      {
-                        density = GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2.*entropy_gaussian_width_sq)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                        density = fluctfactor*GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2.*entropy_gaussian_width_sq)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
                      }
-                     rhop[ir][jr] += fluctfactor*density;
+                     rhop[ir][jr] += density;
                    }
                }
             }

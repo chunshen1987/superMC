@@ -3,11 +3,11 @@
 ###############################################
 
 # Model Optns           
-which_mc_model = 1        # (1) MC-CGC 
+which_mc_model = 5        # (1) MC-CGC 
                           # (5) MC-Glb            
 
 # Sub-Model Optns                 
-sub_model = 7             # CGC-> (7) KLN model model described in
+sub_model = 1             # CGC-> (7) KLN model model described in
                           # CGC-> (100) rcbk model described in
                           # Glb-> (1) WN entropy deposited at WN positions. 
                           # Glb-> (2) WN entropy deposited (fractionally) amongst 
@@ -23,7 +23,7 @@ tmax_subdivision = 3      # Its reciprocal gives the step used to generate the T
 
 
 # Glauber Optns
-alpha = 0.118             # Alpha defining WN and BC mixture: (1-alpha)/2*WN + alpha*BC
+alpha = 0.0             # Alpha defining WN and BC mixture: (1-alpha)/2*WN + alpha*BC
 glb_entropy_width = 0.5   # User specified gaussian width for the deposition of entropy 
                           # in the Glauber model 
 
@@ -44,6 +44,7 @@ shape_of_nucleons = 2     # (1) Disk-like nucleons with width given by sigmaNN
 
 shape_of_entropy = 2      # (2) Normal Gaussian nucleons
                           # (3) valence quark substructure 
+quark_distribution_width = 0.2  # valence quark entropy deposition width
 
 gaussian_lambda = 1.27    # 3-> Parameter for energy dependent gaussian width
 gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
@@ -51,24 +52,24 @@ gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
 
 # Collision Optns
 ecm = 2760                # Beam Energy sqrt(s) in GeV
-bmin = 5.24                  # Minimum sampled impact parameter
-bmax = 10.05                  # Maximum sampled impact parameter
-Npmin = 100                 # Minimum participant nucleon cut
-Npmax = 300              # Maximum participant nucleon cut
+bmin = 0.0                  # Minimum sampled impact parameter
+bmax = 15.0                  # Maximum sampled impact parameter
+Npmin = 1                 # Minimum participant nucleon cut
+Npmax = 500              # Maximum participant nucleon cut
 
-cutdSdy = 1               # cut centrality with additional requirements on total entropy density (without normalization factor)
+cutdSdy = 0               # cut centrality with additional requirements on total entropy density (without normalization factor)
 cutdSdy_lowerBound =  593.51          # lower bound of the allowed total entropy density
 cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy density
 
 
 # Monte Carlo Optns
-nev = 1000               # Number of collision events simulated
-randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
+nev = 1               # Number of collision events simulated
+randomSeed = 1           # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off
 
 # Operation Mode Optns
-operation = 3             # (1) Generate n transverse density profiles for n events 
+operation = 1             # (1) Generate n transverse density profiles for n events 
                           # (input for event-by-event hydro)
                           # (2) Generate n transverse density profiles for n events 
                           # and their corresponding binary collision table and eccentricities
