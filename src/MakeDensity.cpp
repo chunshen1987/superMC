@@ -1960,6 +1960,8 @@ void MakeDensity::generateEccTable(int nevent)
 void MakeDensity::dumpEccentricities(char* base_filename, double*** density, const int iy, int from_order, int to_order, double Npart_current, double Nbin_current, double b)
 // calculate and output eccentricities
 {
+    int max_order = 10;
+    double eps = 1e-15;
     bool deformedFlag = false;
     if(paraRdr->getVal("proj_deformed") == 1 or paraRdr->getVal("targ_deformed") == 1) 
       deformedFlag = true;
@@ -1967,9 +1969,19 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     char buffer[200];
     double x,y,r,theta;
     int order;
-    double  xc, yc, total,
-            *mom_real = new double[to_order+1], *mom_imag = new double[to_order+1], *norm = new double[to_order+1], // norm is <r^2>
-            *momp_real = new double[to_order+1], *momp_imag = new double[to_order+1], *normp = new double[to_order+1]; // normp is <r^n>
+    double  xc, yc, total;
+    double *mom_real = new double[max_order];
+    double *mom_imag = new double[max_order];
+    double *norm = new double[max_order]; // norm is <r^2>
+    double *momp_real = new double[max_order];
+    double *momp_imag = new double[max_order];
+    double *normp = new double[max_order]; // normp is <r^n>
+    // initialize:
+    for(int i = 0; i < max_order; i++)
+    {
+        mom_real[i]=0.0; mom_imag[i]=0.0; norm[i]=0.0;
+        momp_real[i]=0.0; momp_imag[i]=0.0; normp[i]=0.0;
+    }
 
     // center of mass:
     xc = 0.0; yc = 0.0; total = 0.0;
@@ -2022,10 +2034,6 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     // for eccentricity:
     for (order=from_order; order<=to_order; order++)
     {
-        // initialize:
-        mom_real[order]=0.0; mom_imag[order]=0.0; norm[order]=0.0;
-        momp_real[order]=0.0; momp_imag[order]=0.0; normp[order]=0.0;
-
         // calculate numerator and denominators:
         for(int i=0;i<Maxx;i++)
         for(int j=0;j<Maxy;j++)
@@ -2050,10 +2058,10 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
         }
 
         // take ratio; note that the minus sign is just a convention
-        mom_real[order] = -mom_real[order]/norm[order];
-        mom_imag[order] = -mom_imag[order]/norm[order];
-        momp_real[order] = -momp_real[order]/normp[order];
-        momp_imag[order] = -momp_imag[order]/normp[order];
+        mom_real[order] = -mom_real[order]/(norm[order] + eps);
+        mom_imag[order] = -mom_imag[order]/(norm[order] + eps);
+        momp_real[order] = -momp_real[order]/(normp[order] + eps);
+        momp_imag[order] = -momp_imag[order]/(normp[order] + eps);
         // and output:
         sprintf(buffer, base_filename, order);
         of.open(buffer, std::ios_base::app);
@@ -2093,6 +2101,37 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
         }
         of.close();
     }
+
+    sprintf(buffer, base_filename, max_order);
+    of.open(buffer, std::ios_base::app);
+    for (order=1; order < max_order; order++)
+    {
+        of  << setprecision(8) << setw(16) <<  mom_real[order]
+            << setprecision(8) << setw(16) <<  mom_imag[order]
+            << setprecision(8) << setw(16) <<  momp_real[order]
+            << setprecision(8) << setw(16) <<  momp_imag[order];
+    }
+    if(deformedFlag)
+    {
+        of  << setprecision(5) << setw(10)  <<  Npart_current
+            << setprecision(5) << setw(10) <<  Nbin_current
+            << setprecision(8) << setw(16) <<  total*dx*dy // integrated profile measure
+            << setprecision(8) << setw(16) <<  b
+            << setprecision(8) << setw(16) <<  mc->lastCx1
+            << setprecision(8) << setw(16) <<  mc->lastPh1
+            << setprecision(8) << setw(16) <<  mc->lastCx2
+	      << setprecision(8) << setw(16) <<  mc->lastPh2
+            << endl;
+    }
+    else
+    {
+        of  << setprecision(5) << setw(10) <<  Npart_current
+            << setprecision(5) << setw(10) <<  Nbin_current
+            << setprecision(8) << setw(16) <<  total*dx*dy // integrated profile measure
+            << setprecision(8) << setw(16) <<  b
+            << endl;
+    }
+    of.close();
 
     delete[] mom_real, mom_imag, norm, momp_real, momp_imag, normp;
 }
