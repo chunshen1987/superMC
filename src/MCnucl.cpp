@@ -86,21 +86,20 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
 
   gaussCal = NULL;
   entropy_gaussian_width = 0.0;
-  if (shape_of_nucleons>=2 && shape_of_nucleons<=9) // Gaussian nucleons
-  {
-    paraRdr->setVal("siginNN", siginNN);
-    gaussCal = new GaussianNucleonsCal(paraRdr); // for Gaussian-shaped nucleons calculations
-    entropy_gaussian_width = gaussCal->entropy_gaussian_width;
-  }
+  paraRdr->setVal("siginNN", siginNN);
+  gaussCal = new GaussianNucleonsCal(paraRdr); // for Gaussian-shaped nucleons calculations
+  entropy_gaussian_width = gaussCal->entropy_gaussian_width;
   entropy_gaussian_width_sq = entropy_gaussian_width*entropy_gaussian_width;
 
   // adding quark substructure Fluctuations (from Kevin Welsh)
   shape_of_entropy = paraRdr->getVal("shape_of_entropy"); //For separation of entropy to collision detection (Kevin)
-  quark_width = paraRdr->getVal("quark_width");
-  double nucleon_width = gaussCal->width;
-  quark_dist_width = sqrt(nucleon_width*nucleon_width - quark_width*quark_width);
   if(shape_of_entropy==3)
+  {
+    quark_width = paraRdr->getVal("quark_width");
+    double nucleon_width = gaussCal->width;
+    quark_dist_width = sqrt(nucleon_width*nucleon_width - quark_width*quark_width);
     gaussDist = new GaussianDistribution(0, quark_dist_width);
+  }
 
   dndyTable=0;    // lookup table pointers not valid yet
   dndydptTable=0;

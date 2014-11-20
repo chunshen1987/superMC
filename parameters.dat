@@ -35,7 +35,7 @@ targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see Ove
 
 
 # Nucleon Optns
-shape_of_nucleons = 2     # (1) Disk-like nucleons with width given by sigmaNN 
+shape_of_nucleons = 1     # (1) Disk-like nucleons with width given by sigmaNN 
                           # (2) Gaussian nucleons with width given by sigmaNN
                           # (3) Gaussian nucleons with energy dependent width calc
                           # by Heinz and Moreland (http://arxiv.org/abs/1108.5379)
@@ -85,9 +85,9 @@ average_from_order = 2    # 3-> Generate rotated and averaged profiles for each 
                           # beginning with this order
 average_to_order = 3      # 3-> Generate rotated and averaged profiles for each order 
                           # ending with this order
-ecc_from_order = 2        # 9-> Calculate the eccentricity of the profile for each order 
+ecc_from_order = 1        # 9-> Calculate the eccentricity of the profile for each order 
                           # beginning with this order
-ecc_to_order = 3          # 9-> Calculate the eccentricity of the profile for each order 
+ecc_to_order = 9          # 9-> Calculate the eccentricity of the profile for each order 
                           # ending with this order
 
 # Print to File Optns
