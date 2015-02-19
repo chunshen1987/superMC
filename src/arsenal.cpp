@@ -608,7 +608,7 @@ double qiu_simpsonsRel(double (*f)(double), // ptr to function
     }
     else currentRecursionDepth++;
 
-  } while (abs(sum_current-sum_previous)/(sum_current-sum_previous)>epsilon);
+  } while (abs(sum_current-sum_previous)/(sum_current+sum_previous)>epsilon);
 
   return sum_current;
 }
