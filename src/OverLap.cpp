@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 
 #include "MathBasics.h"
 #include "OverLap.h"
@@ -185,8 +186,10 @@ void OverLap::readin_nucleon_positions()
    }
    else if(atomic == 208)
    {
-      int temp = rand() % 10 + 1;
-      filename << "tables/pb208-" << temp << ".dat";
+      //int temp = rand() % 10 + 1;
+      //filename << "tables/pb208-" << temp << ".dat";
+      int temp = 1;
+      filename << "tables/pb208-1.dat";
       n_configuration = 10000;
    }
 
@@ -293,7 +296,6 @@ void OverLap::getDeformRandomWS(double& x, double& y, double& z)
 void OverLap::get_nucleon_position_with_NN_correlation(double **nucleon_ptr)
 {
    int i_configuration = rand() % n_configuration;  // pick the configuration
-   cout << "taking configuration: " << i_configuration << endl;
    double** temp_nucleus = new double* [atomic];
    for(int ia = 0; ia < atomic; ia++)
       temp_nucleus[ia] = new double [3];
@@ -306,7 +308,6 @@ void OverLap::get_nucleon_position_with_NN_correlation(double **nucleon_ptr)
       ycm += nucleon_pos_array[i_configuration][ia][1];
       zcm += nucleon_pos_array[i_configuration][ia][2];
    }
-   cout << "CMS: " << xcm/atomic << "  " << ycm/atomic << "  " << zcm/atomic << endl;
    for(int ia = 0; ia < atomic; ia++)
    {
       temp_nucleus[ia][0] = nucleon_pos_array[i_configuration][ia][0] - xcm/atomic;
