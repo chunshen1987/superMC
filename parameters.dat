@@ -28,8 +28,8 @@ glb_entropy_width = 0.5   # User specified gaussian width for the deposition of 
                           # in the Glauber model 
 
 # Nucleus Optns
-Aproj = 208               # Projectile atomic number
-Atarg = 208               # Target atomic number
+Aproj = 27               # Projectile atomic number
+Atarg = 197               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
 
