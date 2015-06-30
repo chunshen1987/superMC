@@ -8,6 +8,8 @@
 #include "arsenal.h"
 
 #include "GaussianNucleonsCal.h"
+#include "Particle.h"
+#include "Participant.h"
 
 #define EulerGamma 0.5772156649
 
@@ -50,7 +52,7 @@ GaussianNucleonsCal::GaussianNucleonsCal(ParameterReader* paraRdr_in)
 
 
 //----------------------------------------------------------------------
-bool GaussianNucleonsCal::testCollision(double b)
+bool GaussianNucleonsCal::testSmoothCollision(double b)
 // Simulate if there is a collision at impact parameter b. The size of
 // nucleons are read from those public variables.
 {
@@ -60,6 +62,36 @@ bool GaussianNucleonsCal::testCollision(double b)
     return false;
 }
 
+/* Integrate Tn1*Tn2 to get Tnn, the nuclear overlap. */
+bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
+{
+    double dxy = 0.1;
+    double spaceBuffer = 4;
+    double xmin = min(me->getX(),you->getX())-spaceBuffer;
+    double xmax = max(me->getX(),you->getX())+spaceBuffer;
+    double ymin = min(me->getY(),you->getY())-spaceBuffer;
+    double ymax = max(me->getY(),you->getY())+spaceBuffer;
+    double xg, yg;
+    
+    double overlap = 0;
+    xg = xmin;
+    while(xg <= xmax)
+    {
+        yg=ymin;
+        while(yg <= ymax)
+        {
+            overlap+=(me->getFluctuatedTn(xg,yg))*
+                    (you->getFluctuatedTn(xg,yg))*dxy*dxy;
+            yg+=dxy;
+        }
+        xg+=dxy;
+    }
+    cout << overlap << endl;
+    if(drand48() < 1.-exp(-sigma_gg*overlap))
+        return true;
+    else
+        return false;
+}
 
 //-----------------------------------------------------------------------
 double GaussianNucleonsCal::get2DHeightFromWidth(double w)

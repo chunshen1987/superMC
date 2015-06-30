@@ -76,6 +76,7 @@ protected:
 
     // add by Kelvin Welsh
     int shape_of_entropy;
+    int forceCollisionCriterion;
     //quark_width^2 + quark_dist_width^2 = nucleon_width^2
     double quark_dist_width; // quark_dist_width: the width of the Gaussian for the probability distribution of valence quark inside nucleon
     double quark_width; // quark_width: the width of the Gaussian for the entropy (energy) deposition for each quark 
@@ -116,6 +117,7 @@ public:
     void getTA2();
     void calculate_rho_binary();    // calculate binary collision density in the transverse plane
     int  getBinaryCollision();
+    void addParticipant(Particle* part);
     int  CentralityCut();
     void setCentralityCut(int Nmin, int Nmax)
                 {NpartMax=Nmax; NpartMin=Nmin;}
@@ -128,7 +130,7 @@ public:
     void dumpdNdyTable4Col(char filename[], double *** dNdyTable, const int iy);
     void dumpdNdydptTable5Col(char filename[], double **** dNdydptTable, const int iy);    
     double getSigEff();
-    int hit(double r);
+    int hit(Particle* part1, Particle* part2);
     static double Angle(const double x,const double y);
 
     void dumpparticipantTable(char filename[]);

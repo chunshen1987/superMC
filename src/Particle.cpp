@@ -7,40 +7,35 @@
 #include "GaussianDistribution.h"
 using namespace std;
 
-Particle::Particle(double x0, double y0, double z0)
+Particle::Particle(double x0, double y0, double z0, double nWidth, double qWidth)
 {
    x = x0; 
    y = y0; 
    z = z0;
    numberOfCollision=0;
-   
-   QuarkGen = false;
-   flucfactors[0] = 1;
-   flucfactors[1] = 1;
-   flucfactors[2] = 1;
+   nucleonWidth = nWidth;
+   quarkWidth = qWidth;
+}
+
+Particle::Particle(Particle* inPart)
+{
+    x = inPart->getX();
+    y = inPart->getY();
+    z = inPart->getZ();
+    numberOfCollision=0;
+    nucleonWidth = inPart->getWidth();
+    quarkWidth = inPart->getQuarkWidth();
+    nucl = inPart->getNucl();
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            ValenceQuarks[i][j] = (inPart->ValenceQuarks[i][j]);
 }
 
 Particle::~Particle()
 {
 }
 
-double Particle::getInternalStructDensity(double xg, double yg, double quarkWidth, GaussianDistribution *gaussDist)
-{
-   double dens = 0;
-
-   if(!QuarkGen)
-     getQuarkPos(ValenceQuarks,gaussDist);
-   
-   double d;
-   for(int i(0);i<3;i++)
-   {
-   	d = pow(ValenceQuarks[i][0]+x-xg,2)+pow(ValenceQuarks[i][1]+y-yg,2); //The squared distance between the Quark and the grid
-   	dens += flucfactors[i]*(1./(2*M_PI*quarkWidth*quarkWidth))*exp(-d/(2*quarkWidth*quarkWidth))/3; //Divide a total of 1 density between 3 quarks
-   }
-   return dens;
-}
-
-void Particle::getQuarkPos(double Q[][3], GaussianDistribution *gaussDist)
+void Particle::generateQuarkPositions()
 {
    double x, y;
 
@@ -49,19 +44,37 @@ void Particle::getQuarkPos(double Q[][3], GaussianDistribution *gaussDist)
    {
      x = gaussDist->rand();
      y = gaussDist->rand();
-
-     Q[i][0] = x;
-     Q[i][1] = y;
-     
+     ValenceQuarks[i][0] = x;
+     ValenceQuarks[i][1] = y;
      i++;
    }
-
-   QuarkGen = true;
+   cout << endl;
 }
 
-void Particle::setfluctfactorQuarks(double f1, double f2, double f3)
+
+/* Returns the fluctuated nuclear thickness at a given 
+ * point in space. Ignores multiplicity fluctuations. */
+double Particle::getFluctuatedTn(double xg, double yg)
 {
-   flucfactors[0] = f1;
-   flucfactors[1] = f2;
-   flucfactors[2] = f3;
+   double dens = 0;
+   
+   double d;
+   for(int i(0);i<3;i++)
+   {
+        //The squared distance between the Quark and the grid
+   	d = pow(ValenceQuarks[i][0]+x-xg,2)+pow(ValenceQuarks[i][1]+y-yg,2); 
+        //Divide a total of 1 density between 3 quarks
+   	dens += (1./(2*M_PI*quarkWidth*quarkWidth))*exp(-d/(2*quarkWidth*quarkWidth))/3; 
+   }
+   return dens;
+}
+
+/* Returns the nuclear thickness at a given 
+ * point in space based on a Gaussian representation.
+ * Ignores multiplicity fluctuations. */
+double Particle::getSmoothTn(double xg, double yg)
+{
+    double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
+    return (1/(2*nucleonWidth*nucleonWidth))*
+            exp(-r*r/(2*nucleonWidth*nucleonWidth));
 }

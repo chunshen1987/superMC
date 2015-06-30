@@ -54,3 +54,8 @@ double GaussianDistribution::invCDF(double y)
    return(x);
 }
 
+double GaussianDistribution::eval(double r)
+{
+    return (1/sqrt(2*M_PI*sigma*sigma))*exp(-(r-mu)*(r-mu)/(2*sigma*sigma));
+}
+

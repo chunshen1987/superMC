@@ -88,18 +88,16 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   entropy_gaussian_width = 0.0;
   paraRdr->setVal("siginNN", siginNN);
   gaussCal = new GaussianNucleonsCal(paraRdr); // for Gaussian-shaped nucleons calculations
-  entropy_gaussian_width = gaussCal->entropy_gaussian_width;
+  entropy_gaussian_width = gaussCal->width;
   entropy_gaussian_width_sq = entropy_gaussian_width*entropy_gaussian_width;
 
   // adding quark substructure Fluctuations (from Kevin Welsh)
-  shape_of_entropy = paraRdr->getVal("shape_of_entropy"); //For separation of entropy to collision detection (Kevin)
-  if(shape_of_entropy==3)
-  {
-    quark_width = paraRdr->getVal("quark_width");
-    double nucleon_width = gaussCal->width;
-    quark_dist_width = sqrt(nucleon_width*nucleon_width - quark_width*quark_width);
-    gaussDist = new GaussianDistribution(0, quark_dist_width);
-  }
+  shape_of_entropy = paraRdr->getVal("shape_of_entropy");
+  quark_width = paraRdr->getVal("quark_width");
+  gaussDist = new GaussianDistribution(0,entropy_gaussian_width);
+ // gaussDist = new GaussianDistribution(0,
+ //         sqrt(entropy_gaussian_width*entropy_gaussian_width-quark_width*quark_width));
+  forceCollisionCriterion = paraRdr->getVal("collision_criterion");
 
   dndyTable=0;    // lookup table pointers not valid yet
   dndydptTable=0;
@@ -309,7 +307,7 @@ void MCnucl::generateNucleus(double b, OverLap* proj, OverLap* targ)
     {
       nucl2.push_back(new Particle(-b/2.0, 0.0, 0.0)); // shift along x-axis
     }
-    if (nn==2) // in the case of a deuteron (added by Brian Baker)
+    else if (nn==2) // in the case of a deuteron (added by Brian Baker)
     {
       double x1, y1, z1, x2, y2, z2;
          
@@ -402,7 +400,18 @@ void MCnucl::generateNucleus(double b, OverLap* proj, OverLap* targ)
        }
     }
   }
-
+  
+  // Set the widths of the nucleons.
+  for(int i = 0; i < nucl1.size(); i++){
+      nucl1[i]->setWidth(entropy_gaussian_width,quark_width);
+      nucl1[i]->setNucl(1);
+      nucl1[i]->setGaussDist(gaussDist);
+  }
+  for(int i = 0; i < nucl2.size(); i++){
+      nucl2[i]->setWidth(entropy_gaussian_width,quark_width);
+      nucl2[i]->setNucl(2);
+      nucl2[i]->setGaussDist(gaussDist);
+  }
 }
 
 
@@ -410,70 +419,57 @@ void MCnucl::generateNucleus(double b, OverLap* proj, OverLap* targ)
 // --- find participants from proj/target and the number of binary coll. ---
 int MCnucl::getBinaryCollision()
 {
-  int* mapping_table1 = new int[(int)nucl1.size()]; // it stores the index of the nucleon in the participant array if it is wounded; otherwise it's set to -1 (next line)
-  for (int i=0; i<(int)nucl1.size(); i++) mapping_table1[i]=-1; // -1 means it's not wounded
-  int* mapping_table2 = new int[(int)nucl2.size()];
-  for (int i=0; i<(int)nucl2.size(); i++) mapping_table2[i]=-1; // -1 means it's not wounded
   // decide collision pairs
   Ncoll=0;
-  for(int i=0;i<(int)nucl1.size();i++) { // loop over proj. nucleons
-    double x1 = nucl1[i]->getX();
-    double y1 = nucl1[i]->getY();
-    for(int j=0;j<(int)nucl2.size();j++) { // loop over targ. nucleons
-      double x2 = nucl2[j]->getX();
-      double y2 = nucl2[j]->getY();
-      double dc = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
-      if(hit(sqrt(dc))) {
-        Ncoll++;
-        // Take care of wounded nucleons registration:
-        nucl1[i]->setNumberOfCollision();
-        // push targ. nucleon j to participant stack (only once though)
-        if(nucl1[i]->getNumberOfCollision()==1)
-        {
-          participant.push_back(new Participant(nucl1[i],1));
-          if(CCFluctuationModel > 5)
+  
+  // Handling for the intrinsic nucleus case
+  if(nucl1.size() == 0)
+  {
+      cout << "Projectile missing. Dumping target entropy." << endl;
+      for(int i = 0; i < (int)nucl2.size(); i++)
+          addParticipant(nucl2[i]);
+  }
+  else if(nucl2.size() == 0)
+  {
+      cout << "Target missing. Dumping projectile entropy." << endl;
+      for(int i = 0; i < (int)nucl1.size(); i++)
+          addParticipant(nucl1[i]);
+  }
+  else
+  {
+      // If both nuclei are populated, then do the 
+      // normal thing.
+    for(int i=0;i<(int)nucl1.size();i++) { // loop over proj. nucleons
+      double x1 = nucl1[i]->getX();
+      double y1 = nucl1[i]->getY();
+      for(int j=0;j<(int)nucl2.size();j++) { // loop over targ. nucleons
+        double x2 = nucl2[j]->getX();
+        double y2 = nucl2[j]->getY();
+        double dc = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);
+        if(hit(nucl1[i],nucl2[i])) {
+          Ncoll++;
+          // Take care of wounded nucleons registration:
+          nucl1[i]->setNumberOfCollision();
+          nucl2[j]->setNumberOfCollision();
+          // push targ. nucleon j to participant stack (only once though)
+          if(nucl1[i]->getNumberOfCollision()==1)
           {
-            if(shape_of_entropy == 3)
-            {
-              double f1 = sampleFluctuationFactorforParticipant();
-              double f2 = sampleFluctuationFactorforParticipant();
-              double f3 = sampleFluctuationFactorforParticipant();
-              participant.back()->getParticle()->setfluctfactorQuarks(f1,f2,f3);
-            }
-            else
-              participant.back()->setfluctfactor(sampleFluctuationFactorforParticipant());
+              addParticipant(nucl1[i]);
+              if(which_mc_model==5 && sub_model==2)
+                  participant.back()->who_hit_me.push_back(binaryCollision.size());
           }
-          mapping_table1[i] = participant.size()-1;
-        }
-        nucl2[j]->setNumberOfCollision();
-        // push targ. nucleon j to participant stack (only once though)
-        if(nucl2[j]->getNumberOfCollision()==1)
-        {
-          participant.push_back(new Participant(nucl2[j],2));
-          if(CCFluctuationModel > 5)
+          // push targ. nucleon j to participant stack (only once though)
+          if(nucl2[j]->getNumberOfCollision()==1)
           {
-            if(shape_of_entropy == 3)
-            {
-              double f1 = sampleFluctuationFactorforParticipant();
-              double f2 = sampleFluctuationFactorforParticipant();
-              double f3 = sampleFluctuationFactorforParticipant();
-              participant.back()->getParticle()->setfluctfactorQuarks(f1,f2,f3);
-            }
-            else
-              participant.back()->setfluctfactor(sampleFluctuationFactorforParticipant());
+              addParticipant(nucl2[j]);
+              if(which_mc_model==5 && sub_model==2)
+                  participant.back()->who_hit_me.push_back(binaryCollision.size());
           }
-          mapping_table2[j] = participant.size()-1;
-        }
-        // Take care of binary collision registration:
-        binaryCollision.push_back(new CollisionPair((x1+x2)/2,(y1+y2)/2));
-        if(CCFluctuationModel > 5)
-           binaryCollision.back()->setfluctfactor(sampleFluctuationFactorforBinaryCollision());
-        if (which_mc_model==5 && sub_model==2) // need to know which binary collision happened to which participants
-        {
-          int current_binaryCollision_index = binaryCollision.size()-1;
-          // record collisions to the current participants
-          participant[mapping_table1[i]]->who_hit_me.push_back(current_binaryCollision_index);
-          participant[mapping_table2[j]]->who_hit_me.push_back(current_binaryCollision_index);
+
+          // Take care of binary collision registration:
+          binaryCollision.push_back(new CollisionPair((x1+x2)/2,(y1+y2)/2));
+          if(CCFluctuationModel > 5)
+             binaryCollision.back()->setfluctfactor(sampleFluctuationFactorforBinaryCollision());
         }
       }
     }
@@ -497,21 +493,36 @@ int MCnucl::getBinaryCollision()
   Npart1=0;
   Npart2=0;
   for(int i=0;i<npart;i++) {
-    if(participant[i]->isNucl() == 1) Npart1++;
-    if(participant[i]->isNucl() == 2) Npart2++;
+    if(participant[i]->getNucl() == 1) Npart1++;
+    if(participant[i]->getNucl() == 2) Npart2++;
   }
   if(npart != Npart1+Npart2) {
     cout << " something is wrong with # of participants " << endl;
+    cout << "Npart1: " << Npart1 << " Npart2: " << Npart2 << " npart: " << npart << endl;
     exit(1);
   }
   //cout << "Npart1=" << Npart1 << ", " << "Npart2=" << Npart2 << endl;
   Npart1 /= overSample;
   Npart2 /= overSample;
 
-  delete[] mapping_table1;
-  delete[] mapping_table2;
+  return (nucl1.size()==0 || nucl2.size()==0) ? 1 : binaryCollision.size();
+}
 
-  return binaryCollision.size();
+void MCnucl::addParticipant(Particle* part)
+{
+    participant.push_back(new Participant(part));
+    if(CCFluctuationModel > 5)
+    {
+      if(shape_of_entropy == 3)
+      {
+        double f1 = sampleFluctuationFactorforParticipant();
+        double f2 = sampleFluctuationFactorforParticipant();
+        double f3 = sampleFluctuationFactorforParticipant();
+        participant.back()->setQuarkFluctfactor(f1,f2,f3);
+      }
+      else
+        participant.back()->setFluctfactor(sampleFluctuationFactorforParticipant());
+    }
 }
 
 /* Original
@@ -565,21 +576,27 @@ int MCnucl::getBinaryCollision()
 // old stuff
 //  (YN): determine whether nucleons separated by distance dr2 interact or not
 // interaction probability at impact param. b is 1-exp(-sigeff(s)*Tpp(b))
-int MCnucl::hit(double b)
+int MCnucl::hit(Particle* part1, Particle* part2)
 {
-  if (shape_of_nucleons==1) // disc
-    return (b*b<=dsq) ? 1 : 0;  // |r1-r2|^2 < sigma_in(s) / pi
-  else if (shape_of_nucleons>=2 && shape_of_nucleons<=9) // Gaussian nucleon shape
-    return gaussCal->testCollision(b);
-  else
-  {
-    cout << "MCnucl::hit: you shouldn't come to this line. Check your parameters" << endl;
-    exit(-1);
-  }
+    double b = sqrt((part2->getX()-part1->getX())*(part2->getX()-part1->getX())
+                +(part2->getY()-part1->getY())*(part2->getY()-part1->getY()));
+    
+    switch(forceCollisionCriterion)
+    {
+        case 1:
+            disk:
+            return (b*b<=dsq) ? 1 : 0;
+        case 2:
+            gauss:
+            return gaussCal->testSmoothCollision(b);
+        default:
+            if(shape_of_nucleons == 1)
+                goto disk;
+            if(shape_of_entropy == 2)
+                goto gauss;
+            return gaussCal->testFluctuatedCollision(part1,part2);
+    }
 }
-
-
-
 // checks whether Npart1+Npart2 is in the desired range
 //   ATTN: Npart1, Npart2 need to be initialized through getBinaryCollision() !
 int MCnucl::CentralityCut()
@@ -645,11 +662,11 @@ void MCnucl::getTA2()
            if (shape_of_nucleons==1) // "Checker" nucleons:
            {
              if(dc>dsq) continue;
-             if(participant[ipart]->isNucl() == 1)
+             if(participant[ipart]->getNucl() == 1)
              {
                  TA1[ix][iy] += areai;
              } 
-             else if(participant[ipart]->isNucl() == 2)
+             else if(participant[ipart]->getNucl() == 2)
              {
                  TA2[ix][iy] += areai;
              }
@@ -664,11 +681,11 @@ void MCnucl::getTA2()
              // skip distant nucleons, speeds things up; one may need to relax
              if (dc>dc_sq_max_gaussian) continue;
              double density = GaussianNucleonsCal::get2DHeightFromWidth(nucleon_width)*exp(-dc/(2.*nucleon_width*nucleon_width)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
-             if(participant[ipart]->isNucl() == 1)
+             if(participant[ipart]->getNucl() == 1)
              {
                  TA1[ix][iy] += density;
              }
-             else if(participant[ipart]->isNucl() == 2)
+             else if(participant[ipart]->getNucl() == 2)
              {
                  TA2[ix][iy] += density;
              }
@@ -862,13 +879,10 @@ void MCnucl::setDensity(int iy, int ipt)
       if (sub_model==1) // "classical" Glb
       {
           //rhop = (TA1[ir][jr]+TA2[ir][jr])*(1.0-Alpha)/2;
-          double fluctfactor = 1.0;
           for(unsigned int ipart=0; ipart<participant.size(); ipart++) 
           {
             double x = part_x[ipart];
             double y = part_y[ipart];
-            if(CCFluctuationModel > 5)
-               fluctfactor = participant[ipart]->getfluctfactor();
             int x_idx_left = (int)((x - d_max - Xmin)/dx);
             int x_idx_right = (int)((x + d_max - Xmin)/dx);
             int y_idx_left = (int)((y - d_max - Ymin)/dy);
@@ -877,6 +891,8 @@ void MCnucl::setDensity(int iy, int ipt)
             x_idx_right = min(Maxx, x_idx_right);
             y_idx_left = max(0, y_idx_left);
             y_idx_right = min(Maxy, y_idx_right);
+          
+            
             for(int ir = x_idx_left; ir < x_idx_right; ir++)
             {
                double xg = Xmin + ir*dx;
@@ -886,22 +902,26 @@ void MCnucl::setDensity(int iy, int ipt)
                    double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
                    if (shape_of_entropy==1) // "Checker" nucleons:
                    {
-                     if(dc>dsq) continue;
+                     if(dc>dsq) 
+                         continue;
+                     
                      double areai = 10.0/siginNN;
-                     rhop[ir][jr] += fluctfactor*areai;
+                     rhop[ir][jr] += areai*participant[ipart]->getFluctfactor();
                    }
                    else if (shape_of_entropy>=2 && shape_of_entropy<=9) // Gaussian nucleons:
                    {
                      // skip distant nucleons, speeds things up; one may need to relax
-                     if (dc>dc_sq_max_gaussian) continue;
+                     if (dc>dc_sq_max_gaussian) 
+                         continue;
+                     
                      double density;
                      if (shape_of_entropy == 3)
                      {
-                        density = participant[ipart]->getParticle()->getInternalStructDensity(xg, yg, quark_width, gaussDist); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                        density = participant[ipart]->getFluctuatedDensity(xg,yg);
                      }
                      else
                      {
-                        density = fluctfactor*GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2.*entropy_gaussian_width_sq)); // width given from GaussianNucleonsCal class, height from the requirement that density should normalized to 1
+                        density = participant[ipart]->getSmoothDensity(xg,yg);
                      }
                      rhop[ir][jr] += density;
                    }
