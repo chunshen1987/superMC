@@ -4,12 +4,11 @@
 #include <ctime>
 #include "stdlib.h"
 
-#include "OverLap.h"
+#include "Nucleus.h"
 #include "arsenal.h"
 
 #include "GaussianNucleonsCal.h"
 #include "Particle.h"
-#include "Participant.h"
 
 #define EulerGamma 0.5772156649
 
@@ -56,6 +55,8 @@ bool GaussianNucleonsCal::testSmoothCollision(double b)
 // Simulate if there is a collision at impact parameter b. The size of
 // nucleons are read from those public variables.
 {
+    cout << "overlap " <<  exp(-b*b/(4.*width*width))/(4.*M_PI*width*width) << endl;
+    cout << 1.-exp( -sigma_gg*exp(-b*b/(4.*width*width))/(4.*M_PI*width*width) ) << endl;
   if (drand48() < 1.-exp( -sigma_gg*exp(-b*b/(4.*width*width))/(4.*M_PI*width*width) ))
     return true;
   else
@@ -65,7 +66,7 @@ bool GaussianNucleonsCal::testSmoothCollision(double b)
 /* Integrate Tn1*Tn2 to get Tnn, the nuclear overlap. */
 bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
 {
-    double dxy = 0.1;
+    double dxy = 0.01;
     double spaceBuffer = 4;
     double xmin = min(me->getX(),you->getX())-spaceBuffer;
     double xmax = max(me->getX(),you->getX())+spaceBuffer;
@@ -86,7 +87,10 @@ bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
         }
         xg+=dxy;
     }
-    cout << overlap << endl;
+    
+    cout << "overlap " << overlap << endl; 
+    cout << 1.-exp(-sigma_gg*overlap) << endl;
+    
     if(drand48() < 1.-exp(-sigma_gg*overlap))
         return true;
     else
@@ -109,7 +113,7 @@ double GaussianNucleonsCal::getSigEff(double siginNN, double width)
   int N2=38;  // # of integration points
   double *xg = new double [N2];
   double *wg = new double [N2];
-  OverLap::Gauss38(0.0,1.0,xg,wg);
+  Nucleus::Gauss38(0.0,1.0,xg,wg);
   double sigin=siginNN*0.1;   // sigma_in(s) [mb --> fm^2]
   
   int ib;

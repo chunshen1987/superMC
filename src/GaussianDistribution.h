@@ -23,7 +23,7 @@ public:
 
     double pdf(double);
     double rand();
-    double invCDF(double y);
+    double invCDF(double);
     double eval(double r);
 };
 

@@ -3,9 +3,8 @@
 #include <vector>
 #include <fstream>
 #include "Particle.h"
-#include "OverLap.h"
+#include "Nucleus.h"
 #include "KLNModel.h"
-#include "Participant.h"
 #include "GlueDensity.h"
 #include "CollisionPair.h"
 #include "Largex.h"
@@ -23,8 +22,9 @@
 class MCnucl
 {
 protected:
-    std::vector<Particle*> nucl1,nucl2;
-    std::vector<Participant*> participant;
+    Nucleus* proj;
+    Nucleus* targ;
+    std::vector<Particle*> participant;
     std::vector<CollisionPair*> binaryCollision;
     std::vector<Spectator*> spectators;
 
@@ -51,7 +51,6 @@ protected:
     double rapMin, rapMax;
     int iptmax;
     int Ncoll, Npart1, Npart2;
-    int Anucl1,Anucl2;
     double Xcm, Ycm, angPart;
     int overSample;
     //double Bnucl;// <R^2>/3 of nucleon for Gaussian shape   // static constant double Bnucl = 0.2959
@@ -78,8 +77,6 @@ protected:
     int shape_of_entropy;
     int forceCollisionCriterion;
     //quark_width^2 + quark_dist_width^2 = nucleon_width^2
-    double quark_dist_width; // quark_dist_width: the width of the Gaussian for the probability distribution of valence quark inside nucleon
-    double quark_width; // quark_width: the width of the Gaussian for the entropy (energy) deposition for each quark 
     GaussianDistribution* gaussDist;
 
     int which_mc_model;
@@ -111,7 +108,7 @@ public:
 
     void setOverSample(int i) {overSample=i;}
     void setRapidity(double y) {rapidity=y;}
-    void generateNucleus(double b, OverLap* proj, OverLap* targ);
+    void generateNuclei(double b);
     void deleteNucleus();
     void setDensity(int iy, int ipt); // ipt<0: no dN/dydpt table used
     void getTA2();

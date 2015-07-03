@@ -15,8 +15,8 @@ GaussianDistribution::GaussianDistribution(double m, double s)
 
 GaussianDistribution::~GaussianDistribution()
 {
-      delete CDF;
-      delete CDF_x;
+     delete CDF;
+     delete CDF_x;
 }
 
 
@@ -42,7 +42,8 @@ double GaussianDistribution::pdf(double x)
 
 double GaussianDistribution::rand()
 {
-	return sampleUsingInvCDF(0.0, 1.0);
+    
+    return sampleUsingInvCDF(0.0, 1.0);
 }
 
 double GaussianDistribution::invCDF(double y)

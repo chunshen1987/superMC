@@ -29,7 +29,7 @@ glb_entropy_width = 0.5   # User specified gaussian width for the deposition of 
 
 # Nucleus Optns
 Aproj = 1               # Projectile atomic number
-Atarg = 0               # Target atomic number
+Atarg = 1               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
 
@@ -37,7 +37,7 @@ include_NN_correlation = 1   # whether or not to include nucleon-nucleon correla
                              # when sample the nucleon position inside the nucleus
 
 # Nucleon Optns
-shape_of_nucleons = 2     # (1) Disk-like nucleons with width given by sigmaNN 
+shape_of_nucleons = 3     # (1) Disk-like nucleons with width given by sigmaNN 
                           # (2) Gaussian nucleons with width given by sigmaNN
                           # (3) Gaussian nucleons with energy dependent width calc
                           # by Heinz and Moreland (http://arxiv.org/abs/1108.5379)
@@ -50,9 +50,9 @@ collision_criterion = 3   # (1) Forces disk-like collision detection
 
 shape_of_entropy = 3      # (2) Normal Gaussian nucleons
                           # (3) valence quark substructure 
-quark_width = 0.2         # valence quark entropy deposition width
+quark_width = 0.1         # valence quark entropy deposition width
 
-gaussian_lambda = 1.27    # 3-> Parameter for energy dependent gaussian width
+gaussian_lambda = 4.14    # 3-> Parameter for energy dependent gaussian width
 gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
 
 
@@ -116,8 +116,8 @@ PT_order = 2              # =1 output the usual entropy/energy density profile; 
 d_PT = 0.1                # Step size of PT in GeV
 
 # Grid Optns
-maxx = 2                 # Max grid value along x direction in fm
-maxy = 2                 # Max grid value along y direction in fm 
+maxx = 1                 # Max grid value along x direction in fm
+maxy = 1                 # Max grid value along y direction in fm 
 dx = 0.1                  # Step size along x direction in fm
 dy = 0.1                  # Step size along y direction in fm
 ny = 1                    # Number of rapidity bins (do not set to zero)

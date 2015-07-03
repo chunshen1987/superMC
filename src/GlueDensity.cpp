@@ -71,7 +71,15 @@ GlueDensity::~GlueDensity()
         }
     delete [] densitypt[iy];
     }
-    delete [] densitypt;     
+    delete [] densitypt;   
+    
+    delete [] dNdy;
+    delete [] Xcm;
+    delete [] Ycm;
+    delete [] Xcm2;
+    delete [] Ycm2;
+    delete [] XYcm;
+    delete [] AngleG;
 }
 
 
@@ -131,7 +139,7 @@ void GlueDensity::getCMAngle(const int iy, int n)
 }
 
 
-void GlueDensity::rotateParticle(vector<Participant*> participant,
+void GlueDensity::rotateParticle(vector<Particle*> participant,
     vector<CollisionPair*> binaryCollision, const int iy)
 {
     double ang0 = AngleG[iy];
@@ -162,7 +170,7 @@ void GlueDensity::rotateParticle(vector<Participant*> participant,
 
 }
 
-void GlueDensity::recenterParticle(vector<Participant*> participant,
+void GlueDensity::recenterParticle(vector<Particle*> participant,
     vector<CollisionPair*> binaryCollision, const int iy)
 {
     double xcm=Xcm[iy];

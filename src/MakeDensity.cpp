@@ -37,11 +37,7 @@ MakeDensity::MakeDensity(ParameterReader *paraRdr_in)
   cutdSdy = paraRdr->getVal("cutdSdy");
   cutdSdy_lowerBound = paraRdr->getVal("cutdSdy_lowerBound");
   cutdSdy_upperBound = paraRdr->getVal("cutdSdy_upperBound");
-
-  // renaming of A for proj+targ
-  Anucl1 = paraRdr->getVal("Aproj");
-  Anucl2 = paraRdr->getVal("Atarg");
-
+  
   // fix grid properties
   Xmax = paraRdr->getVal("maxx");
   Ymax = paraRdr->getVal("maxy");
@@ -76,10 +72,7 @@ MakeDensity::MakeDensity(ParameterReader *paraRdr_in)
   //operator option
   Operation = paraRdr->getVal("operation");
 
-  // generate proj+targ MC thickness functions
-  proj = new OverLap(paraRdr, Anucl1, siginNN, paraRdr->getVal("proj_deformed"));
-  targ = new OverLap(paraRdr, Anucl2, siginNN, paraRdr->getVal("targ_deformed"));
-
+  // generate proj+targ nuclei
   // overlap proj+targ on transverse grid
   mc = new MCnucl(paraRdr);
 
@@ -142,7 +135,6 @@ MakeDensity::MakeDensity(ParameterReader *paraRdr_in)
 MakeDensity::~MakeDensity()
 {
   if (val) delete val;
-  delete proj; delete targ;
   if (kln) delete kln;
   if (wf) delete wf;
   if (mc) delete mc;
@@ -264,7 +256,7 @@ void MakeDensity::generate_profile_ebe_Jet(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       //mc->dumpBinaryTable(); // for debugging
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
@@ -523,7 +515,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       //mc->dumpBinaryTable(); // for debugging
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
@@ -1121,7 +1113,7 @@ void MakeDensity::generate_profile_average(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       double b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       //mc->dumpBinaryTable(); // for debugging
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
@@ -1920,7 +1912,7 @@ void MakeDensity::generateEccTable(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
       tries++;
