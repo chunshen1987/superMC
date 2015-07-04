@@ -45,11 +45,12 @@ public:
 
     void getCMAngle(const int iy, int n=2);
     //void rotateGrid(const int ix, const int iy);
-    void rotateParticle(std::vector<Particle*> participant,
-			std::vector<CollisionPair*> binaryCollision,
-			const int iy);
-    void recenterParticle(std::vector<Particle*> participant,
-                          std::vector<CollisionPair*> binaryCollision, const int iy);
+    void rotatePoints(std::vector<Particle*>& points,const int iy);
+    void rotatePoints(std::vector<CollisionPair*>& points,const int iy);
+    void rotatePoint(Point3D* point, double angle0);
+    void recenterPoints(std::vector<Particle*>& points, const int iy);
+    void recenterPoints(std::vector<CollisionPair*>& points, const int iy);
+    void recenterPoint(Point3D* point, double xcm, double ycm);
 
 };
 

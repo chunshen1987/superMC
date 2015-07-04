@@ -7,11 +7,9 @@
 #include "GaussianDistribution.h"
 using namespace std;
 
-Particle::Particle(double x0, double y0, double z0, double nWidth, double qWidth)
+Particle::Particle(double x0, double y0, double z0,
+        double nWidth, double qWidth): Point3D(x0,y0,z0)
 {
-   x = x0; 
-   y = y0; 
-   z = z0;
    numberOfCollision=0;
    nucleonWidth = nWidth;
    quarkWidth = qWidth;
@@ -40,6 +38,7 @@ double Particle::getFluctuatedTn(double xg, double yg)
    double d;
    for(int i(0);i<3;i++)
    {
+       
         //The squared distance between the Quark and the grid
    	d = pow(ValenceQuarks[i][0]+x-xg,2)+pow(ValenceQuarks[i][1]+y-yg,2); 
         //Divide a total of 1 density between 3 quarks

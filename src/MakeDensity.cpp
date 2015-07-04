@@ -1905,6 +1905,7 @@ void MakeDensity::generateEccTable(int nevent)
 
   // event start.
   int event=1;
+  Stopwatch sw;
   while (event<=nevent)
   {
     int tries = 0;
@@ -1961,7 +1962,16 @@ void MakeDensity::generateEccTable(int nevent)
     mc->deleteNucleus();
     if(cutdSdypassFlag)
     {
-      cout << "processing event: " << event << endl;
+        if(event % 200 == 0){
+            sw.toc();
+            double de_dt = 200/sw.takeTime();
+            int eta = (nevent-event)/de_dt;
+            
+            cout << "processing event: " << event;
+            cout << " eta - " << eta/60 << "m" << eta % 60 << "s";
+            cout << " speed - " << de_dt << " e/s" << endl;
+            sw.tic();
+        }
       event++;
     }
   } // <-> while (event<=nevent)
@@ -2159,7 +2169,12 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     }
     of.close();
 
-    delete[] mom_real, mom_imag, norm, momp_real, momp_imag, normp;
+    delete[] mom_real;
+    delete[] mom_imag;
+    delete[] norm;
+    delete[] momp_real;
+    delete[] momp_imag;
+    delete[] normp;
 }
 
 

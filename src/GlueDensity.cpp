@@ -138,58 +138,57 @@ void GlueDensity::getCMAngle(const int iy, int n)
     // cout << "new: " << AngleG[iy] << "," << "order=" << n << endl;
 }
 
-
-void GlueDensity::rotateParticle(vector<Particle*> participant,
-    vector<CollisionPair*> binaryCollision, const int iy)
+void GlueDensity::rotatePoints(std::vector<Particle*> &points, const int iy)
 {
     double ang0 = AngleG[iy];
-
-    int npart = participant.size();
-    for(int i=0;i<npart;i++) {
-      double x = participant[i]->getX();
-      double y = participant[i]->getY();
-      double ang = MCnucl::Angle(x,y);
-      double r=sqrt(x*x+y*y);
-      double x0 = r*cos(ang+ang0);
-      double y0 = r*sin(ang+ang0);
-      participant[i]->setX(x0);
-      participant[i]->setY(y0);
+    for(int i = 0; i < points.size(); i++) {
+        rotatePoint(points[i],ang0);
     }
-
-    int ncoll=binaryCollision.size();
-    for(int icoll=0;icoll<ncoll;icoll++) {
-      double x = binaryCollision[icoll]->getX();
-      double y = binaryCollision[icoll]->getY();
-      double ang = MCnucl::Angle(x,y);
-      double r=sqrt(x*x+y*y);
-      double x0 = r*cos(ang+ang0);
-      double y0 = r*sin(ang+ang0);
-      binaryCollision[icoll]->setX(x0);
-      binaryCollision[icoll]->setY(y0);
-    }
-
 }
 
-void GlueDensity::recenterParticle(vector<Particle*> participant,
-    vector<CollisionPair*> binaryCollision, const int iy)
+void GlueDensity::rotatePoints(std::vector<CollisionPair*> &points, const int iy)
+{
+    double ang0 = AngleG[iy];
+    for(int i = 0; i < points.size(); i++) {
+        rotatePoint(points[i],ang0);
+    }
+}
+
+void GlueDensity::recenterPoints(std::vector<Particle*> &points, const int iy)
 {
     double xcm=Xcm[iy];
     double ycm=Ycm[iy];
 
-    int npart = participant.size();
-    for(int i=0;i<npart;i++) {
-      double x_shifted = participant[i]->getX()-xcm;
-      double y_shifted = participant[i]->getY()-ycm;
-      participant[i]->setX(x_shifted);
-      participant[i]->setY(y_shifted);
+    for(int i = 0; i < points.size(); i++) {
+        recenterPoint(points[i],xcm,ycm);
     }
+}
 
-    int ncoll=binaryCollision.size();
-    for(int icoll=0;icoll<ncoll;icoll++) {
-      double x_shifted = binaryCollision[icoll]->getX()-xcm;
-      double y_shifted = binaryCollision[icoll]->getY()-ycm;
-      binaryCollision[icoll]->setX(x_shifted);
-      binaryCollision[icoll]->setY(y_shifted);
+void GlueDensity::recenterPoints(std::vector<CollisionPair*> &points, const int iy)
+{
+    double xcm=Xcm[iy];
+    double ycm=Ycm[iy];
+
+    for(int i = 0; i < points.size(); i++) {
+        recenterPoint(points[i],xcm,ycm);
     }
+}
 
+void GlueDensity::rotatePoint(Point3D* point, double ang0)
+{
+      double x = point->x;
+      double y = point->y;
+      double ang = MCnucl::Angle(x,y);
+      double r=sqrt(x*x+y*y);
+      double x0 = r*cos(ang+ang0);
+      double y0 = r*sin(ang+ang0);
+      point->x = x0;
+      point->y = y0;
+}
+void GlueDensity::recenterPoint(Point3D* point, double xcm, double ycm)
+{
+      double x_shifted = point->x-xcm;
+      double y_shifted = point->y-ycm;
+      point->x = x_shifted;
+      point->y = y_shifted;
 }

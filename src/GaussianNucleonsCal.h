@@ -4,6 +4,7 @@
 
 #include "ParameterReader.h"
 #include "Particle.h"
+#include "Box2D.h"
 
 class GaussianNucleonsCal
 {
@@ -17,7 +18,7 @@ class GaussianNucleonsCal
     GaussianNucleonsCal(ParameterReader*);
 
     bool testSmoothCollision(double b);
-    bool testFluctuatedCollision(Particle* me, Particle* you);
+    bool testFluctuatedCollision(Particle* me, Particle* you, const Box2D &overlapRegion);
 
     static double get2DHeightFromWidth(double w);
 

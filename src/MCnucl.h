@@ -24,7 +24,6 @@ class MCnucl
 protected:
     Nucleus* proj;
     Nucleus* targ;
-    std::vector<Particle*> participant;
     std::vector<CollisionPair*> binaryCollision;
     std::vector<Spectator*> spectators;
 
@@ -50,7 +49,7 @@ protected:
     int binRapidity;
     double rapMin, rapMax;
     int iptmax;
-    int Ncoll, Npart1, Npart2;
+    int Npart1, Npart2;
     double Xcm, Ycm, angPart;
     int overSample;
     //double Bnucl;// <R^2>/3 of nucleon for Gaussian shape   // static constant double Bnucl = 0.2959
@@ -97,7 +96,7 @@ public:
     double getRho(int i, int x,int y) {return rho->getDensity(i,x,y);}
     double getRho(int i, int x,int y, int pt) {return rho->getDensity(i,x,y,pt);}
     void setRho(int i, int x,int y, double val) {rho->setDensity(i,x,y,val);}
-    int getNcoll() {return Ncoll;}
+    int getNcoll() {return binaryCollision.size();}
     int getNpart1() {return Npart1;}
     int getNpart2() {return Npart2;}
     double getdNdy() 
@@ -111,10 +110,13 @@ public:
     void generateNuclei(double b);
     void deleteNucleus();
     void setDensity(int iy, int ipt); // ipt<0: no dN/dydpt table used
+    void addEntropyDensity(Nucleus* nucl,double** density);
     void getTA2();
+    void setThickness(Nucleus* nucl, double ** TA);
     void calculate_rho_binary();    // calculate binary collision density in the transverse plane
     int  getBinaryCollision();
-    void addParticipant(Particle* part);
+    void createBinaryCollisions();
+    void selectFluctFactors(Particle* part);
     int  CentralityCut();
     void setCentralityCut(int Nmin, int Nmax)
                 {NpartMax=Nmax; NpartMin=Nmin;}
@@ -127,7 +129,7 @@ public:
     void dumpdNdyTable4Col(char filename[], double *** dNdyTable, const int iy);
     void dumpdNdydptTable5Col(char filename[], double **** dNdydptTable, const int iy);    
     double getSigEff();
-    int hit(Particle* part1, Particle* part2);
+    int hit(Particle* part1, Particle* part2, const Box2D &overlapRegion);
     static double Angle(const double x,const double y);
 
     void dumpparticipantTable(char filename[]);

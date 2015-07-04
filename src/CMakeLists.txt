@@ -21,6 +21,7 @@ add_executable (superMC.e
   HulthenFunc.cpp
   GaussianDistribution.cpp
   Particle.cpp
+  Box2D.cpp
   )
 target_link_libraries (superMC.e ${LIBS})
 

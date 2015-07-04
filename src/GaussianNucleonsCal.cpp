@@ -9,6 +9,7 @@
 
 #include "GaussianNucleonsCal.h"
 #include "Particle.h"
+#include "Box2D.h"
 
 #define EulerGamma 0.5772156649
 
@@ -55,8 +56,6 @@ bool GaussianNucleonsCal::testSmoothCollision(double b)
 // Simulate if there is a collision at impact parameter b. The size of
 // nucleons are read from those public variables.
 {
-    cout << "overlap " <<  exp(-b*b/(4.*width*width))/(4.*M_PI*width*width) << endl;
-    cout << 1.-exp( -sigma_gg*exp(-b*b/(4.*width*width))/(4.*M_PI*width*width) ) << endl;
   if (drand48() < 1.-exp( -sigma_gg*exp(-b*b/(4.*width*width))/(4.*M_PI*width*width) ))
     return true;
   else
@@ -64,21 +63,18 @@ bool GaussianNucleonsCal::testSmoothCollision(double b)
 }
 
 /* Integrate Tn1*Tn2 to get Tnn, the nuclear overlap. */
-bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
+bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you,const Box2D& overlapRegion)
 {
     double dxy = 0.01;
-    double spaceBuffer = 4;
-    double xmin = min(me->getX(),you->getX())-spaceBuffer;
-    double xmax = max(me->getX(),you->getX())+spaceBuffer;
-    double ymin = min(me->getY(),you->getY())-spaceBuffer;
-    double ymax = max(me->getY(),you->getY())+spaceBuffer;
     double xg, yg;
+    double xmax = overlapRegion.getXR();
+    double ymax = overlapRegion.getYR();
     
     double overlap = 0;
-    xg = xmin;
+    xg = overlapRegion.getXL();
     while(xg <= xmax)
     {
-        yg=ymin;
+        yg = overlapRegion.getYL();
         while(yg <= ymax)
         {
             overlap+=(me->getFluctuatedTn(xg,yg))*
@@ -88,8 +84,6 @@ bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
         xg+=dxy;
     }
     
-    cout << "overlap " << overlap << endl; 
-    cout << 1.-exp(-sigma_gg*overlap) << endl;
     
     if(drand48() < 1.-exp(-sigma_gg*overlap))
         return true;
