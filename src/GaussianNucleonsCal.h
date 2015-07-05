@@ -18,7 +18,7 @@ class GaussianNucleonsCal
     GaussianNucleonsCal(ParameterReader*);
 
     bool testSmoothCollision(double b);
-    bool testFluctuatedCollision(Particle* me, Particle* you, const Box2D &overlapRegion);
+    bool testFluctuatedCollision(Particle* me, Particle* you);
 
     static double get2DHeightFromWidth(double w);
 

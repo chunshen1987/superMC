@@ -28,12 +28,12 @@ glb_entropy_width = 0.5   # User specified gaussian width for the deposition of 
                           # in the Glauber model 
 
 # Nucleus Optns
-Aproj = 197               # Projectile atomic number
+Aproj = 1               # Projectile atomic number
 Atarg = 197               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
 
-include_NN_correlation = 1   # whether or not to include nucleon-nucleon correlation 
+include_NN_correlation = 0   # whether or not to include nucleon-nucleon correlation 
                              # when sample the nucleon position inside the nucleus
 
 # Nucleon Optns
@@ -70,7 +70,7 @@ cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy de
 
 
 # Monte Carlo Optns
-nev = 2000                   # Number of collision events simulated
+nev = 1000                   # Number of collision events simulated
 randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off
@@ -117,8 +117,8 @@ PT_order = 2              # =1 output the usual entropy/energy density profile; 
 d_PT = 0.1                # Step size of PT in GeV
 
 # Grid Optns
-maxx = 9                 # Max grid value along x direction in fm
-maxy = 9                 # Max grid value along y direction in fm 
+maxx = 15                 # Max grid value along x direction in fm
+maxy = 15                 # Max grid value along y direction in fm 
 dx = 0.1                  # Step size along x direction in fm
 dy = 0.1                  # Step size along y direction in fm
 ny = 1                    # Number of rapidity bins (do not set to zero)

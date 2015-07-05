@@ -226,37 +226,40 @@ int MCnucl::getBinaryCollision()
   }
   else
   {
-      vector<BoundingBox> projBoxes = proj->getSortedBoundingBoxes();
-      vector<BoundingBox> targBoxes = targ->getSortedBoundingBoxes();
+      vector<Particle*> projNucleons = proj->getNucleons();
+      vector<Particle*> targNucleons = targ->getNucleons();
       
       int startingIndex = 0;
-      for(int iproj = 0; iproj < projBoxes.size(); iproj++)
+      for(int iproj = 0; iproj < projNucleons.size(); iproj++)
       {
-          BoundingBox projBox = projBoxes[iproj];
-          BoundingBox targBox = targBoxes[startingIndex];
+          Particle* projPart = projNucleons[iproj];
+          Box2D projBox = projPart->getBoundingBox();
+          Box2D targBox;
           
           // Skip the left most nucleons for each proj nucleon.
-          while(targBox.getXR() < projBox.getXL()
-                  && startingIndex < targBoxes.size())
+          while(startingIndex < targNucleons.size())
           {
+              targBox = targNucleons[startingIndex]->getBoundingBox();
+              if(targBox.getXR() >= projBox.getXL())
+                  break;
               startingIndex++;
-              targBox = targBoxes[startingIndex];
           }
           
           // Actually test a collision for the next ones,
           // until they get too far away.
           int i = startingIndex;
-          while(projBox.getXR() >= targBox.getXL()
-                  && i < targBoxes.size())
+          while(i < targNucleons.size()
+                && projBox.getXR() >= targBox.getXL() )
           {
+              Particle* targPart = targNucleons[i];
+              targBox = targPart->getBoundingBox();
+              
               if(projBox.getYL() <= targBox.getYR())
               {
                   if(projBox.getYR() >= targBox.getYL())
                   {
                       // Now we know the boxes do overlap in x and y.
-                      Particle* projPart = projBox.getParticle();
-                      Particle* targPart = targBox.getParticle();
-                      if(hit(projPart,targPart,projBox.intersection(targBox)))
+                      if(hit(projPart,targPart))
                       {
                           selectFluctFactors(projPart);
                           selectFluctFactors(targPart);
@@ -268,7 +271,6 @@ int MCnucl::getBinaryCollision()
                   }
               }
               i++;
-              targBox = targBoxes[i];
           }
           
           // Continue loop over projBoxes
@@ -311,16 +313,16 @@ void MCnucl::createBinaryCollisions()
     for(int i = 0; i < projParticipants.size(); i++)
     {
         Particle* part = projParticipants[i];
-        double partX = part->x;
-        double partY = part->y;
+        double partX = part->getX();
+        double partY = part->getY();
         
         vector<Particle*> collidingParticles = part->getCollidingParticles();
         for(int j = 0; j < collidingParticles.size(); j++)
         {
             Particle* colliding = collidingParticles[j];
             CollisionPair* pair = 
-                    new CollisionPair((partX+colliding->x)/2.0,
-                                      (partY+colliding->y)/2.0);
+                    new CollisionPair((partX+colliding->getX())/2.0,
+                                      (partY+colliding->getX())/2.0);
             
             if(CCFluctuationModel > 5)
                 pair->setfluctfactor(sampleFluctuationFactorforBinaryCollision());
@@ -337,10 +339,10 @@ void MCnucl::createBinaryCollisions()
 // old stuff
 //  (YN): determine whether nucleons separated by distance dr2 interact or not
 // interaction probability at impact param. b is 1-exp(-sigeff(s)*Tpp(b))
-int MCnucl::hit(Particle* part1, Particle* part2,const Box2D& overlapRegion)
+int MCnucl::hit(Particle* part1, Particle* part2)
 {
-    double b = sqrt((part2->x-part1->x)*(part2->x-part1->x)
-                +(part2->y-part1->y)*(part2->y-part1->y));
+    double b = sqrt((part2->getX()-part1->getX())*(part2->getX()-part1->getX())
+                +(part2->getY()-part1->getY())*(part2->getY()-part1->getY()));
     
     switch(forceCollisionCriterion)
     {
@@ -355,7 +357,7 @@ int MCnucl::hit(Particle* part1, Particle* part2,const Box2D& overlapRegion)
                 goto disk;
             if(shape_of_entropy == 2)
                 goto gauss;
-            return gaussCal->testFluctuatedCollision(part1,part2,overlapRegion);
+            return gaussCal->testFluctuatedCollision(part1,part2);
     }
 }
 // checks whether Npart1+Npart2 is in the desired range
@@ -420,8 +422,8 @@ void MCnucl::setThickness(Nucleus* nucl, double ** TA)
     
     for(unsigned int ipart=0; ipart<participant.size(); ipart++)
     {
-      double x = participant[ipart]->x;
-      double y = participant[ipart]->y;
+      double x = participant[ipart]->getX();
+      double y = participant[ipart]->getY();
       int x_idx_left = (int)((x - d_max - Xmin)/dx);
       int x_idx_right = (int)((x + d_max - Xmin)/dx);
       int y_idx_left = (int)((y - d_max - Ymin)/dy);
@@ -471,8 +473,8 @@ void MCnucl::calculate_rho_binary()
    
    for(int i = 0; i < binaryCollision.size(); i++)
    {
-       double x = binaryCollision[i]->x;
-       double y = binaryCollision[i]->y;
+       double x = binaryCollision[i]->getX();
+       double y = binaryCollision[i]->getY();
        int x_idx_left = (int)((x - d_max - Xmin)/dx);
        int x_idx_right = (int)((x + d_max - Xmin)/dx);
        int y_idx_left = (int)((y - d_max - Ymin)/dy);
@@ -587,8 +589,8 @@ void MCnucl::setDensity(int iy, int ipt)
       // wounded nucleon treatment:
       if (sub_model==1) // "classical" Glb
       {
-          addEntropyDensity(proj,rhop);
-          addEntropyDensity(proj,rhop);
+          addDensity(proj,rhop);
+          addDensity(proj,rhop);
           //rhop = (TA1[ir][jr]+TA2[ir][jr])*(1.0-Alpha)/2;
           
           double prefactor = (1.0 - Alpha)/2.;
@@ -614,8 +616,8 @@ void MCnucl::setDensity(int iy, int ipt)
           double fluctfactor = 1.0;
           for(int icoll=0;icoll<binaryCollision.size();icoll++)
           {
-              double x = binaryCollision[icoll]->x;
-              double y = binaryCollision[icoll]->y;
+              double x = binaryCollision[icoll]->getX();
+              double y = binaryCollision[icoll]->getY();
               if(CCFluctuationModel > 5)
                   fluctfactor = binaryCollision[icoll]->getfluctfactor();
               int x_idx_left = (int)((x - d_max - Xmin)/dx);
@@ -681,7 +683,7 @@ void MCnucl::setDensity(int iy, int ipt)
   if (CCFluctuationModel>0 && CCFluctuationModel <= 5) fluctuateCurrentDensity(iy);
 }
 
-void MCnucl::addEntropyDensity(Nucleus* nucl, double** dens)
+void MCnucl::addDensity(Nucleus* nucl, double** dens)
 {
     vector<Particle*> participant = nucl->getParticipants();
     double d_max;
@@ -691,8 +693,8 @@ void MCnucl::addEntropyDensity(Nucleus* nucl, double** dens)
         d_max = 5.*entropy_gaussian_width;
     for(unsigned int ipart=0; ipart<participant.size(); ipart++) 
     {
-      double x = participant[ipart]->x;
-      double y = participant[ipart]->y;
+      double x = participant[ipart]->getX();
+      double y = participant[ipart]->getY();
       int x_idx_left = (int)((x - d_max - Xmin)/dx);
       int x_idx_right = (int)((x + d_max - Xmin)/dx);
       int y_idx_left = (int)((y - d_max - Ymin)/dy);
@@ -1013,8 +1015,8 @@ void MCnucl::dumpBinaryTable(char filename[])
   of.open(filename, std::ios_base::app);
   for (int idx=0; idx<binaryCollision.size(); idx++)
   {
-    x = binaryCollision[idx]->x;
-    y = binaryCollision[idx]->y;
+    x = binaryCollision[idx]->getX();
+    y = binaryCollision[idx]->getY();
     of  << setprecision(3) << setw(10) << x
         << setprecision(3) << setw(10) << y
         << endl;
@@ -1057,16 +1059,16 @@ int MCnucl::getSpectators()
   vector<Particle*> nucl2 = targ->getNucleons();
   for(int i=0;i<(int)nucl1.size();i++) { // loop over proj. nucleons
     if(nucl1[i]->getNumberOfCollision()==0) {
-      double x1 = nucl1[i]->x;
-      double y1 = nucl1[i]->y;
+      double x1 = nucl1[i]->getX();
+      double y1 = nucl1[i]->getY();
       spectators.push_back(new Spectator(x1, y1, rapidity_Y));
       count++;
     }
   }
   for(int i=0;i<(int)nucl2.size();i++) { // loop over targ. nucleons
     if(nucl2[i]->getNumberOfCollision()==0) {
-      double x2 = nucl2[i]->x;
-      double y2 = nucl2[i]->y;
+      double x2 = nucl2[i]->getX();
+      double y2 = nucl2[i]->getY();
       spectators.push_back(new Spectator(x2, y2, -rapidity_Y));
       count++;
     }
@@ -1118,4 +1120,27 @@ double MCnucl::sampleFluctuationFactorforBinaryCollision()
       fluctfactor = gsl_ran_gamma(gslRng, k_binary, theta_binary);
    
    return(fluctfactor);
+}
+
+Box2D MCnucl::getHotSpots(vector<Box2D> & hotSpots)
+{
+    hotSpots.clear();
+    
+    vector<Particle*> participants = proj->getParticipants();
+    for(int i = 0; i < participants.size(); i++)
+        hotSpots.push_back(participants[i]->getBoundingBox());
+    
+    participants = targ->getParticipants();
+    for(int i = 0; i < participants.size(); i++)
+        hotSpots.push_back(participants[i]->getBoundingBox());
+    
+    for(int i = 0; i < binaryCollision.size(); i++)
+        hotSpots.push_back(binaryCollision[i]->getBoundingBox());
+    
+    Box2D hotSpot = hotSpots[0];
+    
+    for(int i = 1; i < hotSpots.size(); i++)
+        hotSpot.overUnion(hotSpots[i]);
+    
+    return hotSpot;
 }

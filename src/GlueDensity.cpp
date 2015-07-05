@@ -1,6 +1,7 @@
 #include <cmath>
 #include "GlueDensity.h"
 #include "MCnucl.h"
+#include "IGluonSource.h"
 
 using namespace std;
 
@@ -174,21 +175,21 @@ void GlueDensity::recenterPoints(std::vector<CollisionPair*> &points, const int 
     }
 }
 
-void GlueDensity::rotatePoint(Point3D* point, double ang0)
+void GlueDensity::rotatePoint(IGluonSource* point, double ang0)
 {
-      double x = point->x;
-      double y = point->y;
+      double x = point->getX();
+      double y = point->getY();
       double ang = MCnucl::Angle(x,y);
       double r=sqrt(x*x+y*y);
       double x0 = r*cos(ang+ang0);
       double y0 = r*sin(ang+ang0);
-      point->x = x0;
-      point->y = y0;
+      point->setX(x0);
+      point->setY(y0);
 }
-void GlueDensity::recenterPoint(Point3D* point, double xcm, double ycm)
+void GlueDensity::recenterPoint(IGluonSource* point, double xcm, double ycm)
 {
-      double x_shifted = point->x-xcm;
-      double y_shifted = point->y-ycm;
-      point->x = x_shifted;
-      point->y = y_shifted;
+      double x_shifted = point->getX()-xcm;
+      double y_shifted = point->getY()-ycm;
+      point->setX(x_shifted);
+      point->setY(y_shifted);
 }

@@ -63,27 +63,40 @@ bool GaussianNucleonsCal::testSmoothCollision(double b)
 }
 
 /* Integrate Tn1*Tn2 to get Tnn, the nuclear overlap. */
-bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you,const Box2D& overlapRegion)
+bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
 {
     double dxy = 0.01;
-    double xg, yg;
-    double xmax = overlapRegion.getXR();
-    double ymax = overlapRegion.getYR();
-    
     double overlap = 0;
-    xg = overlapRegion.getXL();
-    while(xg <= xmax)
-    {
-        yg = overlapRegion.getYL();
-        while(yg <= ymax)
-        {
-            overlap+=(me->getFluctuatedTn(xg,yg))*
-                    (you->getFluctuatedTn(xg,yg))*dxy*dxy;
-            yg+=dxy;
-        }
-        xg+=dxy;
-    }
+    vector<Quark> myQuarks = me->getQuarks();
+    vector<Quark> yourQuarks = you->getQuarks();
     
+    for(int i = 0; i < myQuarks.size(); i++)
+    {
+        Quark mine = myQuarks[i];
+        Box2D myBox = mine.getBoundingBox();
+        for(int j = 0; j < yourQuarks.size(); j++)
+        {
+            Quark yours = yourQuarks[j];
+            Box2D yourBox = yours.getBoundingBox();
+            Box2D overlapRegion = myBox.intersection(yourBox);
+            
+            if(overlapRegion.isPositive())
+            {
+                double x = overlapRegion.getXL();
+                while(x < overlapRegion.getXR())
+                {
+                    double y = overlapRegion.getYL();
+                    while(y < overlapRegion.getYR())
+                    {
+                        overlap += mine.getSmoothTn(x,y)*
+                                yours.getSmoothTn(x,y)*dxy*dxy/9;
+                        y += dxy;
+                    }
+                    x += dxy;
+                }
+            }
+        }
+    }
     
     if(drand48() < 1.-exp(-sigma_gg*overlap))
         return true;

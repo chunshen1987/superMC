@@ -2068,30 +2068,76 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
 */
 
     // for eccentricity:
+    // Get the smallest rectangle that encapsulates the 
+    // regions where dS/drdphi > 0
+    // Then make a boolean array to signify which sub-regions are important.
+    // This is to avoid double counting, and minimize integration.
+    vector<Box2D> hotSpots;
+    Box2D region = mc->getHotSpots(hotSpots);
+    int nYpoints = 1+(region.getYR()-region.getYL())/dy;
+    int nXpoints = 1+(region.getXR()-region.getXL())/dx;
+    
+    bool ** importantRegions = new bool*[nXpoints];
+    for(int i = 0; i < nXpoints; i++){
+        importantRegions[i] = new bool[nYpoints];
+        for(int j = 0; j < nYpoints; j++)
+            importantRegions[i][j] = false;
+    }
+        
+    // Mark the important parts in the boolean array
+    for(int i = 0; i < hotSpots.size(); i++)
+    {
+        double xg = hotSpots[i].getXL();
+        double xMax = hotSpots[i].getXR();
+        while(xg < xMax)
+        {
+            double yg = hotSpots[i].getYL();
+            double yMax = hotSpots[i].getYR();
+            int x_i = (int)floor((xg - region.getXL())/dx);
+            while(yg < yMax)
+            {
+                int y_i = (int)floor((yg - region.getYL())/dy);
+                importantRegions[x_i][y_i] = true;
+                yg+=dy;
+            }
+            xg += dx;
+        }
+    }
+    
     for (order=from_order; order<=to_order; order++)
     {
-        // calculate numerator and denominators:
-        for(int i=0;i<Maxx;i++)
-        for(int j=0;j<Maxy;j++)
+        for(int iRegion = 0; iRegion < nXpoints; iRegion++)
         {
-            x = Xmin + i*dx - xc; y = Ymin + j*dy - yc; // shift to center
-            r = sqrt(x*x + y*y); theta = atan2(y,x);
-            mom_real[order] += r*r*cos(order*theta)*density[iy][i][j];
-            mom_imag[order] += r*r*sin(order*theta)*density[iy][i][j];
-            norm[order] += r*r*density[iy][i][j];
-            if(order == 1)
+            for(int jRegion = 0; jRegion < nYpoints; jRegion++)
             {
-               momp_real[order] += pow(r,3)*cos(order*theta)*density[iy][i][j];
-               momp_imag[order] += pow(r,3)*sin(order*theta)*density[iy][i][j];
-               normp[order] += pow(r,3)*density[iy][i][j];
-            }
-            else
-            {
-               momp_real[order] += pow(r,order)*cos(order*theta)*density[iy][i][j];
-               momp_imag[order] += pow(r,order)*sin(order*theta)*density[iy][i][j];
-               normp[order] += pow(r,order)*density[iy][i][j];
+                if(importantRegions[iRegion][jRegion])
+                {
+                    // Convert from indeces in the bool array to
+                    // indeces in the density array
+                    int i = iRegion + (int)(region.getXL()-Xmin)/dx;
+                    int j = jRegion + (int)(region.getYL()-Ymin)/dy;
+                    
+                    x = Xmin + i*dx - xc; y = Ymin + j*dy - yc; // shift to center
+                    r = sqrt(x*x + y*y); theta = atan2(y,x);
+                    mom_real[order] += r*r*cos(order*theta)*density[iy][i][j];
+                    mom_imag[order] += r*r*sin(order*theta)*density[iy][i][j];
+                    norm[order] += r*r*density[iy][i][j];
+                    if(order == 1)
+                    {
+                       momp_real[order] += pow(r,3)*cos(order*theta)*density[iy][i][j];
+                       momp_imag[order] += pow(r,3)*sin(order*theta)*density[iy][i][j];
+                       normp[order] += pow(r,3)*density[iy][i][j];
+                    }
+                    else
+                    {
+                       momp_real[order] += pow(r,order)*cos(order*theta)*density[iy][i][j];
+                       momp_imag[order] += pow(r,order)*sin(order*theta)*density[iy][i][j];
+                       normp[order] += pow(r,order)*density[iy][i][j];
+                    }
+                }
             }
         }
+        
 
         // take ratio; note that the minus sign is just a convention
         mom_real[order] = -mom_real[order]/(norm[order] + eps);

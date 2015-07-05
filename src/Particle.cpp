@@ -4,15 +4,22 @@
 #include <iomanip>
 
 #include "Particle.h"
+#include "Quark.h"
 #include "GaussianDistribution.h"
 using namespace std;
 
-Particle::Particle(double x0, double y0, double z0,
-        double nWidth, double qWidth): Point3D(x0,y0,z0)
+
+double Particle::width = 0;
+GaussianDistribution* Particle::quarkDist;
+
+Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 {
    numberOfCollision=0;
-   nucleonWidth = nWidth;
-   quarkWidth = qWidth;
+   
+   boundingBox.setCenter(x0,y0);
+   boundingBox.setSquareDimensions(5*width);
+   
+   generateQuarkPositions();
 }
 
 Particle::~Particle()
@@ -21,11 +28,13 @@ Particle::~Particle()
 
 void Particle::generateQuarkPositions()
 {
-   for(int i = 0; i < 3; i++)
-   {
-     ValenceQuarks[i][1] = quarkDist->rand();
-     ValenceQuarks[i][0] = quarkDist->rand();
+    // Note* Quarks are generated with a position relative to 
+    // their parent nucleon.
+   for(int i = 0; i < 3; i++){
+       ValenceQuarks.push_back(Quark(this,quarkDist->rand(),quarkDist->rand()));
+       boundingBox.overUnion(ValenceQuarks[i].getBoundingBox());
    }
+       
 }
 
 
@@ -35,14 +44,10 @@ double Particle::getFluctuatedTn(double xg, double yg)
 {
    double dens = 0;
    
-   double d;
    for(int i(0);i<3;i++)
    {
-       
-        //The squared distance between the Quark and the grid
-   	d = pow(ValenceQuarks[i][0]+x-xg,2)+pow(ValenceQuarks[i][1]+y-yg,2); 
         //Divide a total of 1 density between 3 quarks
-   	dens += (1./(2*M_PI*quarkWidth*quarkWidth))*exp(-d/(2*quarkWidth*quarkWidth))/3; 
+   	dens += ValenceQuarks[i].getSmoothTn(xg,yg)/3; 
    }
    return dens;
 }
@@ -53,23 +58,21 @@ double Particle::getFluctuatedTn(double xg, double yg)
 double Particle::getSmoothTn(double xg, double yg)
 {
     double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
-    return (1/(2*nucleonWidth*nucleonWidth))*
-            exp(-r*r/(2*nucleonWidth*nucleonWidth));
+    return (1/(2*width*width))*
+            exp(-r*r/(2*width*width));
 }
 
 void Particle::setQuarkFluctfactor(double f1, double f2, double f3)
 {
-    quarkFluctfactors[0]=f1;
-    quarkFluctfactors[1]=f2;
-    quarkFluctfactors[2]=f3;
+    ValenceQuarks[0].setFluctFactor(f1);
+    ValenceQuarks[1].setFluctFactor(f2);
+    ValenceQuarks[2].setFluctFactor(f3);
 }
 
 void Particle::resetFluctFactors()
 {
     fluctfactor = 1;
-    quarkFluctfactors[0] = 1;
-    quarkFluctfactors[1] = 1;
-    quarkFluctfactors[2] = 1;
+    setQuarkFluctfactor(1,1,1);
 }
 
 /* Returns the gluon density at a 
@@ -79,13 +82,10 @@ double Particle::getFluctuatedDensity(double xg, double yg)
    if(numberOfCollision == 0)
        return 0;
    double dens = 0;
-   double d;
    for(int i(0);i<3;i++)
    {
-        //The squared distance between the Quark and the grid
-   	d = pow(ValenceQuarks[i][0]+x-xg,2)+pow(ValenceQuarks[i][1]+y-yg,2); 
         //Divide a total of 1 density between 3 quarks
-   	dens += quarkFluctfactors[i]*(1./(2*M_PI*quarkWidth*quarkWidth))*exp(-d/(2*quarkWidth*quarkWidth))/3; 
+   	dens += ValenceQuarks[i].getSmoothDensity(xg,yg)/3; 
    }
    return dens;
 }
@@ -98,6 +98,21 @@ double Particle::getSmoothDensity(double xg, double yg)
     if(numberOfCollision == 0)
        return 0;
     double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
-    return fluctfactor*(1/(2*nucleonWidth*nucleonWidth))*
-            exp(-r*r/(2*nucleonWidth*nucleonWidth));
+    return fluctfactor*(1/(2*width*width))*
+            exp(-r*r/(2*width*width));
+}
+
+void Particle::setX(double a)
+{
+    x = a;
+    boundingBox.setX(a);
+}
+void Particle::setY(double a)
+{
+    y = a;
+    boundingBox.setY(a);
+}
+void Particle::setZ(double a)
+{
+    z = a;
 }

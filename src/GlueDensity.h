@@ -47,10 +47,10 @@ public:
     //void rotateGrid(const int ix, const int iy);
     void rotatePoints(std::vector<Particle*>& points,const int iy);
     void rotatePoints(std::vector<CollisionPair*>& points,const int iy);
-    void rotatePoint(Point3D* point, double angle0);
+    void rotatePoint(IGluonSource* point, double angle0);
     void recenterPoints(std::vector<Particle*>& points, const int iy);
     void recenterPoints(std::vector<CollisionPair*>& points, const int iy);
-    void recenterPoint(Point3D* point, double xcm, double ycm);
+    void recenterPoint(IGluonSource* point, double xcm, double ycm);
 
 };
 
