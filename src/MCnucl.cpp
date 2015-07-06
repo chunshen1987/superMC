@@ -372,7 +372,7 @@ int MCnucl::CentralityCut()
 
 // --- determine thickness of proj+targ nuclei over 2d transv. grid,
 //     for given MC event ---
-void MCnucl::getTA2()
+void MCnucl::calculateThickness()
 {
   int imax=0;
   

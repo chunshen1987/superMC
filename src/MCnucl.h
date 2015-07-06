@@ -112,7 +112,7 @@ public:
     void deleteNucleus();
     void setDensity(int iy, int ipt); // ipt<0: no dN/dydpt table used
     void addDensity(Nucleus* nucl,double** density);
-    void getTA2();
+    void calculateThickness();
     void setThickness(Nucleus* nucl, double ** TA);
     void calculate_rho_binary();    // calculate binary collision density in the transverse plane
     int  getBinaryCollision();

@@ -280,7 +280,7 @@ void MakeDensity::generate_profile_ebe_Jet(int nevent)
 
     // is event-by-event calculation; no need to rotate
     // compute density before rotation.
-    mc->getTA2();
+    mc->calculateThickness();
 
     bool cutdSdypassFlag = true;
     for(int iy=0;iy<binRapidity;iy++) {
@@ -534,7 +534,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
 
     // is event-by-event calculation; no need to rotate
     // compute density before rotation.
-    mc->getTA2();
+    mc->calculateThickness();
 
     bool cutdSdypassFlag = true;
     if(PTinte>0)
@@ -1129,7 +1129,7 @@ void MakeDensity::generate_profile_average(int nevent)
     }
     Npart = mc->getNpart1()+mc->getNpart2();
     // need to rotate compute density before rotation.
-    mc->getTA2();
+    mc->calculateThickness();
 
     bool cutdSdypassFlag = true;
     for(int iorder=0; iorder<number_of_orders; iorder++)
@@ -1156,7 +1156,7 @@ void MakeDensity::generate_profile_average(int nevent)
               if (generate_RP_profile == 1)
               {
                   mc->recenterGrid(iy, order); // re-center grid according to gluon density
-                  mc->getTA2();
+                  mc->calculateThickness();
                   mc->setDensity(iy, -1); // now it's after rotation
                   setSd(dens_tmp, iy); // includes factor multiplication
                   // averaging --- entropy density:
@@ -1196,7 +1196,7 @@ void MakeDensity::generate_profile_average(int nevent)
                   }
               }
               mc->rotateGrid(iy, order); // rotate grid according to gluon density <-> according to entropy density. Note that different rapidity slices are rotated separately, and this does not quite make sense.
-              mc->getTA2();
+              mc->calculateThickness();
               mc->setDensity(iy, -1); // now it's after rotation
               setSd(dens_tmp, iy); // includes factor multiplication
               // averaging --- entropy density:
@@ -1247,7 +1247,7 @@ void MakeDensity::generate_profile_average(int nevent)
               if(generate_RP_profile == 1)
               {
                   mc->recenterGrid(iy, order); // re-center grid according to energy density
-                  mc->getTA2();
+                  mc->calculateThickness();
                   mc->setDensity(iy, -1); // now it's after rotation
                   setEd(dens_tmp, iy); // includes factor multiplication
                   // averaging --- entropy density:
@@ -1287,7 +1287,7 @@ void MakeDensity::generate_profile_average(int nevent)
                   }
               }
               mc->rotateGrid(iy, order); // rotate grid according to energy density. Note that different rapidity slices are rotated separately, and this does not quite make sense.
-              mc->getTA2();
+              mc->calculateThickness();
               mc->setDensity(iy, -1); // now it's after rotation
               setEd(dens_tmp, iy); // includes factor multiplication
               // averaging --- entropy density:
@@ -1351,7 +1351,7 @@ void MakeDensity::generate_profile_average(int nevent)
             {
               //Rotate according to the weighted center of pt-integrated dN/dyd^2r table
               mc->rotateGrid(iy, order); // rotate grid according to gluon density <-> according to entropy density. Note that different rapidity slices are rotated separately, and this does not quite m
-              mc->getTA2();
+              mc->calculateThickness();
               for(int ipt = 0; ipt < MaxPT; ipt++)
                 mc->setDensity(iy,ipt); // now it's after rotation
               setSd(dens_tmp_pt, iy); // includes factor multiplication
@@ -1372,7 +1372,7 @@ void MakeDensity::generate_profile_average(int nevent)
                 mc->setRho(iy,i,j, dens_tmp[iy][i][j]);
               }
               mc->rotateGrid(iy, order); // rotate grid according to energy density. Note that different rapidity slices are rotated separately, and this does not quite make sense.
-              mc->getTA2();
+              mc->calculateThickness();
               
               for(int ipt = 0; ipt < MaxPT; ipt++)
                 mc->setDensity(iy,ipt); // now it's after rotation
@@ -1930,7 +1930,7 @@ void MakeDensity::generateEccTable(int nevent)
     Nbin = mc->getNcoll();
 
     // compute eccentricity.
-    mc->getTA2();
+    mc->calculateThickness();
 
     bool cutdSdypassFlag = true;
     for(int iy=0;iy<binRapidity;iy++) {
