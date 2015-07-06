@@ -48,7 +48,7 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   PTmin  = paraRdr->getVal("PT_Min");
   dpt = paraRdr->getVal("d_PT");
   MaxPT=(int)((PTmax-PTmin)/dpt+0.1)+1;
-  if(PTinte<0)
+  if(PTinte>0)
       PT_order = paraRdr->getVal("PT_order");   
   else
       PT_order = 1; //does not apply when there is no PT integration
