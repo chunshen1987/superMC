@@ -352,12 +352,16 @@ int MCnucl::hit(Particle* part1, Particle* part2)
         case 2:
             gauss:
             return gaussCal->testSmoothCollision(b);
+        case 3:
+            fluctuated:
+            return gaussCal->testFluctuatedCollision(part1,part2);
         default:
             if(shape_of_nucleons == 1)
                 goto disk;
             if(shape_of_entropy == 2)
                 goto gauss;
-            return gaussCal->testFluctuatedCollision(part1,part2);
+            if(shape_of_entropy == 3)
+                goto fluctuated;
     }
 }
 // checks whether Npart1+Npart2 is in the desired range
