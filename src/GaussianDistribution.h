@@ -10,20 +10,21 @@ class GaussianDistribution: public RandomVariable
 {
 
 private:
-	double mu, sigma;
-      int CDF_array_size;
-	vector<double>* CDF;
-	vector<double>* CDF_x;
+    double mu, sigma;
+    int CDF_array_size;
+    vector<double>* CDF;
+    vector<double>* CDF_x;
 
 public:
-	GaussianDistribution(double mu,double sigma);
-	~GaussianDistribution();
+    GaussianDistribution(double mu,double sigma);
+    ~GaussianDistribution();
+        
+    void initCDF();
 
-	void initCDF();
-
-	double pdf(double);
-	double rand();
-      double invCDF(double y);
+    double pdf(double);
+    double rand();
+    double invCDF(double);
+    double eval(double r);
 };
 
 #endif

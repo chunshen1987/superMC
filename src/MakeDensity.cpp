@@ -37,11 +37,7 @@ MakeDensity::MakeDensity(ParameterReader *paraRdr_in)
   cutdSdy = paraRdr->getVal("cutdSdy");
   cutdSdy_lowerBound = paraRdr->getVal("cutdSdy_lowerBound");
   cutdSdy_upperBound = paraRdr->getVal("cutdSdy_upperBound");
-
-  // renaming of A for proj+targ
-  Anucl1 = paraRdr->getVal("Aproj");
-  Anucl2 = paraRdr->getVal("Atarg");
-
+  
   // fix grid properties
   Xmax = paraRdr->getVal("maxx");
   Ymax = paraRdr->getVal("maxy");
@@ -76,10 +72,7 @@ MakeDensity::MakeDensity(ParameterReader *paraRdr_in)
   //operator option
   Operation = paraRdr->getVal("operation");
 
-  // generate proj+targ MC thickness functions
-  proj = new OverLap(paraRdr, Anucl1, siginNN, paraRdr->getVal("proj_deformed"));
-  targ = new OverLap(paraRdr, Anucl2, siginNN, paraRdr->getVal("targ_deformed"));
-
+  // generate proj+targ nuclei
   // overlap proj+targ on transverse grid
   mc = new MCnucl(paraRdr);
 
@@ -142,7 +135,6 @@ MakeDensity::MakeDensity(ParameterReader *paraRdr_in)
 MakeDensity::~MakeDensity()
 {
   if (val) delete val;
-  delete proj; delete targ;
   if (kln) delete kln;
   if (wf) delete wf;
   if (mc) delete mc;
@@ -264,7 +256,7 @@ void MakeDensity::generate_profile_ebe_Jet(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       //mc->dumpBinaryTable(); // for debugging
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
@@ -523,7 +515,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       //mc->dumpBinaryTable(); // for debugging
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
@@ -1121,7 +1113,7 @@ void MakeDensity::generate_profile_average(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       double b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       //mc->dumpBinaryTable(); // for debugging
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
@@ -1913,6 +1905,7 @@ void MakeDensity::generateEccTable(int nevent)
 
   // event start.
   int event=1;
+  Stopwatch sw;
   while (event<=nevent)
   {
     int tries = 0;
@@ -1920,7 +1913,7 @@ void MakeDensity::generateEccTable(int nevent)
     while (binary==0 || mc->CentralityCut()==0)
     {
       b = sqrt((bmax*bmax - bmin*bmin)*drand48()+bmin*bmin);
-      mc->generateNucleus(b,proj,targ);
+      mc->generateNuclei(b);
       binary = mc->getBinaryCollision();
       if(binary==0 || mc->CentralityCut()==0) mc->deleteNucleus();
       tries++;
@@ -1969,7 +1962,16 @@ void MakeDensity::generateEccTable(int nevent)
     mc->deleteNucleus();
     if(cutdSdypassFlag)
     {
-      cout << "processing event: " << event << endl;
+        if(event % 200 == 0){
+            sw.toc();
+            double de_dt = 200/sw.takeTime();
+            int eta = (nevent-event)/de_dt;
+            
+            cout << "processing event: " << event;
+            cout << " eta - " << eta/60 << "m" << eta % 60 << "s";
+            cout << " speed - " << de_dt << " e/s" << endl;
+            sw.tic();
+        }
       event++;
     }
   } // <-> while (event<=nevent)
@@ -2066,30 +2068,76 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
 */
 
     // for eccentricity:
+    // Get the smallest rectangle that encapsulates the 
+    // regions where dS/drdphi > 0
+    // Then make a boolean array to signify which sub-regions are important.
+    // This is to avoid double counting, and minimize integration.
+    vector<Box2D> hotSpots;
+    Box2D region = mc->getHotSpots(hotSpots);
+    int nYpoints = 1+(region.getYR()-region.getYL())/dy;
+    int nXpoints = 1+(region.getXR()-region.getXL())/dx;
+    
+    bool ** importantRegions = new bool*[nXpoints];
+    for(int i = 0; i < nXpoints; i++){
+        importantRegions[i] = new bool[nYpoints];
+        for(int j = 0; j < nYpoints; j++)
+            importantRegions[i][j] = false;
+    }
+        
+    // Mark the important parts in the boolean array
+    for(int i = 0; i < hotSpots.size(); i++)
+    {
+        double xg = hotSpots[i].getXL();
+        double xMax = hotSpots[i].getXR();
+        while(xg < xMax)
+        {
+            double yg = hotSpots[i].getYL();
+            double yMax = hotSpots[i].getYR();
+            int x_i = (int)floor((xg - region.getXL())/dx);
+            while(yg < yMax)
+            {
+                int y_i = (int)floor((yg - region.getYL())/dy);
+                importantRegions[x_i][y_i] = true;
+                yg+=dy;
+            }
+            xg += dx;
+        }
+    }
+    
     for (order=from_order; order<=to_order; order++)
     {
-        // calculate numerator and denominators:
-        for(int i=0;i<Maxx;i++)
-        for(int j=0;j<Maxy;j++)
+        for(int iRegion = 0; iRegion < nXpoints; iRegion++)
         {
-            x = Xmin + i*dx - xc; y = Ymin + j*dy - yc; // shift to center
-            r = sqrt(x*x + y*y); theta = atan2(y,x);
-            mom_real[order] += r*r*cos(order*theta)*density[iy][i][j];
-            mom_imag[order] += r*r*sin(order*theta)*density[iy][i][j];
-            norm[order] += r*r*density[iy][i][j];
-            if(order == 1)
+            for(int jRegion = 0; jRegion < nYpoints; jRegion++)
             {
-               momp_real[order] += pow(r,3)*cos(order*theta)*density[iy][i][j];
-               momp_imag[order] += pow(r,3)*sin(order*theta)*density[iy][i][j];
-               normp[order] += pow(r,3)*density[iy][i][j];
-            }
-            else
-            {
-               momp_real[order] += pow(r,order)*cos(order*theta)*density[iy][i][j];
-               momp_imag[order] += pow(r,order)*sin(order*theta)*density[iy][i][j];
-               normp[order] += pow(r,order)*density[iy][i][j];
+                if(importantRegions[iRegion][jRegion])
+                {
+                    // Convert from indeces in the bool array to
+                    // indeces in the density array
+                    int i = iRegion + (int)(region.getXL()-Xmin)/dx;
+                    int j = jRegion + (int)(region.getYL()-Ymin)/dy;
+                    
+                    x = Xmin + i*dx - xc; y = Ymin + j*dy - yc; // shift to center
+                    r = sqrt(x*x + y*y); theta = atan2(y,x);
+                    mom_real[order] += r*r*cos(order*theta)*density[iy][i][j];
+                    mom_imag[order] += r*r*sin(order*theta)*density[iy][i][j];
+                    norm[order] += r*r*density[iy][i][j];
+                    if(order == 1)
+                    {
+                       momp_real[order] += pow(r,3)*cos(order*theta)*density[iy][i][j];
+                       momp_imag[order] += pow(r,3)*sin(order*theta)*density[iy][i][j];
+                       normp[order] += pow(r,3)*density[iy][i][j];
+                    }
+                    else
+                    {
+                       momp_real[order] += pow(r,order)*cos(order*theta)*density[iy][i][j];
+                       momp_imag[order] += pow(r,order)*sin(order*theta)*density[iy][i][j];
+                       normp[order] += pow(r,order)*density[iy][i][j];
+                    }
+                }
             }
         }
+        
 
         // take ratio; note that the minus sign is just a convention
         mom_real[order] = -mom_real[order]/(norm[order] + eps);
@@ -2167,7 +2215,12 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     }
     of.close();
 
-    delete[] mom_real, mom_imag, norm, momp_real, momp_imag, normp;
+    delete[] mom_real;
+    delete[] mom_imag;
+    delete[] norm;
+    delete[] momp_real;
+    delete[] momp_imag;
+    delete[] normp;
 }
 
 

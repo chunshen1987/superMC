@@ -1,7 +1,7 @@
 #ifndef MAKEDENSITY_h
 #define MAKEDENSITY_h
 #include <fstream>
-#include "OverLap.h"
+#include "Nucleus.h"
 #include "KLNModel.h"
 #include "OverLap.h"
 #include "MCnucl.h"
@@ -13,8 +13,6 @@
 class MakeDensity
 {
 protected:
-  OverLap* proj;
-  OverLap* targ;
   UnintegPartonDist* wf;
   KLNModel* kln;
   MCnucl* mc;

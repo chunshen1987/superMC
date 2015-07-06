@@ -4,10 +4,12 @@
 #include <ctime>
 #include "stdlib.h"
 
-#include "OverLap.h"
+#include "Nucleus.h"
 #include "arsenal.h"
 
 #include "GaussianNucleonsCal.h"
+#include "Particle.h"
+#include "Box2D.h"
 
 #define EulerGamma 0.5772156649
 
@@ -50,7 +52,7 @@ GaussianNucleonsCal::GaussianNucleonsCal(ParameterReader* paraRdr_in)
 
 
 //----------------------------------------------------------------------
-bool GaussianNucleonsCal::testCollision(double b)
+bool GaussianNucleonsCal::testSmoothCollision(double b)
 // Simulate if there is a collision at impact parameter b. The size of
 // nucleons are read from those public variables.
 {
@@ -60,6 +62,47 @@ bool GaussianNucleonsCal::testCollision(double b)
     return false;
 }
 
+/* Integrate Tn1*Tn2 to get Tnn, the nuclear overlap. */
+bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
+{
+    double dxy = 0.01;
+    double overlap = 0;
+    vector<Quark> myQuarks = me->getQuarks();
+    vector<Quark> yourQuarks = you->getQuarks();
+    
+    for(int i = 0; i < myQuarks.size(); i++)
+    {
+        Quark mine = myQuarks[i];
+        Box2D myBox = mine.getBoundingBox();
+        for(int j = 0; j < yourQuarks.size(); j++)
+        {
+            Quark yours = yourQuarks[j];
+            Box2D yourBox = yours.getBoundingBox();
+            Box2D overlapRegion = myBox.intersection(yourBox);
+            
+            if(overlapRegion.isPositive())
+            {
+                double x = overlapRegion.getXL();
+                while(x < overlapRegion.getXR())
+                {
+                    double y = overlapRegion.getYL();
+                    while(y < overlapRegion.getYR())
+                    {
+                        overlap += mine.getSmoothTn(x,y)*
+                                yours.getSmoothTn(x,y)*dxy*dxy/9;
+                        y += dxy;
+                    }
+                    x += dxy;
+                }
+            }
+        }
+    }
+    
+    if(drand48() < 1.-exp(-sigma_gg*overlap))
+        return true;
+    else
+        return false;
+}
 
 //-----------------------------------------------------------------------
 double GaussianNucleonsCal::get2DHeightFromWidth(double w)
@@ -77,7 +120,7 @@ double GaussianNucleonsCal::getSigEff(double siginNN, double width)
   int N2=38;  // # of integration points
   double *xg = new double [N2];
   double *wg = new double [N2];
-  OverLap::Gauss38(0.0,1.0,xg,wg);
+  Nucleus::Gauss38(0.0,1.0,xg,wg);
   double sigin=siginNN*0.1;   // sigma_in(s) [mb --> fm^2]
   
   int ib;

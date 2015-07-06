@@ -2,7 +2,7 @@
 #define GlueDensity_h
 
 #include <vector>
-#include "Participant.h"
+#include "Particle.h"
 #include "CollisionPair.h"
 
 class GlueDensity
@@ -43,14 +43,13 @@ public:
     //void setYcm(double a) {Ycm=a;}
     //void setAngle(double a) {AngleG=a;}
 
-    void getCMAngle(const int iy, int n=2);
+    void calcCMAngle(const int iy, int n=2);
     //void rotateGrid(const int ix, const int iy);
-    void rotateParticle(std::vector<Participant*> participant,
-			std::vector<CollisionPair*> binaryCollision,
-			const int iy);
-    void recenterParticle(std::vector<Participant*> participant,
-                          std::vector<CollisionPair*> binaryCollision, const int iy);
-
+    double getCMAngle(const int iy){return AngleG[iy];}
+    
+    double getCM(double& xCM, double& yCM,const int iy)
+    {xCM=Xcm[iy];yCM=Ycm[iy];}
+    
 };
 
 #endif

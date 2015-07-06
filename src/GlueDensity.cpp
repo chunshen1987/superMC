@@ -1,6 +1,7 @@
 #include <cmath>
 #include "GlueDensity.h"
 #include "MCnucl.h"
+#include "IGluonSource.h"
 
 using namespace std;
 
@@ -71,11 +72,19 @@ GlueDensity::~GlueDensity()
         }
     delete [] densitypt[iy];
     }
-    delete [] densitypt;     
+    delete [] densitypt;   
+    
+    delete [] dNdy;
+    delete [] Xcm;
+    delete [] Ycm;
+    delete [] Xcm2;
+    delete [] Ycm2;
+    delete [] XYcm;
+    delete [] AngleG;
 }
 
 
-void GlueDensity::getCMAngle(const int iy, int n)
+void GlueDensity::calcCMAngle(const int iy, int n)
 {
     Xcm[iy]=0.0, Ycm[iy]=0.0, Xcm2[iy]=0.0, Ycm2[iy]=0.0,XYcm[iy]=0.0;
     double weight=0.0;
@@ -128,60 +137,4 @@ void GlueDensity::getCMAngle(const int iy, int n)
     AngleG[iy] = -atan2(-Num_imag, -Num_real)/n + 2*M_PI*rand_orientation/n; //AngleG takes the range from -pi to pi
     // cout << "imag=" << Num_imag << "," << "real=" << Num_real << endl;
     // cout << "new: " << AngleG[iy] << "," << "order=" << n << endl;
-}
-
-
-void GlueDensity::rotateParticle(vector<Participant*> participant,
-    vector<CollisionPair*> binaryCollision, const int iy)
-{
-    double ang0 = AngleG[iy];
-
-    int npart = participant.size();
-    for(int i=0;i<npart;i++) {
-      double x = participant[i]->getX();
-      double y = participant[i]->getY();
-      double ang = MCnucl::Angle(x,y);
-      double r=sqrt(x*x+y*y);
-      double x0 = r*cos(ang+ang0);
-      double y0 = r*sin(ang+ang0);
-      participant[i]->setX(x0);
-      participant[i]->setY(y0);
-    }
-
-    int ncoll=binaryCollision.size();
-    for(int icoll=0;icoll<ncoll;icoll++) {
-      double x = binaryCollision[icoll]->getX();
-      double y = binaryCollision[icoll]->getY();
-      double ang = MCnucl::Angle(x,y);
-      double r=sqrt(x*x+y*y);
-      double x0 = r*cos(ang+ang0);
-      double y0 = r*sin(ang+ang0);
-      binaryCollision[icoll]->setX(x0);
-      binaryCollision[icoll]->setY(y0);
-    }
-
-}
-
-void GlueDensity::recenterParticle(vector<Participant*> participant,
-    vector<CollisionPair*> binaryCollision, const int iy)
-{
-    double xcm=Xcm[iy];
-    double ycm=Ycm[iy];
-
-    int npart = participant.size();
-    for(int i=0;i<npart;i++) {
-      double x_shifted = participant[i]->getX()-xcm;
-      double y_shifted = participant[i]->getY()-ycm;
-      participant[i]->setX(x_shifted);
-      participant[i]->setY(y_shifted);
-    }
-
-    int ncoll=binaryCollision.size();
-    for(int icoll=0;icoll<ncoll;icoll++) {
-      double x_shifted = binaryCollision[icoll]->getX()-xcm;
-      double y_shifted = binaryCollision[icoll]->getY()-ycm;
-      binaryCollision[icoll]->setX(x_shifted);
-      binaryCollision[icoll]->setY(y_shifted);
-    }
-
 }

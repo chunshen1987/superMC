@@ -21,6 +21,7 @@ class EOS
         EOS();
         EOS(char*);
         EOS(char*,char*);
+        ~EOS();
         void loadEOSFromFile(char*);
         void loadEOSFromFile(char*,char*);
         double p(double ed);
