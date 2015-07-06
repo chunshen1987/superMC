@@ -116,3 +116,12 @@ void Particle::setZ(double a)
 {
     z = a;
 }
+
+void Particle::rotate(double theta, double phi)
+{
+    Point3D::rotate(cos(theta),phi);
+    for(int i = 0; i < ValenceQuarks.size(); i++)
+    {
+        ValenceQuarks[i].rotate(theta,phi);
+    }
+}

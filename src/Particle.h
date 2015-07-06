@@ -44,6 +44,7 @@ class Particle: private Point3D, public IGluonSource
     void   setZ(double a);
     
     Box2D  getBoundingBox() const {return boundingBox;}
+    void   rotate(double theta, double phi);
 
     void setFluctfactor(double fluct) {fluctfactor = fluct;}
     void setQuarkFluctfactor(double f1, double f2, double f3);

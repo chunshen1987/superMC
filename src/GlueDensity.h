@@ -43,15 +43,13 @@ public:
     //void setYcm(double a) {Ycm=a;}
     //void setAngle(double a) {AngleG=a;}
 
-    void getCMAngle(const int iy, int n=2);
+    void calcCMAngle(const int iy, int n=2);
     //void rotateGrid(const int ix, const int iy);
-    void rotatePoints(std::vector<Particle*>& points,const int iy);
-    void rotatePoints(std::vector<CollisionPair*>& points,const int iy);
-    void rotatePoint(IGluonSource* point, double angle0);
-    void recenterPoints(std::vector<Particle*>& points, const int iy);
-    void recenterPoints(std::vector<CollisionPair*>& points, const int iy);
-    void recenterPoint(IGluonSource* point, double xcm, double ycm);
-
+    double getCMAngle(const int iy){return AngleG[iy];}
+    
+    double getCM(double& xCM, double& yCM,const int iy)
+    {xCM=Xcm[iy];yCM=Ycm[iy];}
+    
 };
 
 #endif

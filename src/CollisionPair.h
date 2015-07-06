@@ -35,6 +35,11 @@ class CollisionPair : private Point3D, public IGluonSource
     {
         z = a;
     }
+    
+    void rotate(double theta, double phi)
+    {
+        Point3D::rotate(cos(theta),phi);
+    }
 
   void setfluctfactor(double fluct) {fluctfactor = fluct;}
   double getfluctfactor() const {return fluctfactor;}

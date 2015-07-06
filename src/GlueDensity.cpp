@@ -84,7 +84,7 @@ GlueDensity::~GlueDensity()
 }
 
 
-void GlueDensity::getCMAngle(const int iy, int n)
+void GlueDensity::calcCMAngle(const int iy, int n)
 {
     Xcm[iy]=0.0, Ycm[iy]=0.0, Xcm2[iy]=0.0, Ycm2[iy]=0.0,XYcm[iy]=0.0;
     double weight=0.0;
@@ -137,59 +137,4 @@ void GlueDensity::getCMAngle(const int iy, int n)
     AngleG[iy] = -atan2(-Num_imag, -Num_real)/n + 2*M_PI*rand_orientation/n; //AngleG takes the range from -pi to pi
     // cout << "imag=" << Num_imag << "," << "real=" << Num_real << endl;
     // cout << "new: " << AngleG[iy] << "," << "order=" << n << endl;
-}
-
-void GlueDensity::rotatePoints(std::vector<Particle*> &points, const int iy)
-{
-    double ang0 = AngleG[iy];
-    for(int i = 0; i < points.size(); i++) {
-        rotatePoint(points[i],ang0);
-    }
-}
-
-void GlueDensity::rotatePoints(std::vector<CollisionPair*> &points, const int iy)
-{
-    double ang0 = AngleG[iy];
-    for(int i = 0; i < points.size(); i++) {
-        rotatePoint(points[i],ang0);
-    }
-}
-
-void GlueDensity::recenterPoints(std::vector<Particle*> &points, const int iy)
-{
-    double xcm=Xcm[iy];
-    double ycm=Ycm[iy];
-
-    for(int i = 0; i < points.size(); i++) {
-        recenterPoint(points[i],xcm,ycm);
-    }
-}
-
-void GlueDensity::recenterPoints(std::vector<CollisionPair*> &points, const int iy)
-{
-    double xcm=Xcm[iy];
-    double ycm=Ycm[iy];
-
-    for(int i = 0; i < points.size(); i++) {
-        recenterPoint(points[i],xcm,ycm);
-    }
-}
-
-void GlueDensity::rotatePoint(IGluonSource* point, double ang0)
-{
-      double x = point->getX();
-      double y = point->getY();
-      double ang = MCnucl::Angle(x,y);
-      double r=sqrt(x*x+y*y);
-      double x0 = r*cos(ang+ang0);
-      double y0 = r*sin(ang+ang0);
-      point->setX(x0);
-      point->setY(y0);
-}
-void GlueDensity::recenterPoint(IGluonSource* point, double xcm, double ycm)
-{
-      double x_shifted = point->getX()-xcm;
-      double y_shifted = point->getY()-ycm;
-      point->setX(x_shifted);
-      point->setY(y_shifted);
 }

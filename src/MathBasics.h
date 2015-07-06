@@ -25,7 +25,7 @@ class Point3D
   public:
     double x, y, z;
     Point3D(double x0 = 0, double y0 = 0, double z0 = 0);
-    void rotate(double costheta, double phi); // rotate the point by angle theta and phi
+    virtual void rotate(double costheta, double phi); // rotate the point by angle theta and phi
     void shift(double shift_x, double shift_y, double shift_z); // shift the point by shift_x, shift_y, shift_z
     void printMe(); // print out (x,y,z)
 };

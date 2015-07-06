@@ -991,19 +991,48 @@ double MCnucl::Angle(const double x,const double y)
 
 void MCnucl::recenterGrid(int iy, int n)
 {
-  rho->getCMAngle(iy, n);
-  rho->recenterPoints(proj->getParticipants(), iy);
-  rho->recenterPoints(targ->getParticipants(), iy);
-  rho->recenterPoints(binaryCollision, iy);
+    rho->calcCMAngle(iy, n);
+    double x,y;
+    rho->getCM(x,y,iy);
+    
+    vector<Particle*> participants = proj->getParticipants();
+    for(int i = 0; i < participants.size(); i++)
+    {
+        participants[i]->setX(participants[i]->getX()-x);
+        participants[i]->setY(participants[i]->getY()-y);
+    }
+    
+    participants = targ->getParticipants();
+    for(int i = 0; i < participants.size(); i++)
+    {
+        participants[i]->setX(participants[i]->getX()-x);
+        participants[i]->setY(participants[i]->getY()-y);
+    }
+    
+    for(int i = 0; i < binaryCollision.size(); i++)
+    {
+        binaryCollision[i]->setX(binaryCollision[i]->getX()-x);
+        binaryCollision[i]->setY(binaryCollision[i]->getY()-y);
+    }
 }
 
 void MCnucl::rotateGrid(int iy, int n)
 {
-  recenterGrid(iy,n);
-  
-  rho->rotatePoints(proj->getParticipants(), iy);
-  rho->rotatePoints(targ->getParticipants(), iy);
-  rho->rotatePoints(binaryCollision, iy);
+    rho->calcCMAngle(iy,n);
+    double angle = rho->getCMAngle(iy);
+    recenterGrid(iy,n);
+    
+    vector<Particle*> participants = proj->getParticipants();
+    for(int i = 0; i < participants.size(); i++)
+        participants[i]->rotate(angle,0);
+    
+    participants = targ->getParticipants();
+    for(int i = 0; i < participants.size(); i++)
+        participants[i]->rotate(angle,0);
+    
+    for(int i = 0; i < binaryCollision.size(); i++)
+        binaryCollision[i]->rotate(angle,0);
+    
 }
 
 
