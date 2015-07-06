@@ -530,7 +530,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
       }
     }
     Npart = mc->getNpart1()+mc->getNpart2();
-    //mc->dumpBinaryTable(); // for collision profile
+    mc->dumpBinaryTable(new char[5]{'b','.','t','x','t'}); // for collision profile
 
     // is event-by-event calculation; no need to rotate
     // compute density before rotation.

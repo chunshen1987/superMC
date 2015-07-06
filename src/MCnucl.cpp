@@ -193,8 +193,8 @@ MCnucl::~MCnucl()
 void MCnucl::generateNuclei(double b)
 {
     for(int ie=0;ie<overSample;ie++) {
-        proj->populate(b/2.0,0);
-        targ->populate(-b/2.0,0);
+        proj->populate(-b/2.0,0);
+        targ->populate(b/2.0,0);
     }
 }
 
@@ -590,7 +590,7 @@ void MCnucl::setDensity(int iy, int ipt)
       if (sub_model==1) // "classical" Glb
       {
           addDensity(proj,rhop);
-          addDensity(proj,rhop);
+          addDensity(targ,rhop);
           //rhop = (TA1[ir][jr]+TA2[ir][jr])*(1.0-Alpha)/2;
           
           double prefactor = (1.0 - Alpha)/2.;
@@ -686,19 +686,16 @@ void MCnucl::setDensity(int iy, int ipt)
 void MCnucl::addDensity(Nucleus* nucl, double** dens)
 {
     vector<Particle*> participant = nucl->getParticipants();
-    double d_max;
-    if (shape_of_nucleons == 1)
-        d_max = 2.*sqrt(dsq);
-    if (shape_of_nucleons >= 2 && shape_of_nucleons <=9)
-        d_max = 5.*entropy_gaussian_width;
     for(unsigned int ipart=0; ipart<participant.size(); ipart++) 
     {
-      double x = participant[ipart]->getX();
-      double y = participant[ipart]->getY();
-      int x_idx_left = (int)((x - d_max - Xmin)/dx);
-      int x_idx_right = (int)((x + d_max - Xmin)/dx);
-      int y_idx_left = (int)((y - d_max - Ymin)/dy);
-      int y_idx_right = (int)((y + d_max - Ymin)/dy);
+        Particle* part = participant[ipart];
+        Box2D partBox = part->getBoundingBox();
+      double x = part->getX();
+      double y = part->getY();
+      int x_idx_left = (int)((partBox.getXL() - Xmin)/dx);
+      int x_idx_right = (int)((partBox.getXR() - Xmin)/dx);
+      int y_idx_left = (int)((partBox.getYL() - Ymin)/dy);
+      int y_idx_right = (int)((partBox.getYR() - Ymin)/dy);
       x_idx_left = max(0, x_idx_left);
       x_idx_right = min(Maxx, x_idx_right);
       y_idx_left = max(0, y_idx_left);
@@ -1024,14 +1021,14 @@ void MCnucl::rotateGrid(int iy, int n)
     
     vector<Particle*> participants = proj->getParticipants();
     for(int i = 0; i < participants.size(); i++)
-        participants[i]->rotate(angle,0);
+        participants[i]->rotate(0,angle);
     
     participants = targ->getParticipants();
     for(int i = 0; i < participants.size(); i++)
-        participants[i]->rotate(angle,0);
+        participants[i]->rotate(0,angle);
     
     for(int i = 0; i < binaryCollision.size(); i++)
-        binaryCollision[i]->rotate(angle,0);
+        binaryCollision[i]->rotate(0,angle);
     
 }
 

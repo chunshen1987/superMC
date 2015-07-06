@@ -30,7 +30,7 @@ GaussianNucleonsCal::GaussianNucleonsCal(ParameterReader* paraRdr_in)
   int shape_of_nucleons = paraRdr->getVal("shape_of_nucleons");
   double gauss_nucl_width = paraRdr->getVal("gauss_nucl_width");
   double sigmaNN_in = paraRdr->getVal("siginNN");
-
+  
   if (shape_of_nucleons==3) // see documents
   {
     double sigmaNN_in_sigam_gg_ratio = (EulerGamma + qiu_simpsons(Gamma0Integrand, lambda, lambda+100., 1e-10) + log(lambda))/lambda; // lambda+100 is used as "inf" in the fast decaying integral

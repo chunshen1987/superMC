@@ -14,10 +14,8 @@ GaussianDistribution* Particle::quarkDist;
 
 Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 {
-   numberOfCollision=0;
-   
    boundingBox.setCenter(x0,y0);
-   boundingBox.setSquareDimensions(5*width);
+   boundingBox.setSquareDimensions(6*width);
    
    generateQuarkPositions();
 }
@@ -79,7 +77,7 @@ void Particle::resetFluctFactors()
  * given point in space. Considers sub-nucleonic structure.*/
 double Particle::getFluctuatedDensity(double xg, double yg)
 {
-   if(numberOfCollision == 0)
+   if(who_hit_me.size() == 0)
        return 0;
    double dens = 0;
    for(int i(0);i<3;i++)
@@ -95,7 +93,7 @@ double Particle::getFluctuatedDensity(double xg, double yg)
  * Includes multiplicity fluctuations*/
 double Particle::getSmoothDensity(double xg, double yg)
 {
-    if(numberOfCollision == 0)
+    if(who_hit_me.size() == 0)
        return 0;
     double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
     return fluctfactor*(1/(2*width*width))*
@@ -124,4 +122,6 @@ void Particle::rotate(double theta, double phi)
     {
         ValenceQuarks[i].rotate(theta,phi);
     }
+    boundingBox.setX(x);
+    boundingBox.setY(y);
 }

@@ -15,8 +15,6 @@ class Quark;
 class Particle: private Point3D, public IGluonSource
 {
  protected:
-    int numberOfCollision;
-    
     double xsave,ysave,zsave;
     double fluctfactor;
     double quarkFluctfactors[3];
@@ -60,9 +58,7 @@ class Particle: private Point3D, public IGluonSource
         generateQuarkPositions();
     }
 
-    int    getNumberOfCollision() {return numberOfCollision;}
-    void   setNumberOfCollision() {numberOfCollision += 1;}
-    void   setNumberOfCollision(int i) {numberOfCollision=i;}
+    int    getNumberOfCollision() {return who_hit_me.size();}
 
     // functions for nucleon substructure added by Kevin Welsh
     void generateQuarkPositions();
