@@ -1,6 +1,5 @@
 #ifndef KLNfunc_h
 #define KLNfunc_h
-#include "KLNModel.h"
 #include "UnintegPartonDist.h"
 
 class KLNfunc: public UnintegPartonDist

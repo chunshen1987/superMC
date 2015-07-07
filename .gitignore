@@ -3,3 +3,4 @@ s95p-PCE/*
 *.e
 superMC/*
 nbproject/*
+build/*

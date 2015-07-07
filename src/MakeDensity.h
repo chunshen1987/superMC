@@ -3,7 +3,6 @@
 #include <fstream>
 #include "Nucleus.h"
 #include "KLNModel.h"
-#include "OverLap.h"
 #include "MCnucl.h"
 #include "UnintegPartonDist.h"
 #include "EOS.h"
