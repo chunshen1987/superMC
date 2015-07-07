@@ -356,7 +356,7 @@ int MCnucl::hit(Particle* part1, Particle* part2)
             fluctuated:
             return gaussCal->testFluctuatedCollision(part1,part2);
         default:
-            if(shape_of_nucleons == 1)
+            if(shape_of_entropy == 1)
                 goto disk;
             if(shape_of_entropy == 2)
                 goto gauss;
@@ -1025,11 +1025,16 @@ void MCnucl::rotateGrid(int iy, int n)
     
     vector<Particle*> participants = proj->getParticipants();
     for(int i = 0; i < participants.size(); i++)
+    {
         participants[i]->rotate(0,angle);
+        participants[i]->calculateBounds();
+    }
     
     participants = targ->getParticipants();
-    for(int i = 0; i < participants.size(); i++)
+    for(int i = 0; i < participants.size(); i++){
         participants[i]->rotate(0,angle);
+        participants[i]->calculateBounds();
+    }
     
     for(int i = 0; i < binaryCollision.size(); i++)
         binaryCollision[i]->rotate(0,angle);
@@ -1056,6 +1061,11 @@ void MCnucl::dumpBinaryTable(char filename[])
   of.open("data/wounded.data");
   proj->dumpParticipants(of);
   targ->dumpParticipants(of);
+  of.close();
+  
+  of.open("data/quarks.data");
+  proj->dumpQuarks(of);
+  targ->dumpQuarks(of);
   of.close();
 
   of.open("data/nucl1.data");

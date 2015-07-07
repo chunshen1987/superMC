@@ -21,6 +21,7 @@ class Particle: private Point3D, public IGluonSource
     std::vector<Quark> ValenceQuarks;
     std::vector<Particle*> who_hit_me;
     Box2D boundingBox;
+    Box2D baseBox;
 
  public:
     static double width;
@@ -42,6 +43,7 @@ class Particle: private Point3D, public IGluonSource
     void   setZ(double a);
     
     Box2D  getBoundingBox() const {return boundingBox;}
+    void   calculateBounds();
     void   rotate(double theta, double phi);
 
     void setFluctfactor(double fluct) {fluctfactor = fluct;}

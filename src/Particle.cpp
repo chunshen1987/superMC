@@ -1,6 +1,6 @@
 #include <cmath>
 #include <fstream>
-#include <istream>
+#include <iostream>
 #include <iomanip>
 
 #include "Particle.h"
@@ -14,9 +14,9 @@ GaussianDistribution* Particle::quarkDist;
 
 Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 {
-   boundingBox.setCenter(x0,y0);
-   boundingBox.setSquareDimensions(6*width);
-   
+   baseBox.setCenter(x0,y0);
+   baseBox.setSquareDimensions(6*width);
+   boundingBox = baseBox;
    generateQuarkPositions();
 }
 
@@ -32,6 +32,13 @@ void Particle::generateQuarkPositions()
        ValenceQuarks.push_back(Quark(this,quarkDist->rand(),quarkDist->rand()));
        boundingBox.overUnion(ValenceQuarks[i].getBoundingBox());
    }
+}
+
+void Particle::calculateBounds()
+{
+    boundingBox = baseBox;
+    for(int i = 0; i < 3; i++)
+        boundingBox.overUnion(ValenceQuarks[i].getBoundingBox());
        
 }
 
