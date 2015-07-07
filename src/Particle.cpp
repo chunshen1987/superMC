@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include "Particle.h"
+#include "GluonField.h"
 #include "Quark.h"
 #include "GaussianDistribution.h"
 using namespace std;
@@ -52,7 +53,12 @@ double Particle::getFluctuatedTn(double xg, double yg)
    for(int i(0);i<3;i++)
    {
         //Divide a total of 1 density between 3 quarks
-   	dens += ValenceQuarks[i].getSmoothTn(xg,yg)/3; 
+    double s = ValenceQuarks[i].getSmoothTn(xg,yg)/3;
+    if(glueField){
+      s*= glueField->getFactor(xg,yg);
+    }
+
+   	dens += s; 
    }
    return dens;
 }
@@ -63,8 +69,10 @@ double Particle::getFluctuatedTn(double xg, double yg)
 double Particle::getSmoothTn(double xg, double yg)
 {
     double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
-    return (1/(2*width*width))*
-            exp(-r*r/(2*width*width));
+    double Tn = (1/(2*width*width))*exp(-r*r/(2*width*width));
+    if(glueField)
+      Tn*= glueField->getFactor(xg,yg);
+    return Tn;
 }
 
 void Particle::setQuarkFluctfactor(double f1, double f2, double f3)
@@ -90,6 +98,10 @@ double Particle::getFluctuatedDensity(double xg, double yg)
    for(int i(0);i<3;i++)
    {
         //Divide a total of 1 density between 3 quarks
+    double s = ValenceQuarks[i].getSmoothDensity(xg,yg)/3;
+    if(glueField)
+      s*=glueField->getFactor(xg,yg);
+
    	dens += ValenceQuarks[i].getSmoothDensity(xg,yg)/3; 
    }
    return dens;
@@ -102,9 +114,7 @@ double Particle::getSmoothDensity(double xg, double yg)
 {
     if(who_hit_me.size() == 0)
        return 0;
-    double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
-    return fluctfactor*(1/(2*width*width))*
-            exp(-r*r/(2*width*width));
+    return getSmoothTn(xg,yg)*fluctfactor;
 }
 
 void Particle::setX(double a)

@@ -9,8 +9,10 @@
 #include "Box2D.h"
 #include "IGluonSource.h"
 #include "Quark.h"
+#include "GluonField.h"
 
 class Quark;
+class GluonField;
 
 class Particle: private Point3D, public IGluonSource
 {
@@ -22,10 +24,12 @@ class Particle: private Point3D, public IGluonSource
     std::vector<Particle*> who_hit_me;
     Box2D boundingBox;
     Box2D baseBox;
+    GluonField* glueField;
 
  public:
     static double width;
     static GaussianDistribution* quarkDist;
+
     Particle(double x0=0,double y0=0, double z0=0);
     ~Particle();
 
@@ -69,6 +73,8 @@ class Particle: private Point3D, public IGluonSource
     double getSmoothTn(double xg, double yg);
     double getFluctuatedDensity(double xg, double yg);
     double getSmoothDensity(double xg, double yg);
+
+    void   setGluonField(GluonField* field){glueField = field;}
 };
 
 
