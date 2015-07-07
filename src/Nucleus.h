@@ -25,8 +25,7 @@ protected:
     vector<Particle*> nucleons;
     vector<Particle*> woundedNucleons;
     
-    double gaussian_entropy_width;
-    double quark_width;
+    bool gluonFieldInitialization;
     GaussianDistribution* quarkDist;
     int nPart;
     
@@ -38,6 +37,7 @@ protected:
     double density0;
     double A;  // mass number of nucleus as double
     int atomic;// same as int
+    double ecm;
 
     double beta2,beta4; //deformation parameters 05032010 by TH
     double ctr, phir; // ctr = cos(theta)
@@ -64,6 +64,7 @@ public:
     void clearNucleons();
     void getRandomWS(double& x, double& y, double& z);
     void markWounded(Particle* part);
+    void setGluonFields();
 
     static void Gauss38(double xini,double xfin,double* xn,double* wn);
     
