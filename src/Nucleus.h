@@ -1,5 +1,12 @@
-#ifndef OVERLAP_h
-#define OVERLAP_h
+/* 
+ * File:   Nucleus.h
+ * Author: kevin
+ *
+ * Created on July 1, 2015, 2:35 PM
+ */
+
+#ifndef NUCLEUS_H
+#define	NUCLEUS_H
 
 #include <iostream>
 #include <cstdlib>
@@ -8,25 +15,29 @@
 #include <fstream>
 #include "ParameterReader.h"
 #include "HulthenFunc.h"
+#include "Particle.h"
+#include "GaussianDistribution.h"
+#include "Box2D.h"
 
-class OverLap
+class Nucleus
 {
-private:
-    ParameterReader* paraRdr;
-
 protected:
+    vector<Particle*> nucleons;
+    vector<Particle*> woundedNucleons;
+    
+    double gaussian_entropy_width;
+    double quark_width;
+    GaussianDistribution* quarkDist;
+    int nPart;
+    
+    double lastCx, lastPh;
+    
     int deformed;
     double rad,rmaxCut,rwMax;
     double dr;
     double density0;
     double A;  // mass number of nucleus as double
     int atomic;// same as int
-    double  sig;  // inelastic NN cross section [fm^2].
-
-    // working area.
-    double zini;
-    double zfin;
-    double z[38],zw[38];
 
     double beta2,beta4; //deformation parameters 05032010 by TH
     double ctr, phir; // ctr = cos(theta)
@@ -39,16 +50,27 @@ protected:
     double*** nucleon_pos_array;
 
 public:
-    // a=atomic number, b=impact parameter [fm], sigin: [mb]
-    OverLap(ParameterReader* paraRdr_in, int a, double signn, int deformed=0);
-    virtual ~OverLap();
+    
+    Nucleus(int a, ParameterReader* paraRdr, int deformed=0);
+    virtual ~Nucleus();
+    double getLastCx1(){return lastCx;}
+    double getLastPh1(){return lastPh;}
     int    getAtomic() {return atomic;}
+    int    getNpart()  {return woundedNucleons.size();}
 
-    // main function: returns a random coordinate of nucleon
+    vector<Particle*>& getNucleons() {return nucleons;}
+    vector<Particle*>& getParticipants() {return woundedNucleons;}
+    void populate(double xCenter, double yCenter);
+    void clearNucleons();
     void getRandomWS(double& x, double& y, double& z);
+    void markWounded(Particle* part);
 
     static void Gauss38(double xini,double xfin,double* xn,double* wn);
-
+    
+    void dumpParticipants(ofstream& of);
+    void dumpNucleons(ofstream& of);
+    void dumpQuarks(ofstream& of);
+    
     //Deformation
     void getDeformRandomWS(double& x, double& y, double& z);
     void setRotation(double costheta, double phi) {ctr=costheta; phir=phi;}
@@ -60,7 +82,12 @@ public:
     void GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,double& y2,double& z2);
     void readin_triton_position();
     void GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3);
+    
+    // Efficient Collision Calculations
+    static bool sortByXLeft(const Particle* p1,const Particle* p2)
+    {return p1->getBoundingBox().getXL() < p2->getBoundingBox().getXL();}
 
 };
 
-#endif
+#endif	/* NUCLEUS_H */
+

@@ -61,7 +61,10 @@ RandomVariable::RandomVariable()
 //----------------------------------------------------------------------
 RandomVariable::~RandomVariable()
 {
-  delete pdfTab, invCDFTab, envelopPdfTab, envelopInvCDFTab;
+  delete pdfTab;
+  delete invCDFTab;
+  delete envelopPdfTab;
+  delete envelopInvCDFTab;
 }
 
 //----------------------------------------------------------------------

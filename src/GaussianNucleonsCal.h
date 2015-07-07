@@ -3,6 +3,8 @@
 #define GaussianNucleonsCal_h
 
 #include "ParameterReader.h"
+#include "Particle.h"
+#include "Box2D.h"
 
 class GaussianNucleonsCal
 {
@@ -15,7 +17,8 @@ class GaussianNucleonsCal
 
     GaussianNucleonsCal(ParameterReader*);
 
-    bool testCollision(double b);
+    bool testSmoothCollision(double b);
+    bool testFluctuatedCollision(Particle* me, Particle* you);
 
     static double get2DHeightFromWidth(double w);
 

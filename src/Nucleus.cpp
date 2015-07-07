@@ -4,25 +4,40 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <fstream>
+#include <iomanip>
 
 #include "MathBasics.h"
-#include "OverLap.h"
+#include "Nucleus.h"
 #include "ParameterReader.h"
+#include "GaussianNucleonsCal.h"
+#include "Box2D.h"
 
 using namespace std;
 
 //CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 // --- initializes parameters for WS/Hulthen density distribution of a nucleus
 //     function getRandomWS(x,y,z) then returns sampled nucleon coordinate
-OverLap::OverLap(ParameterReader* paraRdr_in, int a, double signnin, int deformed_in)
+Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
 {
-  paraRdr = paraRdr_in;
-
+  flag_NN_correlation = paraRdr->getVal("include_NN_correlation");
+  GaussianNucleonsCal* gaussCal = new GaussianNucleonsCal(paraRdr);
+  gaussian_entropy_width = gaussCal->width;
+  quark_width = paraRdr->getVal("quark_width");
+  double quark_dist_width = sqrt(gaussian_entropy_width*gaussian_entropy_width-
+                            quark_width*quark_width);
+  quarkDist = new GaussianDistribution(0,quark_dist_width);
+  Particle::width = gaussian_entropy_width;
+  Particle::quarkDist = quarkDist;
+  Quark::width = quark_width;
+  delete gaussCal;
+  
   // save atomic # of nucleus for later; can be recalled using: getAtomic()
   deformed = deformed_in;
   A = (double)a;
   atomic = a;
-
+  
+  
   // if nucleon, nothing more needed
   if (a==1) return;
 
@@ -78,10 +93,6 @@ OverLap::OverLap(ParameterReader* paraRdr_in, int a, double signnin, int deforme
   rmaxCut = rad + 2.5;
   rwMax = 1.0/(1.0+exp(-rad/dr));
 
-  sig = signnin/10.0;
-  zini = -10.0;
-  zfin = 10.0;
-  Gauss38(zini,zfin,z,zw);
 
   if(deformed){
     // Parameters taken from Moller et al., Atomic Data and Nuclear Data
@@ -112,15 +123,13 @@ OverLap::OverLap(ParameterReader* paraRdr_in, int a, double signnin, int deforme
     readin_triton_position();
   }
 
-  flag_NN_correlation = paraRdr->getVal("include_NN_correlation");
   if(flag_NN_correlation == 1 && (atomic == 197 || atomic == 208))
   {
      readin_nucleon_positions();
   }
-  
 }
 
-OverLap::~OverLap()
+Nucleus::~Nucleus()
 {
    if(flag_NN_correlation == 1 && (atomic == 197 || atomic == 208))
    {
@@ -132,9 +141,146 @@ OverLap::~OverLap()
       }
       delete [] nucleon_pos_array;
    }
+   clearNucleons();
+   if(quarkDist) delete quarkDist;
 }
 
-void OverLap::GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,double& y2,double& z2)
+void Nucleus::populate(double xCenter, double yCenter)
+{
+    nPart = 0;
+    
+    double rmin=0.9*0.9; // minimal nucleon separation (squared; in fm^2).
+    double cx, phi;
+    double xcm=0.0, ycm=0.0, zcm=0.0;
+    cx = 1.0-2.0*drand48();
+    phi = 2*M_PI*drand48();
+    lastCx=cx;
+    lastPh=phi;
+    setRotation(cx, phi);
+    if (atomic == 1)
+    {
+      nucleons.push_back(new Particle(xCenter, yCenter, 0.0)); // shift along x-axis
+    }
+    else if (atomic==2) // in the case of a deuteron (added by Brian Baker)
+    {
+      double x1, y1, z1, x2, y2, z2;
+         
+      GetDeuteronPosition(x1,y1,z1,x2,y2,z2);
+      nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1)); // shift along x-axis
+      nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
+    }
+    else if(atomic==3) // in the case of 3He
+    {
+      double x1, x2, x3, y1, y2, y3, z1, z2, z3;
+      GetTritonPosition(x1,y1,z1,x2,y2,z2,x3,y3,z3); // Triton data points from Carlson have center of mass (0,0,0).
+      nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1));
+      nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
+      nucleons.push_back(new Particle(x3+(xCenter),y3+yCenter,z3));
+    }
+    else 
+    {
+       if(flag_NN_correlation == 0 || atomic != 197 || atomic != 208)
+       {
+          // for large nuclei
+          // generate a cloud of nucleons around 0,0,0
+          // Then move them to the real center
+          for(int ia=0;ia<atomic;ia++) {
+            double x,y,z;
+            int icon=0;
+            int oversamplePosition = 0;
+            do {
+              getDeformRandomWS(x,y,z);
+              icon=0;
+              oversamplePosition = atomic*((int)nucleons.size()/atomic);
+              for(int i=oversamplePosition; i<(int)nucleons.size();i++) {
+                double x1=nucleons[i]->getX();
+                double y1=nucleons[i]->getY();
+                double z1=nucleons[i]->getZ();
+                double r2 = (x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1);
+                if(r2 < rmin) {
+                  icon=1;
+                  break;
+                }
+              }
+            } while(icon==1);
+
+            xcm +=x;
+            ycm +=y;
+            zcm +=z;
+            nucleons.push_back(new Particle(x,y,z));
+          }
+
+          for(int ia=0;ia<atomic;ia++) { // shift center of nucleus
+            double x = nucleons[ia]->getX() - xcm/atomic + xCenter;
+            double y = nucleons[ia]->getY() - ycm/atomic + yCenter;
+            double z = nucleons[ia]->getZ() - zcm/atomic;
+            nucleons[ia]->setX(x);
+            nucleons[ia]->setY(y);
+            nucleons[ia]->setZ(z);
+          }
+       }
+       else  // load nucleon positions from file
+       {
+          double **nucleon_positions = new double* [atomic];
+          for(int inucleon = 0; inucleon < atomic; inucleon++)
+          {
+             nucleon_positions[inucleon] = new double [3];
+          }
+          get_nucleon_position_with_NN_correlation(nucleon_positions);
+
+          double xcm = 0.0, ycm = 0.0, zcm = 0.0;
+          for(int ia = 0; ia < atomic; ia++)
+          {
+             double x_local = nucleon_positions[ia][0];
+             double y_local = nucleon_positions[ia][1];
+             double z_local = nucleon_positions[ia][2];
+             xcm += x_local;
+             ycm += y_local;
+             zcm += z_local;
+             nucleons.push_back(new Particle(x_local, y_local, z_local));
+          }
+          
+          for(int ia = 0; ia < atomic; ia++)
+          {
+             double x_local = nucleons[ia]->getX() - xcm/atomic + xCenter;
+             double y_local = nucleons[ia]->getY() - ycm/atomic + yCenter;
+             double z_local = nucleons[ia]->getZ() - zcm/atomic; 
+             nucleons[ia]->setX(x_local);
+             nucleons[ia]->setY(y_local);
+             nucleons[ia]->setZ(z_local);
+          }
+
+          // clean up
+          for(int inucleon = 0; inucleon < atomic; inucleon++)
+          {
+             delete [] nucleon_positions[inucleon];
+          }
+          delete [] nucleon_positions;
+       }
+    }
+    
+    // Sort them by their xLeft bound. This is to optimize collision detection.
+    std::sort(nucleons.begin(),nucleons.end(),sortByXLeft);
+}
+
+void Nucleus::markWounded(Particle* part)
+{
+    if(part->getNumberOfCollision() == 1)
+    {
+        woundedNucleons.push_back(part);
+    }
+}
+
+void Nucleus::clearNucleons()
+{
+    for(int i = 0; i < nucleons.size(); i++)
+        delete nucleons[i];
+    
+    woundedNucleons.clear();
+    nucleons.clear();
+}
+
+void Nucleus::GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,double& y2,double& z2)
 {
    //get proton/neutron separation d (fm)
    double d;
@@ -153,7 +299,7 @@ void OverLap::GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,do
    z2 = -z1;
 }
 
-void OverLap::readin_triton_position()
+void Nucleus::readin_triton_position()
 {
    ifstream triton_position("tables/triton_positions.dat");
    double x1, y1, z1, x2, y2, z2, x3, y3, z3;
@@ -175,7 +321,7 @@ void OverLap::readin_triton_position()
    }
 }
 
-void OverLap::readin_nucleon_positions()
+void Nucleus::readin_nucleon_positions()
 {
    cout << "read in nucleon positions with nucleon-nucleon correlation..." << flush;
    ostringstream filename;
@@ -223,7 +369,7 @@ void OverLap::readin_nucleon_positions()
    cout << " done." << endl;
 }
 
-void OverLap::GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3)
+void Nucleus::GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3)
 {
    int num_configuration = triton_pos.size();
    int rand_num = rand() % num_configuration;
@@ -252,7 +398,7 @@ void OverLap::GetTritonPosition(double& x1,double& y1,double& z1,double &x2,doub
 }
 
 // *** this function applies to deformed nuclei ***
-void OverLap::getDeformRandomWS(double& x, double& y, double& z)
+void Nucleus::getDeformRandomWS(double& x, double& y, double& z)
 {
   double rad1 = rad;
   double rwMax1 = rwMax;
@@ -297,7 +443,7 @@ void OverLap::getDeformRandomWS(double& x, double& y, double& z)
   }
 }
 
-void OverLap::get_nucleon_position_with_NN_correlation(double **nucleon_ptr)
+void Nucleus::get_nucleon_position_with_NN_correlation(double **nucleon_ptr)
 {
    int i_configuration = rand() % n_configuration;  // pick the configuration
    double** temp_nucleus = new double* [atomic];
@@ -343,7 +489,7 @@ void OverLap::get_nucleon_position_with_NN_correlation(double **nucleon_ptr)
 }
 
 
-double OverLap::SphericalHarmonics(int l, double ct)
+double Nucleus::SphericalHarmonics(int l, double ct)
 {
   //Currently assuming m=0 and available for Y_{20} and Y_{40}
   // "ct" is cos(theta)
@@ -370,9 +516,8 @@ double OverLap::SphericalHarmonics(int l, double ct)
 
 }
 
-
 //**********************************************************************
-void OverLap::Gauss38(double xini,double xfin,double* xn,double* wn)
+void Nucleus::Gauss38(double xini,double xfin,double* xn,double* wn)
 {
     double  x[38], w[38];
 
@@ -428,36 +573,51 @@ void OverLap::Gauss38(double xini,double xfin,double* xn,double* wn)
 
 }
 
-
-
-//#define MAIN
-
-#ifdef MAIN
-#include <iomanip>
-int main() {
-
-  double r,x,y,z;
-  int hist[100];
-  double sig=42.0; // 200GeV.
-  OverLap* overlap = new OverLap(2,0.0,sig,0);
-
-  int count=0;
-  for(int i=0; i<100; i++)  hist[i]=0;
-  double Rrms=0.;
-
-  for(int i=0;i<100000;i++) {
-    overlap->getRandomWS(x,y,z);
-    r = sqrt(x*x+y*y+z*z);
-    hist[(int)(r/.1)]++;
-    count++;
-  }
-
-  for(int i=0; i<100; i++) {
-    Rrms += pow((i+.5)*.1,2.) * (float)hist[i]/(float)count;
-    cout << (i+.5)*.1 << " " << (float)hist[i]/(float)count << endl;
-  }
-  cout << "# R_rms = " << sqrt(Rrms) << endl;
-
-  return 0;
+void Nucleus::dumpParticipants(ofstream &of)
+{
+    double x, y;
+    for(int i = 0; i < woundedNucleons.size(); i++)
+    {
+        x = woundedNucleons[i]->getX();
+        y = woundedNucleons[i]->getY();
+        of  << setprecision(3) << setw(10) << x
+            << setprecision(3) << setw(10) << y << " "
+            << woundedNucleons[i]->getBoundingBox().toString() << endl;
+    }
 }
-#endif
+
+void Nucleus::dumpNucleons(ofstream& of)
+{
+    
+    double x, y;
+    for(int i = 0; i < nucleons.size(); i++)
+    {
+        x = nucleons[i]->getX();
+        y = nucleons[i]->getY();
+        of  << setprecision(3) << setw(10) << x
+            << setprecision(3) << setw(10) << y
+            << endl;
+    }
+}
+
+void Nucleus::dumpQuarks(ofstream& of)
+{
+    double x, y;
+    vector<Quark> quarks;
+    for(int i = 0; i < woundedNucleons.size(); i++)
+    {
+        quarks = woundedNucleons[i]->getQuarks();
+        for(int j = 0; j < quarks.size(); j++)
+        {
+            x = quarks[j].getX();
+            y = quarks[j].getY();
+            of << setprecision(3) << setw(10) << x
+               << setprecision(3) << setw(10) << y << " "
+               << quarks[j].getBoundingBox().toString() << endl;
+               
+        }
+    }
+}
+
+
+
