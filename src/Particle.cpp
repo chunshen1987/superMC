@@ -55,7 +55,7 @@ double Particle::getFluctuatedTn(double xg, double yg)
         //Divide a total of 1 density between 3 quarks
     double s = ValenceQuarks[i].getSmoothTn(xg,yg)/3;
     if(glueField){
-      s*= glueField->getFactor(xg,yg);
+      s*= glueField->getFactor(xg-x,yg-y);
     }
 
    	dens += s; 
@@ -70,8 +70,6 @@ double Particle::getSmoothTn(double xg, double yg)
 {
     double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
     double Tn = (1/(2*width*width))*exp(-r*r/(2*width*width));
-    if(glueField)
-      Tn*= glueField->getFactor(xg,yg);
     return Tn;
 }
 
@@ -100,7 +98,7 @@ double Particle::getFluctuatedDensity(double xg, double yg)
         //Divide a total of 1 density between 3 quarks
     double s = ValenceQuarks[i].getSmoothDensity(xg,yg)/3;
     if(glueField)
-      s*=glueField->getFactor(xg,yg);
+      s*=glueField->getFactor(xg-x,yg-y);
 
    	dens += ValenceQuarks[i].getSmoothDensity(xg,yg)/3; 
    }

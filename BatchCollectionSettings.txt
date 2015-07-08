@@ -1,0 +1,29 @@
+[SuperMCArgs]
+
+arg1: gluon_field_fluctuations=0 shape_of_entropy=3 Aproj=1
+arg2: gluon_field_fluctuations=1 shape_of_entropy=3 Aproj=1
+
+[FileNames]
+
+f1: p_Au_200GeV_NoGluonFluc
+f2: p_Au_200GeV_Fluctuated
+
+
+[FolderParams]
+Destination: ~/Desktop/DataCollectionRefactor
+LocationOfPlotUtility: ~/Desktop/pythonPlotUtility-master
+
+[RunTimeParams]
+
+Instances: 8
+
+[Unused]
+
+arg1: gluon_field_fluctuations=0 shape_of_entropy=2 Aproj=1
+arg2: gluon_field_fluctuations=0 shape_of_entropy=2 Aproj=2
+arg3: gluon_field_fluctuations=0 shape_of_entropy=2 Aproj=3
+
+f1: p_Au_200GeV_Smooth
+f2: d_Au_200GeV_Smooth
+f3: t_Au_200GeV_Smooth
+
