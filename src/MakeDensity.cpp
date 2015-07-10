@@ -1906,6 +1906,7 @@ void MakeDensity::generateEccTable(int nevent)
   // event start.
   int event=1;
   Stopwatch sw;
+  cout << endl;
   while (event<=nevent)
   {
     int tries = 0;
@@ -1962,16 +1963,22 @@ void MakeDensity::generateEccTable(int nevent)
     mc->deleteNucleus();
     if(cutdSdypassFlag)
     {
-        if(event % 200 == 0){
-            sw.toc();
-            double de_dt = 200/sw.takeTime();
-            int eta = (nevent-event)/de_dt;
-            
-            cout << "processing event: " << event;
-            cout << " eta - " << eta/60 << "m" << eta % 60 << "s";
-            cout << " speed - " << de_dt << " e/s" << endl;
-            sw.tic();
-        }
+      if(event % 50 == 0){
+        sw.toc();
+        double de_dt = event/sw.takeTime();
+        int eta = (nevent-event)/de_dt;
+        
+        int progress = (int)(10*event/nevent);
+        string bars = "";
+        for(int nBars = 0; nBars < progress; nBars++)
+          bars+="|";
+        cout << "[" << setw(10) << left << bars << right << "]";
+        cout << " eta - " << setw(2) << eta/60 << "m";
+        cout << setw(2) << eta % 60 << "s";
+        cout << " speed - " << setw(6) << setprecision(4) << de_dt << " e/s\r";
+        cout.flush();
+      }
+
       event++;
     }
   } // <-> while (event<=nevent)
@@ -2119,20 +2126,22 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
                     
                     x = Xmin + i*dx - xc; y = Ymin + j*dy - yc; // shift to center
                     r = sqrt(x*x + y*y); theta = atan2(y,x);
-                    mom_real[order] += r*r*cos(order*theta)*density[iy][i][j];
-                    mom_imag[order] += r*r*sin(order*theta)*density[iy][i][j];
-                    norm[order] += r*r*density[iy][i][j];
-                    if(order == 1)
-                    {
-                       momp_real[order] += pow(r,3)*cos(order*theta)*density[iy][i][j];
-                       momp_imag[order] += pow(r,3)*sin(order*theta)*density[iy][i][j];
-                       normp[order] += pow(r,3)*density[iy][i][j];
-                    }
-                    else
-                    {
-                       momp_real[order] += pow(r,order)*cos(order*theta)*density[iy][i][j];
-                       momp_imag[order] += pow(r,order)*sin(order*theta)*density[iy][i][j];
-                       normp[order] += pow(r,order)*density[iy][i][j];
+                    if(i < Maxx && i >=0 && j < Maxy && j >= 0){
+                      mom_real[order] += r*r*cos(order*theta)*density[iy][i][j];
+                      mom_imag[order] += r*r*sin(order*theta)*density[iy][i][j];
+                      norm[order] += r*r*density[iy][i][j];
+                      if(order == 1)
+                      {
+                         momp_real[order] += pow(r,3)*cos(order*theta)*density[iy][i][j];
+                         momp_imag[order] += pow(r,3)*sin(order*theta)*density[iy][i][j];
+                         normp[order] += pow(r,3)*density[iy][i][j];
+                      }
+                      else
+                      {
+                         momp_real[order] += pow(r,order)*cos(order*theta)*density[iy][i][j];
+                         momp_imag[order] += pow(r,order)*sin(order*theta)*density[iy][i][j];
+                         normp[order] += pow(r,order)*density[iy][i][j];
+                      }
                     }
                 }
             }
@@ -2221,6 +2230,9 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     delete[] momp_real;
     delete[] momp_imag;
     delete[] normp;
+    for(int i = 0; i < nXpoints; i++)
+      delete[] importantRegions[i];
+    delete[] importantRegions;
 }
 
 

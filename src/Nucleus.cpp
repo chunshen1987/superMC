@@ -266,7 +266,7 @@ void Nucleus::populate(double xCenter, double yCenter)
     std::sort(nucleons.begin(),nucleons.end(),sortByXLeft);
     
     if(gluonFieldInitialization)
-      setGluonFields();
+       setGluonFields();
 }
 
 void Nucleus::setGluonFields()

@@ -3,19 +3,21 @@ import sys
 import ConfigParser
 import string
 import time
+import multiprocessing as mp
+import multiprocessing.pool as mpool
+import subprocess
 
 
-def RunSuperMCWithArgs(args = '',instances = 8):
-	"""Runs ./superMC with [instances] terminals at once with the correct arguments"""
-	i = 1
-	while i < instances:
-		os.system('gnome-terminal -e \"./superMC.e ' + args+"\"")
-		i+=1
+def RunSuperMCWithArgs(args = ''):
+	"""Runs ./superMC with specified args"""
 
-	time.sleep(6)
-	os.system('./superMC.e ' + args)
+	p = subprocess.check_call('gnome-terminal -e \"./superMC.e ' + args+"\"", shell  = True)
+	p.wait()
 
-	UpdateParameters(args)
+def Run(args = ''):
+
+	p = subprocess.call('gnome-terminal -e \"./superMC.e ' + args+"\"", shell  = False)
+	p.wait()
 
 def UpdateParameters(args):
 	
@@ -59,13 +61,14 @@ def CutAndMoveData(plotUtilityDirectory,destination,args,name,cutFlag = True):
 		#Cut the data
 		for param in centralityCutParams:
 			os.system('python ' + plotUtilityDirectory + '/minbias_CentralityCut.py data/minbiasEcc_sn.db -type ' + param)
-			#os.system('mv eccnStatistics_ed_'+param+'.dat ' + destinationFolder)
 			os.system('mv eccnStatistics_sd_'+param+'.dat ' + destinationFolder)
+			os.system('mv eccnStatistics_ed_'+param+'.dat ' + destinationFolder)
 			os.system('mv centralityCut_'+param+'.dat ' + destinationFolder)
+			os.system('mv avgcollisionParameters_centralityCut_' + param + '.dat ' + destinationFolder)
 
+		# Handle the impact parameter cuts
 		os.system('python ' + plotUtilityDirectory + '/minbias_ImpactParameterCut.py data/minbiasEcc_sn.db')
-		#Move the files over
-		#os.system('mv eccnStatistics_ed_b.dat ' + destinationFolder)
+		os.system('mv eccnStatistics_ed_b.dat ' + destinationFolder)
 		os.system('mv eccnStatistics_sd_b.dat ' + destinationFolder)
 		os.system('mv centralityCut_b.dat ' + destinationFolder)
 
@@ -89,14 +92,34 @@ if __name__ == "__main__":
 
 	superMCArgs = Config.items('SuperMCArgs')
 
-	instances = Config.get('RunTimeParams','Instances')
+	instances = int(Config.get('RunTimeParams','Instances'))
 	names = Config.items('FileNames')
 
+	errorFile = open('superMCErrorLog.txt','w')
+
+	os.system('rm -fr data/*')
 	for i in range(len(superMCArgs)):
-		RunSuperMCWithArgs(superMCArgs[i][1],int(instances))
+		args = superMCArgs[i][1]
+		processes = []
+		cmd = ['./superMC.e']
+		for arg in args.split():
+			cmd.append(arg)
+
+		for j in range(instances-1):
+			processes.append(subprocess.Popen(cmd,stdout = subprocess.PIPE, stderr = errorFile))
+
+		os.system('./superMC.e ' + args)
+
+		for p in processes:
+			p.wait()
+
+		UpdateParameters(superMCArgs[i][1])
+
 		if i < len(names):
 			CutAndMoveData(locationOfPlotUtility,destination,superMCArgs[i][1],names[i][1],cutFlag)
 		else:
 			CutAndMoveData(locationOfPlotUtility,destination,superMCArgs[i][1],None,cutFlag)
+
 		os.system('rm -fr data/*')
 
+	errorFile.close()
