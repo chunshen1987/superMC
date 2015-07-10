@@ -32,8 +32,6 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
   Quark::width = quark_width;
   delete gaussCal;
   ecm = paraRdr->getVal("ecm");
-
-  gluonFieldInitialization = paraRdr->getVal("gluon_field_fluctuations")==1;
   
   // save atomic # of nucleus for later; can be recalled using: getAtomic()
   deformed = deformed_in;
@@ -264,17 +262,6 @@ void Nucleus::populate(double xCenter, double yCenter)
     
     // Sort them by their xLeft bound. This is to optimize collision detection.
     std::sort(nucleons.begin(),nucleons.end(),sortByXLeft);
-    
-    if(gluonFieldInitialization)
-       setGluonFields();
-}
-
-void Nucleus::setGluonFields()
-{
-  for(int i = 0; i < nucleons.size(); i++)
-  {
-    nucleons[i]->setGluonField(new GluonField(atomic,ecm));
-  }
 }
 
 void Nucleus::markWounded(Particle* part)

@@ -140,6 +140,3 @@ generate_reaction_plane_avg_profile = 0    # switch to generate smooth event-ave
                                            # profile with respect to reaction plane defined 
                                            # by the direction of the impact parameter 
                                            # and the beam direction
-
-gluon_field_fluctuations = 0  # Switch to turn on or off modification of the entropy
-                              # density with gluon field fluctuations.

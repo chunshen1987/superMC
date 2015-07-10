@@ -24,8 +24,6 @@ class Nucleus
 protected:
     vector<Particle*> nucleons;
     vector<Particle*> woundedNucleons;
-    
-    bool gluonFieldInitialization;
     GaussianDistribution* quarkDist;
     int nPart;
     
@@ -64,8 +62,7 @@ public:
     void clearNucleons();
     void getRandomWS(double& x, double& y, double& z);
     void markWounded(Particle* part);
-    void setGluonFields();
-
+    
     static void Gauss38(double xini,double xfin,double* xn,double* wn);
     
     void dumpParticipants(ofstream& of);
