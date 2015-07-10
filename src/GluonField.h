@@ -18,6 +18,11 @@ class GluonField
 	double xOrigin;
 	double yOrigin;
 public:
+	GluonField()
+	{
+		a = -1;
+		energy = -1;
+	}
 	GluonField(int A,double ecm)
 	{
 		a = A;

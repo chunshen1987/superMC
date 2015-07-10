@@ -28,7 +28,7 @@ glb_entropy_width = 0.5   # User specified gaussian width for the deposition of 
                           # in the Glauber model 
 
 # Nucleus Optns
-Aproj = 1               # Projectile atomic number
+Aproj = 2               # Projectile atomic number
 Atarg = 197               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
@@ -44,12 +44,12 @@ shape_of_nucleons = 3     # (1) Disk-like nucleons with width given by sigmaNN
                           # (4) Gaussian nucleons with user specified width 
                           # (5-9) Gaussian nucleons for other models (future use)
 
-collision_criterion = 4   # (1) Forces disk-like collision detection
+collision_criterion = 0   # (1) Forces disk-like collision detection
             						  # (2) Forces Gaussian collision detection
             						  # (3) Forces Dynamic Tn collision detection
             						  # (Other) Picks based on shape of nucleons and shape of entropy.
             						  
-shape_of_entropy = 2      # (1) Disk like entropy
+shape_of_entropy = 3      # (1) Disk like entropy
       					          # (2) Normal Gaussian nucleons
                           # (3) valence quark substructure 
 quark_width = 0.2         # valence quark entropy deposition width
@@ -71,7 +71,7 @@ cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy de
 
 
 # Monte Carlo Optns
-nev = 12500                   # Number of collision events simulated
+nev = 62500                  # Number of collision events simulated
 randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off

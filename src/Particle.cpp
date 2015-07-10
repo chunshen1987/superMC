@@ -19,10 +19,13 @@ Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
    baseBox.setSquareDimensions(6*width);
    boundingBox = baseBox;
    generateQuarkPositions();
+   glueField = NULL;
 }
 
 Particle::~Particle()
 {
+  if(glueField)
+    delete glueField;
 }
 
 void Particle::generateQuarkPositions()
@@ -54,10 +57,6 @@ double Particle::getFluctuatedTn(double xg, double yg)
    {
         //Divide a total of 1 density between 3 quarks
     double s = ValenceQuarks[i].getSmoothTn(xg,yg)/3;
-    if(glueField){
-      s*= glueField->getFactor(xg-x,yg-y);
-    }
-
    	dens += s; 
    }
    return dens;
@@ -95,12 +94,12 @@ double Particle::getFluctuatedDensity(double xg, double yg)
    double dens = 0;
    for(int i(0);i<3;i++)
    {
-        //Divide a total of 1 density between 3 quarks
+    //Divide a total of 1 density between 3 quarks
     double s = ValenceQuarks[i].getSmoothDensity(xg,yg)/3;
     if(glueField)
       s*=glueField->getFactor(xg-x,yg-y);
 
-   	dens += ValenceQuarks[i].getSmoothDensity(xg,yg)/3; 
+   	dens += s; 
    }
    return dens;
 }

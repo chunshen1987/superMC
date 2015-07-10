@@ -517,14 +517,14 @@ void MCnucl::setDensity(int iy, int ipt)
 {
   // which_mc_model==1 -> KLN-like
   if (which_mc_model==1 && ipt>=0 && (dndydptTable==0)) {
-    cout << "ERROR in MCnucl::setDensity() : pt-bin=" << ipt <<
+    cerr << "ERROR in MCnucl::setDensity() : pt-bin=" << ipt <<
       " but no dndydptTable !" << endl;
     exit(0);
   }
 
   // which_mc_model==1 -> KLN-like
   if (which_mc_model==1 && ipt<0 && (dndyTable==0)) {
-    cout <<
+    cerr <<
      "ERROR in MCnucl::setDensity() : pt-integrated yields require dndyTable !" << endl;
     exit(0);
   }
@@ -610,7 +610,7 @@ void MCnucl::setDensity(int iy, int ipt)
       }
       else
       {
-          cout << "MCnucl::setDensity error: which_mc_model is set to " << which_mc_model << ", but the associated sub_model " << sub_model << " is not recognized." << endl;
+          cerr << "MCnucl::setDensity error: which_mc_model is set to " << which_mc_model << ", but the associated sub_model " << sub_model << " is not recognized." << endl;
           exit(-1);
       }
 
@@ -678,7 +678,7 @@ void MCnucl::setDensity(int iy, int ipt)
   }
   if(dndy<1e-15)
   {
-    cout << "MCnucl::setDensity dndy = 0 !!  y= " << rapidity
+    cerr << "MCnucl::setDensity dndy = 0 !!  y= " << rapidity
      << " dndy= " << dndy << endl;
     exit(0);
   }
@@ -772,8 +772,8 @@ void MCnucl::fluctuateCurrentDensity(int iy)
     }
     else
     {
-        cout << "MCnucl::fluctuateCurrentDensity error: CCFluctuationModel not supported." << endl;
-        cout << "MCnucl:: CCFluctuationModel = " << CCFluctuationModel << endl;
+        cerr << "MCnucl::fluctuateCurrentDensity error: CCFluctuationModel not supported." << endl;
+        cerr << "MCnucl:: CCFluctuationModel = " << CCFluctuationModel << endl;
         exit(-1);
     }
 }
