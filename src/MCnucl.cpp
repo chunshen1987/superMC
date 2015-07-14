@@ -208,9 +208,9 @@ int MCnucl::getBinaryCollision()
   {
       vector<Particle*> nucl2 = targ->getNucleons();
       missingNucleus = true;
-      cout << "Projectile missing. Dumping target entropy." << endl;
       for(int i = 0; i < (int)nucl2.size(); i++){
           selectFluctFactors(nucl2[i]);
+          nucl2[i]->addCollidingParticle(nucl2[i]);
           targ->markWounded(nucl2[i]);
       }
   }
@@ -218,9 +218,9 @@ int MCnucl::getBinaryCollision()
   {
       vector<Particle*> nucl1 = proj->getNucleons();
       missingNucleus = true;
-      cout << "Target missing. Dumping projectile entropy." << endl;
       for(int i = 0; i < (int)nucl1.size(); i++){
           selectFluctFactors(nucl1[i]);
+          nucl1[i]->addCollidingParticle(nucl1[i]);
           proj->markWounded(nucl1[i]);
       }
   }
@@ -286,7 +286,10 @@ int MCnucl::getBinaryCollision()
   Npart1 /= overSample;
   Npart2 /= overSample;
   
-  return missingNucleus ? 1 : binaryCollision.size();
+  if(missingNucleus)
+    return 1;
+  else
+    return binaryCollision.size();
 }
 
 void MCnucl::selectFluctFactors(Particle* part)

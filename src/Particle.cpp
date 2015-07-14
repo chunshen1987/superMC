@@ -15,7 +15,7 @@ GaussianDistribution* Particle::quarkDist;
 Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 {
    baseBox.setCenter(x0,y0);
-   baseBox.setSquareDimensions(6*width);
+   baseBox.setSquareDimensions(7*width);
    boundingBox = baseBox;
    generateQuarkPositions();
 }

@@ -1,32 +1,38 @@
 [SuperMCArgs]
 
-
+arg1: shape_of_entropy=3 Aproj=1 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
 arg2: shape_of_entropy=3 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
 arg3: shape_of_entropy=3 Aproj=3 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
 
+arg4: shape_of_entropy=3 Aproj=1 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
 arg5: shape_of_entropy=3 Aproj=2 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
 arg6: shape_of_entropy=3 Aproj=3 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
 
+arg7: shape_of_entropy=2 Aproj=1 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
 arg8: shape_of_entropy=2 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
 arg9: shape_of_entropy=2 Aproj=3 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
 
+arg10: shape_of_entropy=2 Aproj=1 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
 arg11: shape_of_entropy=2 Aproj=2 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
 arg12: shape_of_entropy=2 Aproj=3 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
 
 [FileNames]
 
-f2: d_Au_200GeV_Fluctuated
-f3: t_Au_200GeV_Fluctuated
+f1: p_Au_200GeV_Fluctuated_b=0
+f2: d_Au_200GeV_Fluctuated_b=0
+f3: t_Au_200GeV_Fluctuated_b=0
 
-f5: d_Pb_5020GeV_Fluctuated
-f6: t_Pb_5020GeV_Fluctuated
+f4: p_Pb_5020GeV_Fluctuated_b=0
+f5: d_Pb_5020GeV_Fluctuated_b=0
+f6: t_Pb_5020GeV_Fluctuated_b=0
 
-f8: d_Au_200GeV_Smooth
-f9: t_Au_200GeV_Smooth
+f7: p_Au_200GeV_Smooth_b=0
+f8: d_Au_200GeV_Smooth_b=0
+f9: t_Au_200GeV_Smooth_b=0
 
-f11: d_Pb_5020GeV_Smooth
-f12: t_Pb_5020GeV_Smooth
-
+f10: p_Pb_5020GeV_Smooth_b=0
+f11: d_Pb_5020GeV_Smooth_b=0
+f12: t_Pb_5020GeV_Smooth_b=0
 
 [FolderParams]
 Destination: ~/Desktop/DataCollectionRefactor
@@ -48,3 +54,15 @@ f3: t_Au_200GeV_Smooth
 
 
 
+arg1: shape_of_entropy=2 Aproj=1 Atarg=1 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg2: shape_of_entropy=3 Aproj=1 Atarg=1 ecm=200 cc_fluctuation_Gamma_theta=0.61
+
+arg3: shape_of_entropy=2 Aproj=1 Atarg=1 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+arg4: shape_of_entropy=3 Aproj=1 Atarg=1 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+
+
+f1: p_p_200GeV_Smooth
+f2: p_p_200GeV_Fluctuated
+
+f3: p_p_5020GeV_Smooth
+f4: p_p_5020GeV_Fluctuated
