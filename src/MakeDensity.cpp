@@ -263,7 +263,7 @@ void MakeDensity::generate_profile_ebe_Jet(int nevent)
       tries++;
       if (tries>300)
       {
-          cout << "===== MakeDensity::generate error =====" << endl
+          cerr << "===== MakeDensity::generate error =====" << endl
               << "No collisions detected after maximum number of tries." << endl
               << "What impact parameter are you using?" << endl;
           //exit(-1); // no more tries: something must be wrong.
@@ -522,7 +522,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
       tries++;
       if (tries>300)
       {
-          cout << "===== MakeDensity::generate error =====" << endl
+          cerr << "===== MakeDensity::generate error =====" << endl
               << "No collisions detected after maximum number of tries." << endl
               << "What impact parameter are you using?" << endl;
           //exit(-1); // no more tries: something must be wrong.
@@ -530,7 +530,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
       }
     }
     Npart = mc->getNpart1()+mc->getNpart2();
-    //mc->dumpBinaryTable("binary.txt"); // for collision profile
+    mc->dumpBinaryTable("data/binary.dat");
 
     // is event-by-event calculation; no need to rotate
     // compute density before rotation.
@@ -1120,7 +1120,7 @@ void MakeDensity::generate_profile_average(int nevent)
       tries++;
       if (tries>300)
       {
-          cout << "===== MakeDensity::generate error =====" << endl
+          cerr << "===== MakeDensity::generate error =====" << endl
               << "No collisions detected after maximum number of tries." << endl
               << "What impact parameter are you using?" << endl;
           //exit(-1); // no more tries: something must be wrong.
@@ -1920,7 +1920,7 @@ void MakeDensity::generateEccTable(int nevent)
       tries++;
       if (tries>300)
       {
-          cout << "===== MakeDensity::generate error =====" << endl
+          cerr << "===== MakeDensity::generate error =====" << endl
               << "No collisions detected after maximum number of tries." << endl
               << "What impact parameter are you using?" << endl;
           //exit(-1); // no more tries: something must be wrong.
@@ -1929,7 +1929,7 @@ void MakeDensity::generateEccTable(int nevent)
     }
     Npart = mc->getNpart1()+mc->getNpart2();
     Nbin = mc->getNcoll();
-
+    //mc->dumpBinaryTable("data/binary.dat");
     // compute eccentricity.
     mc->calculateThickness();
 
