@@ -69,6 +69,8 @@ bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
     double overlap = 0;
     vector<Quark> myQuarks = me->getQuarks();
     vector<Quark> yourQuarks = you->getQuarks();
+    double gaussianWidthSqr = Quark::width*Quark::width;
+    double cutoffDistance = 5*Quark::width;
     
     for(int i = 0; i < myQuarks.size(); i++)
     {
@@ -77,27 +79,13 @@ bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
         for(int j = 0; j < yourQuarks.size(); j++)
         {
             Quark yours = yourQuarks[j];
-            Box2D yourBox = yours.getBoundingBox();
-            Box2D overlapRegion = myBox.intersection(yourBox);
-            
-            if(overlapRegion.isPositive())
-            {
-                double x = overlapRegion.getXL();
-                while(x < overlapRegion.getXR())
-                {
-                    double y = overlapRegion.getYL();
-                    while(y < overlapRegion.getYR())
-                    {
-                        overlap += mine.getSmoothTn(x,y)*
-                                yours.getSmoothTn(x,y)*dxy*dxy/9;
-                        y += dxy;
-                    }
-                    x += dxy;
-                }
-            }
+            double d = (mine.getX()-yours.getX())*(mine.getX()-yours.getX()) +
+                       (mine.getY()-yours.getY())*(mine.getY()-yours.getY());
+
+            overlap += (1/(4*M_PI*gaussianWidthSqr)) * exp(-d/(4*gaussianWidthSqr))/9;
         }
     }
-    
+
     if(drand48() < 1.-exp(-sigma_gg*overlap))
         return true;
     else

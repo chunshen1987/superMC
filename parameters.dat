@@ -29,7 +29,7 @@ glb_entropy_width = 0.5   # User specified gaussian width for the deposition of 
 
 # Nucleus Optns
 Aproj = 1               # Projectile atomic number
-Atarg = 0               # Target atomic number
+Atarg = 1               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
 
@@ -44,7 +44,7 @@ shape_of_nucleons = 3     # (1) Disk-like nucleons with width given by sigmaNN
                           # (4) Gaussian nucleons with user specified width 
                           # (5-9) Gaussian nucleons for other models (future use)
 
-collision_criterion = 0   # (1) Forces disk-like collision detection
+collision_criterion = 3   # (1) Forces disk-like collision detection
             						  # (2) Forces Gaussian collision detection
             						  # (3) Forces Dynamic Tn collision detection
             						  # (Other) Picks based on shape of nucleons and shape of entropy.
@@ -71,13 +71,13 @@ cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy de
 
 
 # Monte Carlo Optns
-nev = 1                  # Number of collision events simulated
+nev = 2000                  # Number of collision events simulated
 randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off
 
 # Operation Mode Optns
-operation = 1             # (1) Generate n transverse density profiles for n events 
+operation = 9             # (1) Generate n transverse density profiles for n events 
                           # (input for event-by-event hydro)
                           # (2) Generate n transverse density profiles for n events 
                           # and their corresponding binary collision table and eccentricities
@@ -118,8 +118,8 @@ PT_order = 2              # =1 output the usual entropy/energy density profile; 
 d_PT = 0.1                # Step size of PT in GeV
 
 # Grid Optns
-maxx = 3                 # Max grid value along x direction in fm
-maxy = 3                 # Max grid value along y direction in fm 
+maxx = 1.5                 # Max grid value along x direction in fm
+maxy = 1.5                 # Max grid value along y direction in fm 
 dx = 0.1                  # Step size along x direction in fm
 dy = 0.1                  # Step size along y direction in fm
 ny = 1                    # Number of rapidity bins (do not set to zero)

@@ -1982,7 +1982,8 @@ void MakeDensity::generateEccTable(int nevent)
       event++;
     }
   } // <-> while (event<=nevent)
-
+  // To skip the progress line
+  cout << endl;
 
   for(int iy=0;iy<binRapidity;iy++) {
     for(int j=0;j<Maxy;j++) delete [] dens1[iy][j];
