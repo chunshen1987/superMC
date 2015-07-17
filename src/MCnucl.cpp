@@ -1143,9 +1143,14 @@ double MCnucl::sampleFluctuationFactorforParticipant()
 {
    double eps = 1e-8;
    double fluctfactor = 1.0;
-   double Gamma_k = 1./ccFluctuationGammaTheta;
-   double k_part = (1 - Alpha + eps)/2.*Gamma_k;
-   double theta_part = 2./(1 - Alpha + eps)*ccFluctuationGammaTheta;
+   double theta = ccFluctuationGammaTheta;
+   // Make sure to account for the central limit theorem when sampling 
+   // 3 values for each nucleon.
+   if(shape_of_entropy == 3)
+      theta /= 3;
+   double Gamma_k = 1./theta;
+   double k_part = (1 - Alpha + eps)/2.*Gamma_k;    
+   double theta_part = 2./(1 - Alpha + eps)*theta;
    if(CCFluctuationModel == 6)  //Gamma distribution for MC-Glauber
       fluctfactor = gsl_ran_gamma(gslRng, k_part, theta_part);
    
