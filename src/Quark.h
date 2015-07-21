@@ -30,7 +30,7 @@ class Quark: private Point3D, public IGluonSource
         {
             parent = inParent;
             boundingBox.setCenter(x0,y0);
-            boundingBox.setSquareDimensions(7*width);
+            boundingBox.setSquareDimensions(8*width);
         }
 
         double getX();
