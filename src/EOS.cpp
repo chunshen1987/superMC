@@ -130,6 +130,7 @@ double EOS::T(double ed0)
 
 //----------------------------------------------------------------------
 double zq_global_edFromP_hook(double ee) { return zq_global_eos->p(ee); }
+
 double EOS::edFromP(double p0)
 // Return the energe density from given pressure p0.
 {
@@ -139,6 +140,7 @@ double EOS::edFromP(double p0)
 
 //----------------------------------------------------------------------
 double zq_global_edFromSd_hook(double ee) { return zq_global_eos->sd(ee); }
+
 double EOS::edFromSd(double sd0)
 // Return the energe density from given entropy density sd0.
 {

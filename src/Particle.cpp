@@ -15,9 +15,10 @@ GaussianDistribution* Particle::quarkDist;
 Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 {
    baseBox.setCenter(x0,y0);
-   baseBox.setSquareDimensions(7*width);
+   baseBox.setSquareDimensions(8*width);
    boundingBox = baseBox;
    generateQuarkPositions();
+   resetFluctFactors();
 }
 
 Particle::~Particle()
@@ -26,6 +27,7 @@ Particle::~Particle()
 
 void Particle::generateQuarkPositions()
 {
+  ValenceQuarks.clear();
     // Note* Quarks are generated with a position relative to 
     // their parent nucleon.
    for(int i = 0; i < 3; i++){
@@ -64,6 +66,8 @@ double Particle::getFluctuatedTn(double xg, double yg)
 double Particle::getSmoothTn(double xg, double yg)
 {
     double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
+    if(r > 5*width)
+      return 0;
     double Tn = (1/(2*width*width))*exp(-r*r/(2*width*width));
     return Tn;
 }

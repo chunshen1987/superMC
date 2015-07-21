@@ -17,6 +17,8 @@ double Quark::getSmoothTn(double xg, double yg)
     double xRel = xg-parent->getX();
     double yRel = yg-parent->getY();
     double d = (xRel-x)*(xRel-x)+(yRel-y)*(yRel-y);
+    if(d > 5*width)
+        return 0;
     return (1/(2*M_PI*width*width)) * exp(-d/(2*width*width));
 }
 

@@ -1906,6 +1906,7 @@ void MakeDensity::generateEccTable(int nevent)
   // event start.
   int event=1;
   Stopwatch sw;
+  double de_dt = 0;
   cout << endl;
   while (event<=nevent)
   {
@@ -1965,7 +1966,12 @@ void MakeDensity::generateEccTable(int nevent)
     {
       if(event % 50 == 0){
         sw.toc();
-        double de_dt = event/sw.takeTime();
+
+        if(de_dt >= 1e-15)
+          de_dt = (50/sw.takeTime()*0.25 + de_dt*0.75);
+        else
+          de_dt = 50/sw.takeTime();
+
         int eta = (nevent-event)/de_dt;
         
         int progress = (int)(10*event/nevent);
@@ -1973,10 +1979,12 @@ void MakeDensity::generateEccTable(int nevent)
         for(int nBars = 0; nBars < progress; nBars++)
           bars+="|";
         cout << "[" << setw(10) << left << bars << right << "]";
-        cout << " eta - " << setw(2) << eta/60 << "m";
-        cout << setw(2) << eta % 60 << "s";
-        cout << " speed - " << setw(6) << setprecision(4) << de_dt << " e/s\r";
+        cout << " eta [" << setw(2)  << setfill('0') << eta/60 << ":";
+        cout << setw(2) << setfill('0') << eta % 60 << ']';
+        cout << setfill(' ');
+        cout << " current [" << setw(5) << setprecision(4) << de_dt << " e/s]\r";
         cout.flush();
+        sw.tic();
       }
 
       event++;
@@ -2082,8 +2090,9 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     // This is to avoid double counting, and minimize integration.
     vector<Box2D> hotSpots;
     Box2D region = mc->getHotSpots(hotSpots);
-    int nYpoints = 1+(region.getYR()-region.getYL())/dy;
-    int nXpoints = 1+(region.getXR()-region.getXL())/dx;
+    int nYpoints = (int)((region.getYR()-region.getYL())/dy);
+    int nXpoints = (int)((region.getXR()-region.getXL())/dx);
+    //cout << region.toString() << endl;
     
     bool ** importantRegions = new bool*[nXpoints];
     for(int i = 0; i < nXpoints; i++){
@@ -2092,25 +2101,40 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
             importantRegions[i][j] = false;
     }
         
-    // Mark the important parts in the boolean array
     for(int i = 0; i < hotSpots.size(); i++)
     {
-        double xg = hotSpots[i].getXL();
-        double xMax = hotSpots[i].getXR();
-        while(xg < xMax)
-        {
-            double yg = hotSpots[i].getYL();
-            double yMax = hotSpots[i].getYR();
-            int x_i = (int)floor((xg - region.getXL())/dx);
-            while(yg < yMax)
-            {
-                int y_i = (int)floor((yg - region.getYL())/dy);
-                importantRegions[x_i][y_i] = true;
-                yg+=dy;
-            }
-            xg += dx;
-        }
+        for(int x_i = (int)((hotSpots[i].getXL()-region.getXL())/dx); x_i < (int)((hotSpots[i].getXR()-region.getXL())/dx); x_i++)
+          for(int y_i = (int)((hotSpots[i].getYL()-region.getYL())/dy); y_i < (int)((hotSpots[i].getYR()-region.getYL())/dx); y_i++)
+            importantRegions[x_i][y_i] = true;
+    }/*
+
+    of.open("data/importantRegions.dat");
+    for(int i = 0; i < nXpoints; i++)
+    {
+      for(int j = 0; j < nYpoints; j++)
+      {
+         if(importantRegions[i][j])
+          of << 1;
+        else of << 0;
+        of << " ";
+      }
+      of << endl;
     }
+    of.close();
+    of.open("data/allRegions.dat");
+    for(int iRegion = 0; iRegion < nXpoints; iRegion++)
+    {
+      for(int jRegion = 0; jRegion < nYpoints; jRegion++)
+      {
+        int i = iRegion + (int)((region.getXL()-Xmin)/dx);
+        int j = jRegion + (int)((region.getYL()-Ymin)/dy);
+         of << density[iy][i][j];
+         of << " ";
+      }
+      of << endl;
+    }
+    of.close();*/
+
     
     for (order=from_order; order<=to_order; order++)
     {
@@ -2122,8 +2146,8 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
                 {
                     // Convert from indeces in the bool array to
                     // indeces in the density array
-                    int i = iRegion + (int)(region.getXL()-Xmin)/dx;
-                    int j = jRegion + (int)(region.getYL()-Ymin)/dy;
+                    int i = iRegion + (int)((region.getXL()-Xmin)/dx);
+                    int j = jRegion + (int)((region.getYL()-Ymin)/dy);
                     
                     x = Xmin + i*dx - xc; y = Ymin + j*dy - yc; // shift to center
                     r = sqrt(x*x + y*y); theta = atan2(y,x);
@@ -2147,7 +2171,7 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
                 }
             }
         }
-        
+        //cout << bad << endl;
 
         // take ratio; note that the minus sign is just a convention
         mom_real[order] = -mom_real[order]/(norm[order] + eps);
@@ -2324,8 +2348,6 @@ void MakeDensity::dumpDensityBlock(char filename[], double *** data, const int i
   of.open(filename, std::ios_base::app);
   for(int i=0;i<Maxx;i++) {
     for(int j=0;j<Maxy;j++) {
-      double x = Xmin + i*dx;
-      double y = Ymin + j*dy;
       of << setprecision(12) << setw(22) << data[iy][i][j];
     }
     of << endl;

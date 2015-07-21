@@ -67,6 +67,8 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   CCFluctuationModel = paraRdr->getVal("cc_fluctuation_model");
   CCFluctuationK = paraRdr->getVal("cc_fluctuation_k");
   if (CCFluctuationModel) nbd = new NBD;
+  else nbd = NULL;
+
   if (CCFluctuationModel > 5)
   {
      gsl_rng_env_setup();
@@ -703,6 +705,10 @@ void MCnucl::addDensity(Nucleus* nucl, double** dens)
       int x_idx_right = (int)((partBox.getXR() - Xmin)/dx);
       int y_idx_left = (int)((partBox.getYL() - Ymin)/dy);
       int y_idx_right = (int)((partBox.getYR() - Ymin)/dy);
+      if(x_idx_left < 0 || y_idx_left < 0 || x_idx_left > Maxx || y_idx_left > Maxy)
+      {
+        cerr << "Wounded nucleon extends out of grid bounds" << endl;
+      }
       x_idx_left = max(0, x_idx_left);
       x_idx_right = min(Maxx, x_idx_right);
       y_idx_left = max(0, y_idx_left);
@@ -1189,6 +1195,5 @@ Box2D MCnucl::getHotSpots(vector<Box2D> & hotSpots)
     
     for(int i = 1; i < hotSpots.size(); i++)
         hotSpot.overUnion(hotSpots[i]);
-    
     return hotSpot;
 }
