@@ -29,7 +29,7 @@ glb_entropy_width = 0.5   # User specified gaussian width for the deposition of 
 
 # Nucleus Optns
 Aproj = 1               # Projectile atomic number
-Atarg = 0               # Target atomic number
+Atarg = 197               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
 
@@ -46,7 +46,7 @@ shape_of_nucleons = 3     # (1) Disk-like nucleons with width given by sigmaNN
 
 collision_criterion = 0   # (1) Forces disk-like collision detection
             						  # (2) Forces Gaussian collision detection
-            						  # (3) Forces Dynamic Tn collision detection
+            						  # (3) Forces Quark Tn collision detection
             						  # (Other) Picks based on shape of nucleons and shape of entropy.
             						  
 shape_of_entropy = 2      # (1) Disk like entropy
@@ -61,7 +61,7 @@ gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
 # Collision Optns
 ecm = 200                 # Beam Energy sqrt(s) in GeV
 bmin = 0                  # Minimum sampled impact parameter
-bmax = 0                  # Maximum sampled impact parameter
+bmax = 12                  # Maximum sampled impact parameter
 Npmin = 0                 # Minimum participant nucleon cut
 Npmax = 500               # Maximum participant nucleon cut
 
