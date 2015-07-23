@@ -62,7 +62,7 @@ bool GaussianNucleonsCal::testSmoothCollision(double b)
     return false;
 }
 
-/* Integrate Tn1*Tn2 to get Tnn, the nuclear overlap. */
+/* Add up the overlap of the quarks to get the total overlap. */
 bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
 {
     double dxy = 0.02;

@@ -1150,11 +1150,10 @@ double MCnucl::sampleFluctuationFactorforParticipant()
    double eps = 1e-8;
    double fluctfactor = 1.0;
    double theta = ccFluctuationGammaTheta;
-   // Make sure to account for the central limit theorem when sampling 
-   // 3 values for each nucleon.
-   if(shape_of_entropy == 3)
-      theta /= 3;
    double Gamma_k = 1./theta;
+   // The quark having 1/3 entropy is built into the fluctfactor
+   if(shape_of_entropy = 3)
+    Gamma_k /=3.0;
    double k_part = (1 - Alpha + eps)/2.*Gamma_k;    
    double theta_part = 2./(1 - Alpha + eps)*theta;
    if(CCFluctuationModel == 6)  //Gamma distribution for MC-Glauber

@@ -29,7 +29,7 @@ glb_entropy_width = 0.5   # User specified gaussian width for the deposition of 
 
 # Nucleus Optns
 Aproj = 1               # Projectile atomic number
-Atarg = 197               # Target atomic number
+Atarg = 208               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
 
@@ -49,7 +49,7 @@ collision_criterion = 0   # (1) Forces disk-like collision detection
             						  # (3) Forces Quark Tn collision detection
             						  # (Other) Picks based on shape of nucleons and shape of entropy.
             						  
-shape_of_entropy = 2      # (1) Disk like entropy
+shape_of_entropy = 3      # (1) Disk like entropy
       					          # (2) Normal Gaussian nucleons
                           # (3) valence quark substructure 
 quark_width = 0.2         # valence quark entropy deposition width
@@ -59,7 +59,7 @@ gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
 
 
 # Collision Optns
-ecm = 200                 # Beam Energy sqrt(s) in GeV
+ecm = 5020                 # Beam Energy sqrt(s) in GeV
 bmin = 0                  # Minimum sampled impact parameter
 bmax = 12                  # Maximum sampled impact parameter
 Npmin = 0                 # Minimum participant nucleon cut
@@ -71,7 +71,7 @@ cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy de
 
 
 # Monte Carlo Optns
-nev = 62500                  # Number of collision events simulated
+nev = 12500                  # Number of collision events simulated
 randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off

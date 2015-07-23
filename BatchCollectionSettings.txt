@@ -1,13 +1,10 @@
 [SuperMCArgs]
 
-arg8: shape_of_entropy=3 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
-arg14: shape_of_entropy=2 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg10: shape_of_entropy=3 Aproj=1 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
 
 [FileNames]
 
-
-f8: d_Au_200GeV_Fluctuated
-f14: d_Au_200GeV_Smooth
+f10: p_Pb_5020GeV_Fluctuated
 
 [FolderParams]
 Destination: ~/Desktop/DataCollectionRefactor
