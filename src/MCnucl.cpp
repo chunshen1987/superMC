@@ -1337,9 +1337,10 @@ void MCnucl::dumpparticipantTable(char filename[])
   {
     x = participant[idx]->getX();
     y = participant[idx]->getY();
-    of  << setprecision(3) << setw(10) << x
-        << setprecision(3) << setw(10) << y
-        << endl;
+    int id = participant[idx]->isNucl();
+    of  << setprecision(3) << setw(10) << x << "   "
+        << setprecision(3) << setw(10) << y << "   " 
+        << id << endl;
   }
   of.close();
 }
