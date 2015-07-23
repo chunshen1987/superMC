@@ -31,6 +31,7 @@ class Quark: private Point3D, public IGluonSource
             parent = inParent;
             boundingBox.setCenter(x0,y0);
             boundingBox.setSquareDimensions(8*width);
+            fluctFactor = 1.0/3;
         }
 
         double getX();

@@ -82,7 +82,7 @@ void Particle::setQuarkFluctfactor(double f1, double f2, double f3)
 void Particle::resetFluctFactors()
 {
     fluctfactor = 1;
-    setQuarkFluctfactor(1,1,1);
+    setQuarkFluctfactor(1.0/3,1.0/3,1.0/3);
 }
 
 /* Returns the gluon density at a 
@@ -95,7 +95,8 @@ double Particle::getFluctuatedDensity(double xg, double yg)
    for(int i(0);i<3;i++)
    {
     //Divide a total of 1 density between 3 quarks
-    double s = ValenceQuarks[i].getSmoothDensity(xg,yg)/3;
+    // The factor of 1/3 is in the multiplicty fluctuation factor
+    double s = ValenceQuarks[i].getSmoothDensity(xg,yg);
 
    	dens += s; 
    }
