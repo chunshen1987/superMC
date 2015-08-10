@@ -51,7 +51,10 @@ def CutAndMoveData(plotUtilityDirectory,destination,args,name,cutFlag = True):
 
 	destinationFolder = destination + '/' + folderName
 
-	os.system('mkdir -p ' + destinationFolder)
+	if(os.path.isdir(destinationFolder)):
+		os.system('rm -r ' + destinationFolder + '/*')
+	else:
+		os.system('mkdir -p ' + destinationFolder)
 	centralityCutParams = ['Npart','total_entropy']
 
 	#Make the database
