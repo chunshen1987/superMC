@@ -54,7 +54,7 @@ double Particle::getFluctuatedTn(double xg, double yg)
    for(int i(0);i<3;i++)
    {
         //Divide a total of 1 density between 3 quarks
-    double s = ValenceQuarks[i].getSmoothTn(xg,yg)/3;
+    double s = ValenceQuarks[i].getSmoothTn(xg,yg)/3.0;
    	dens += s; 
    }
    return dens;
@@ -68,7 +68,7 @@ double Particle::getSmoothTn(double xg, double yg)
     double r = sqrt((xg-x)*(xg-x)+(yg-y)*(yg-y));
     if(r > 5*width)
       return 0;
-    double Tn = (1/(2*width*width))*exp(-r*r/(2*width*width));
+    double Tn = (1/(2*M_PI*width*width))*exp(-r*r/(2*width*width));
     return Tn;
 }
 
