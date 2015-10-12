@@ -7,7 +7,7 @@ arg10: shape_of_entropy=3 Aproj=1 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=
 f10: p_Pb_5020GeV_Fluctuated_Test
 
 [FolderParams]
-Destination: ~/Desktop/DataCollectionRefactor
+Destination: ~/Desktop/DataCollectionQuarkCollision
 LocationOfPlotUtility: ~/Desktop/pythonPlotUtility-master
 
 [RunTimeParams]

@@ -27,21 +27,26 @@ Particle::~Particle()
 
 void Particle::generateQuarkPositions()
 {
-  ValenceQuarks.clear();
+   ValenceQuarks.clear();
     // Note* Quarks are generated with a position relative to 
     // their parent nucleon.
-   for(int i = 0; i < 3; i++){
+   double cmOfQuarks[] = {0,0};
+   for(int i = 0; i < 2; i++){
        ValenceQuarks.push_back(Quark(this,quarkDist->rand(),quarkDist->rand()));
+       cmOfQuarks[0] += ValenceQuarks[i].getX();
+       cmOfQuarks[1] += ValenceQuarks[i].getY();
        boundingBox.overUnion(ValenceQuarks[i].getBoundingBox());
    }
+
+   ValenceQuarks.push_back(Quark(this,-cmOfQuarks[0],-cmOfQuarks[1]));
+   boundingBox.overUnion(ValenceQuarks[2].getBoundingBox());
 }
 
 void Particle::calculateBounds()
 {
     boundingBox = baseBox;
     for(int i = 0; i < 3; i++)
-        boundingBox.overUnion(ValenceQuarks[i].getBoundingBox());
-       
+        boundingBox.overUnion(ValenceQuarks[i].getBoundingBox());   
 }
 
 

@@ -24,8 +24,9 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
   GaussianNucleonsCal* gaussCal = new GaussianNucleonsCal(paraRdr);
   double gaussian_entropy_width = gaussCal->width;
   double quark_width = paraRdr->getVal("quark_width");
-  double quark_dist_width = sqrt(gaussian_entropy_width*gaussian_entropy_width-
-                            quark_width*quark_width);
+  // B = sigma_g^2 + (2/3)sigma_q^2. This is when the third quark is determined by CM of nucleon.
+  double quark_dist_width = sqrt((3.0/2.0)*(gaussian_entropy_width*gaussian_entropy_width-
+                            quark_width*quark_width));
   quarkDist = new GaussianDistribution(0,quark_dist_width);
   Particle::width = gaussian_entropy_width;
   Particle::quarkDist = quarkDist;
