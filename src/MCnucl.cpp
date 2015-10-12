@@ -1072,7 +1072,7 @@ void MCnucl::dumpBinaryTable(char filename[])
   targ->dumpParticipants(of);
   of.close();
   
-  of.open("data/quarks.data");
+  of.open("data/quarks.data",ios_base::app);
   proj->dumpQuarks(of);
   targ->dumpQuarks(of);
   of.close();
@@ -1152,8 +1152,10 @@ double MCnucl::sampleFluctuationFactorforParticipant()
    double theta = ccFluctuationGammaTheta;
    double Gamma_k = 1./theta;
    // The quark having 1/3 entropy is built into the fluctfactor
-   if(shape_of_entropy = 3)
-    Gamma_k /=3.0;
+   if(shape_of_entropy == 3)
+   {
+      Gamma_k /=3.0;
+   }
    double k_part = (1 - Alpha + eps)/2.*Gamma_k;    
    double theta_part = 2./(1 - Alpha + eps)*theta;
    if(CCFluctuationModel == 6)  //Gamma distribution for MC-Glauber
