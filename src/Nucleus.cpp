@@ -28,8 +28,22 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
   double quark_dist_width = sqrt((3.0/2.0)*(gaussian_entropy_width*gaussian_entropy_width-
                             quark_width*quark_width));
   quarkDist = new GaussianDistribution(0,quark_dist_width);
+ 
+  ifstream fin("tables/QuarkPos.txt");
+  double x,y,z;
+  fin >> x >> y >> z;
+  while(!fin.eof()){
+    vector<double> temp;
+    temp.push_back(x);
+    temp.push_back(y);
+    temp.push_back(z);
+    Particle::quark_pos.push_back(temp);
+    fin >> x >> y >> z;
+  }
+  fin.close();
+
   Particle::width = gaussian_entropy_width;
-  Particle::quarkDist = quarkDist;
+  Particle::R = quark_dist_width;
   Quark::width = quark_width;
   delete gaussCal;
   ecm = paraRdr->getVal("ecm");
