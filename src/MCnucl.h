@@ -75,7 +75,7 @@ protected:
     // add by Kelvin Welsh
     int shape_of_entropy;
     int forceCollisionCriterion;
-    //quark_width^2 + quark_dist_width^2 = nucleon_width^2
+    //quark_width^2 + (2/3)*quark_dist_width^2 = nucleon_width^2
     GaussianDistribution* gaussDist;
 
     int which_mc_model;

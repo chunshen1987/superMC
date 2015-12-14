@@ -52,7 +52,7 @@ collision_criterion = 0   # (1) Forces disk-like collision detection
 shape_of_entropy = 3      # (1) Disk like entropy
       					          # (2) Normal Gaussian nucleons
                           # (3) valence quark substructure 
-quark_width = 0.2         # valence quark entropy deposition width
+quark_width = 0.03         # valence quark entropy deposition width
 
 gaussian_lambda = 4.14    # 3-> Parameter for energy dependent gaussian width
 gauss_nucl_width = 0.5    # 4-> User specified width for Gaussian nucleons
@@ -71,7 +71,7 @@ cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy de
 
 
 # Monte Carlo Optns
-nev = 8000                 # Number of collision events simulated
+nev = 10000                 # Number of collision events simulated
 randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                           # every step. Use a neg number to turn it off

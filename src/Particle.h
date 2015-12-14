@@ -26,7 +26,8 @@ class Particle: private Point3D, public IGluonSource
 
  public:
     static double width;
-    static GaussianDistribution* quarkDist;
+    static double R;
+    static vector< vector<double> > quark_pos;
 
     Particle(double x0=0,double y0=0, double z0=0);
     ~Particle();
@@ -56,16 +57,12 @@ class Particle: private Point3D, public IGluonSource
     double getFluctfactor() {return fluctfactor;}
     double getWidth() {return width;}
     void   addCollidingParticle(Particle* colliding){who_hit_me.push_back(colliding);}
-    void   setQuarkDist(GaussianDistribution* &dist)
-    {
-        quarkDist = dist;
-        generateQuarkPositions();
-    }
 
     int    getNumberOfCollision() {return who_hit_me.size();}
 
     // functions for nucleon substructure added by Kevin Welsh
     void generateQuarkPositions();
+    void rotateQuarks(double r1, double r2, double z12, double &, double &, double &, double &, double &, double &);
 
     double getFluctuatedTn(double xg, double yg);
     double getSmoothTn(double xg, double yg);

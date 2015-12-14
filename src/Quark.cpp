@@ -2,7 +2,6 @@
 
 double Quark::width = 0;
 
-
 Box2D Quark::getBoundingBox()
 {
     Box2D result = boundingBox;
