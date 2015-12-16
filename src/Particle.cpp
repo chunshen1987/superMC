@@ -10,7 +10,7 @@ using namespace std;
 
 
 double Particle::width = 0;
-double Particle::R=0;
+double Particle::R = 0;
 vector< vector<double> > Particle::quark_pos;
 
 Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
@@ -28,16 +28,17 @@ Particle::~Particle()
 
 void Particle::generateQuarkPositions()
 {
-   ValenceQuarks.clear();
-    // Note* Quarks are generated with a position relative to 
-    // their parent nucleon.
-   double r1, r2, z12;
-   r1 = quark_pos[(int)250000*drand48()][0];
-   r2 = quark_pos[(int)250000*drand48()][1];
-   z12 =quark_pos[(int)250000*drand48()][2];
-   double r1x, r1y, r1z, r2x, r2y, r2z;
-   r1=r1*R;
-   r2=r2*R;
+  ValenceQuarks.clear();
+  // Note* Quarks are generated with a position relative to 
+  // their parent nucleon.
+  double r1, r2, z12;
+  int index = (int)250000*drand48();
+  r1 = quark_pos[index][0];
+  r2 = quark_pos[index][1];
+  z12 = quark_pos[index][2];
+  double r1x, r1y, r1z, r2x, r2y, r2z;
+  r1=r1*R;
+  r2=r2*R;
 
   double Theta1,phi1,phi2; // polar, azimuthal, and "conical" angles
   double Theta12 = acos(z12);
@@ -50,7 +51,7 @@ void Particle::generateQuarkPositions()
   phi2 = 2*M_PI*drand48();
   ux=sin(Theta1)*cos(phi1);
   uy=sin(Theta1)*sin(phi1);
-  uz=cos(Theta1);
+  uz=z1;
   vx=sin(Theta1+Theta12)*cos(phi1);
   vy=sin(Theta1+Theta12)*sin(phi1);
   vz=cos(Theta1+Theta12);
@@ -60,16 +61,18 @@ void Particle::generateQuarkPositions()
   r1x = r1*ux;
   r1y = r1*uy;
   r1z = r1*uz;
+
   r2x = vx*(c+ux*ux*(1-c))+vy*(ux*uy*(1-c)-uz*s)+vz*(ux*uz*(1-c)+uy*s);
   r2y = vx*(ux*uy*(1-c)+uz*s)+vy*(c+uy*uy*(1-c))+vz*(uy*uz*(1-c)-ux*s);
   r2z = vx*(uz*ux*(1-c)-uy*s)+vy*(uz*uy*(1-c)+ux*s)+vz*(c+uz*uz*(1-c));
+
   r2x = r2x*r2;
   r2y = r2y*r2;
   r2z = r2z*r2;
 
-   ValenceQuarks.push_back(Quark(this,r1x,r1y,r1z));
-   ValenceQuarks.push_back(Quark(this,r2x,r2y,r2z));
-   ValenceQuarks.push_back(Quark(this,-r1x-r2x,-r1y-r2y,-r1z-r2z));
+  ValenceQuarks.push_back(Quark(this,r1x,r1y,r1z));
+  ValenceQuarks.push_back(Quark(this,r2x,r2y,r2z));
+  ValenceQuarks.push_back(Quark(this,-r1x-r2x,-r1y-r2y,-r1z-r2z));
 
   /* double cmOfQuarks[] = {0,0};
    for(int i = 0; i < 2; i++){
