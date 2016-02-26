@@ -12,12 +12,10 @@ def RunSuperMCWithArgs(args = ''):
 	"""Runs ./superMC with specified args"""
 
 	p = subprocess.check_call('gnome-terminal -e \"./superMC.e ' + args+"\"", shell  = True)
-	p.wait()
 
 def Run(args = ''):
 
 	p = subprocess.call('gnome-terminal -e \"./superMC.e ' + args+"\"", shell  = False)
-	p.wait()
 
 def UpdateParameters(args):
 	
@@ -78,6 +76,7 @@ def CutAndMoveData(plotUtilityDirectory,destination,args,name,cutFlag = True):
 	os.system('mv data/minbiasEcc_sn.db ' + destinationFolder)
 	os.system('mv ModParameters.dat ' + destinationFolder);
 
+
 if __name__ == "__main__":
 
 	Config = ConfigParser.ConfigParser()
@@ -99,6 +98,7 @@ if __name__ == "__main__":
 	names = Config.items('FileNames')
 
 	errorFile = open('superMCErrorLog.txt','w')
+	stdFile = open('superMCSTDOUT.txt','w')
 
 	os.system('rm -fr data/*')
 	for i in range(len(superMCArgs)):
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 			cmd.append(arg)
 
 		for j in range(instances-1):
-			processes.append(subprocess.Popen(cmd,stdout = subprocess.PIPE, stderr = errorFile))
+			processes.append(subprocess.Popen(cmd,stdout = stdFile, stderr = errorFile))
 
 		os.system('./superMC.e ' + args)
 
@@ -126,3 +126,4 @@ if __name__ == "__main__":
 		os.system('rm -fr data/*')
 
 	errorFile.close()
+	stdFile.close()

@@ -33,7 +33,7 @@ GaussianNucleonsCal::GaussianNucleonsCal(ParameterReader* paraRdr_in)
   
   if(shape_of_nucleons == 1)
   {
-    width = sqrt(sigmaNN_in/(2*M_PI))/2.0;
+    width = sqrt(0.1*sigmaNN_in/(M_PI))/2.0;
     sigma_gg = getSigEff(sigmaNN_in, width);
   }
   if (shape_of_nucleons==3) // see documents
