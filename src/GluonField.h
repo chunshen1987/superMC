@@ -18,7 +18,7 @@ class GluonField
 	double xOrigin;
 	double yOrigin;
 	const static double binWidth = 0.1;
-	const static double distanceScalingFactor = 0.5;
+	const static double distanceScalingFactor = 1;
 public:
 	GluonField()
 	{
@@ -39,8 +39,8 @@ public:
 
 	double getFactor(double xg, double yg)
 	{
-		int x = (int)((xg+xOrigin)*distanceScalingFactor/binWidth);
-		int y = (int)((yg+yOrigin)*distanceScalingFactor/binWidth);
+		int x = (int)((xg*distanceScalingFactor+xOrigin)/binWidth);
+		int y = (int)((yg*distanceScalingFactor+yOrigin)/binWidth);
 		if(a == 197 || a== 208){
 			if(energy == 200)
 				return ImprintArrayRHIC[x][y];
