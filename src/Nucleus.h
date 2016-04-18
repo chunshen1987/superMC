@@ -46,6 +46,7 @@ protected:
     int flag_NN_correlation;
     int n_configuration;
     double*** nucleon_pos_array;
+    bool GFF;
 
 public:
     
@@ -69,6 +70,8 @@ public:
     void dumpNucleons(ofstream& of);
     void dumpQuarks(ofstream& of);
     
+    void setGluonFields();
+
     //Deformation
     void getDeformRandomWS(double& x, double& y, double& z);
     void setRotation(double costheta, double phi) {ctr=costheta; phir=phi;}

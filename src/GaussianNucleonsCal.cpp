@@ -90,7 +90,27 @@ bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
             overlap += (1/(4*M_PI*gaussianWidthSqr)) * exp(-d/(4*gaussianWidthSqr))/9;
         }
     }
+    cout << overlap << endl;
+    if(drand48() < 1.-exp(-sigma_gg*overlap))
+        return true;
+    else
+        return false;
+}
 
+bool GaussianNucleonsCal::testCollisionFromDensity(Particle* me, Particle* you)
+{
+    double dxy = 0.02;
+    double overlap = 0;
+
+    Box2D intersection = me->getBoundingBox().intersection(you->getBoundingBox());
+    for(double x = intersection.getXL(); x < intersection.getXR(); x+=dxy)
+    {
+      for(double y = intersection.getYL(); y < intersection.getYR(); y+=dxy)
+      {
+        overlap += dxy*dxy*me->getSmoothTn(x,y)*you->getSmoothTn(x,y);
+        //cout << me->getSmoothDensity(x,y) << " " << you->getSmoothDensity(x,y) << endl;
+      }
+    }
     if(drand48() < 1.-exp(-sigma_gg*overlap))
         return true;
     else

@@ -27,6 +27,8 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
   // B = sigma_g^2 + (2/3)sigma_q^2. This is when the third quark is determined by CM of nucleon.
   double quark_dist_width = sqrt((3.0/2.0)*(gaussian_entropy_width*gaussian_entropy_width-
                             quark_width*quark_width));
+
+  GFF = paraRdr->getVal("gluon_field_fluctuations")==1;
  
   ifstream fin("tables/QuarkPos.txt");
   double x,y,z;
@@ -275,6 +277,16 @@ void Nucleus::populate(double xCenter, double yCenter)
     
     // Sort them by their xLeft bound. This is to optimize collision detection.
     std::sort(nucleons.begin(),nucleons.end(),sortByXLeft);
+    if(GFF)
+      setGluonFields();
+}
+
+void Nucleus::setGluonFields()
+{
+  for(int i = 0; i < nucleons.size(); i++)
+  {
+    nucleons[i]->setGluonField(new GluonField(atomic,ecm));
+  }
 }
 
 void Nucleus::markWounded(Particle* part)

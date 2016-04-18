@@ -24,6 +24,7 @@ Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 
 Particle::~Particle()
 {
+  delete gluonField;
 }
 
 void Particle::generateQuarkPositions()
@@ -104,7 +105,9 @@ double Particle::getFluctuatedTn(double xg, double yg)
    {
         //Divide a total of 1 density between 3 quarks
     double s = ValenceQuarks[i].getSmoothTn(xg,yg)/3.0;
-   	dens += s; 
+    if(gluonField)
+      s*= gluonField->getFactor(xg-x,yg-y);
+   	dens += s;
    }
    return dens;
 }
@@ -118,7 +121,10 @@ double Particle::getSmoothTn(double xg, double yg)
     if(r > 5*width)
       return 0;
     double Tn = (1/(2*M_PI*width*width))*exp(-r*r/(2*width*width));
-    return Tn;
+    if(gluonField)
+      return Tn*gluonField->getFactor(xg-x,yg-y);
+    else
+      return Tn;
 }
 
 void Particle::setQuarkFluctfactor(double f1, double f2, double f3)
@@ -138,14 +144,14 @@ void Particle::resetFluctFactors()
  * given point in space. Considers sub-nucleonic structure.*/
 double Particle::getFluctuatedDensity(double xg, double yg)
 {
-   if(who_hit_me.size() == 0)
-       return 0;
    double dens = 0;
    for(int i(0);i<3;i++)
    {
     //Divide a total of 1 density between 3 quarks
     // The factor of 1/3 is in the multiplicty fluctuation factor
     double s = ValenceQuarks[i].getSmoothDensity(xg,yg);
+    if(gluonField)
+      s*= gluonField->getFactor(xg-x,yg-y);
 
    	dens += s; 
    }
@@ -157,9 +163,11 @@ double Particle::getFluctuatedDensity(double xg, double yg)
  * Includes multiplicity fluctuations*/
 double Particle::getSmoothDensity(double xg, double yg)
 {
-    if(who_hit_me.size() == 0)
-       return 0;
+  if(gluonField)
+    return getSmoothTn(xg,yg)*fluctfactor*gluonField->getFactor(xg-x,yg-y);
+  else
     return getSmoothTn(xg,yg)*fluctfactor;
+
 }
 
 void Particle::setX(double a)

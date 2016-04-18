@@ -19,7 +19,7 @@ class GaussianNucleonsCal
 
     bool testSmoothCollision(double b);
     bool testFluctuatedCollision(Particle* me, Particle* you);
-
+    bool testCollisionFromDensity(Particle* me, Particle* you);
     static double get2DHeightFromWidth(double w);
 
     double getSigEff(double siginNN, double width);

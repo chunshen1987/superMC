@@ -17,6 +17,8 @@ class GluonField
 	double energy;
 	double xOrigin;
 	double yOrigin;
+	const static double binWidth = 0.1;
+	const static double distanceScalingFactor = 0.5;
 public:
 	GluonField()
 	{
@@ -29,22 +31,29 @@ public:
 		energy = ecm;
         selectOrigin();
 	}
-	~GluonField(){};
+	~GluonField()
+	{
+	};
 
 	void selectOrigin();
 
 	double getFactor(double xg, double yg)
 	{
+		int x = (int)((xg+xOrigin)*distanceScalingFactor/binWidth);
+		int y = (int)((yg+yOrigin)*distanceScalingFactor/binWidth);
 		if(a == 197 || a== 208){
 			if(energy == 200)
-				return ImprintArrayRHIC[(int)((xg+xOrigin)/0.1)][(int)((yg+yOrigin)/0.1)];
+				return ImprintArrayRHIC[x][y];
 			if(energy == 5020)
-				return ImprintArrayLHC[(int)((xg+xOrigin)/0.1)][(int)((yg+yOrigin)/0.1)];
+				return ImprintArrayLHC[x][y];
 		}
 		else if(a == 1)
-			return ImprintArrayProton[(int)((xg+xOrigin)/0.1)][(int)((yg+yOrigin)/0.1)];
+			return ImprintArrayProton[x][y];
 		else if(a == 2)
-			return ImprintArrayDeuteron[(int)((xg+xOrigin)/0.1)][(int)((yg+yOrigin)/0.1)];
+			return ImprintArrayDeuteron[x][y];
+		else
+			// This is not a correct treatment, but mearly a temporary one.
+			return ImprintArrayProton[x][y];
 	}
 };
 

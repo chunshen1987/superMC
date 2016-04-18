@@ -23,6 +23,8 @@ add_executable (superMC.e
   Particle.cpp
   Box2D.cpp
   Quark.cpp
+  GluonField.cpp
+  GluonFields.cpp
   )
 target_link_libraries (superMC.e ${LIBS})
 

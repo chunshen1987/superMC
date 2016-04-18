@@ -360,6 +360,9 @@ int MCnucl::hit(Particle* part1, Particle* part2)
         case 3:
             fluctuated:
             return gaussCal->testFluctuatedCollision(part1,part2);
+        case 4:
+            density:
+            return gaussCal->testCollisionFromDensity(part1,part2);
         default:
             if(shape_of_entropy == 1)
                 goto disk;
@@ -707,7 +710,7 @@ void MCnucl::addDensity(Nucleus* nucl, double** dens)
       int y_idx_right = (int)((partBox.getYR() - Ymin)/dy);
       if(x_idx_left < 0 || y_idx_left < 0 || x_idx_left > Maxx || y_idx_left > Maxy)
       {
-        cerr << "Wounded nucleon extends out of grid bounds" << endl;
+        cerr << "Wounded nucleon extends out of grid bounds " << "("<< part->getX() << "," << part->getY() << ")" << endl;
       }
       x_idx_left = max(0, x_idx_left);
       x_idx_right = min(Maxx, x_idx_right);
