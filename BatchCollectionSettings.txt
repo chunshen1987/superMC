@@ -1,19 +1,17 @@
 [SuperMCArgs]
 
-arg5: shape_of_entropy=3 Aproj=1 Atarg=1 ecm=200 cc_fluctuation_Gamma_theta=0.61
-arg11: shape_of_entropy=2 Aproj=1 Atarg=1 ecm=200 cc_fluctuation_Gamma_theta=0.61
-arg6: shape_of_entropy=3 Aproj=1 Atarg=1 ecm=5020 cc_fluctuation_Gamma_theta=0.75
-arg12: shape_of_entropy=2 Aproj=1 Atarg=1 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+arg10: shape_of_entropy=2 Aproj=1 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg11: shape_of_entropy=2 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg12: shape_of_entropy=3 Aproj=3 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
 
 [FileNames]
 
-f5: p_p_200GeV_Fluctuated_GFFx2
-f11: p_p_200GeV_Smooth_GFFx2
-f6: p_p_5020GeV_Fluctuated_GFFx2
-f12: p_p_5020GeV_Smooth_GFFx2
+f10: p_Au_200GeV_Intrinsic_Smooth_NoMult
+f11: d_Au_200GeV_Intrinsic_Smooth_NoMult
+f12: t_Au_200GeV_Intrinsic_Smooth_NoMult
 
 [FolderParams]
-Destination: ~/Desktop/Data121515
+Destination: ~/Desktop/Data5-3-16Intrinsic
 LocationOfPlotUtility: ~/Desktop/pythonPlotUtility-master
 
 [RunTimeParams]

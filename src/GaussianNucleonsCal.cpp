@@ -52,7 +52,6 @@ GaussianNucleonsCal::GaussianNucleonsCal(ParameterReader* paraRdr_in)
     width = gauss_nucl_width; 
     sigma_gg = getSigEff(sigmaNN_in, width);
   }
-
 }
 
 

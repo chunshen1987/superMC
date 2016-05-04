@@ -15,6 +15,7 @@ vector< vector<double> > Particle::quark_pos;
 
 Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 {
+   gluonField = NULL;
    baseBox.setCenter(x0,y0);
    baseBox.setSquareDimensions(8*width);
    boundingBox = baseBox;
@@ -24,7 +25,8 @@ Particle::Particle(double x0, double y0, double z0): Point3D(x0,y0,z0)
 
 Particle::~Particle()
 {
-  delete gluonField;
+  if(gluonField)
+    delete gluonField;
 }
 
 void Particle::generateQuarkPositions()

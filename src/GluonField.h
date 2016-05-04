@@ -8,18 +8,19 @@
 
 class GluonField
 {
-	static double ImprintArrayLHC[][600];
-	static double ImprintArrayRHIC[][600];
-	static double ImprintArrayProton[][600];
-	static double ImprintArrayDeuteron[][600];
+	static const int gridSize = 3000;
+	static double ImprintArrayLHC[][gridSize];
+	static double ImprintArrayRHIC[][gridSize];
+	//static double ImprintArrayProton[][600];
+	//static double ImprintArrayDeuteron[][600];
 
 	int a;
 	double energy;
 	double xOrigin;
 	double yOrigin;
-	const static double binWidth = 0.1;
-	const static double distanceScalingFactor = 1;
+	const static double binWidth = 0.01;
 public:
+	static double distanceScalingFactor;
 	GluonField()
 	{
 		a = -1;
@@ -41,19 +42,17 @@ public:
 	{
 		int x = (int)((xg*distanceScalingFactor+xOrigin)/binWidth);
 		int y = (int)((yg*distanceScalingFactor+yOrigin)/binWidth);
-		if(a == 197 || a== 208){
-			if(energy == 200)
-				return ImprintArrayRHIC[x][y];
-			if(energy == 5020)
-				return ImprintArrayLHC[x][y];
-		}
-		else if(a == 1)
+		if(energy == 200)
+			return ImprintArrayRHIC[x][y];
+		if(energy == 5020)
+			return ImprintArrayLHC[x][y];
+		/*else if(a == 1)
 			return ImprintArrayProton[x][y];
 		else if(a == 2)
 			return ImprintArrayDeuteron[x][y];
 		else
 			// This is not a correct treatment, but mearly a temporary one.
-			return ImprintArrayProton[x][y];
+			return ImprintArrayProton[x][y];*/
 	}
 };
 

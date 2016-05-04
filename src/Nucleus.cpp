@@ -12,6 +12,7 @@
 #include "ParameterReader.h"
 #include "GaussianNucleonsCal.h"
 #include "Box2D.h"
+#include "GluonField.h"
 
 using namespace std;
 
@@ -29,6 +30,7 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
                             quark_width*quark_width));
 
   GFF = paraRdr->getVal("gluon_field_fluctuations")==1;
+  GluonField::distanceScalingFactor = paraRdr->getVal("gluon_distance_scaling");
  
   ifstream fin("tables/QuarkPos.txt");
   double x,y,z;
