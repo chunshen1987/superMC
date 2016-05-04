@@ -44,7 +44,7 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
     fin >> x >> y >> z;
   }
   fin.close();
-  
+
   Particle::width = gaussian_entropy_width;
   Particle::R = quark_dist_width;
   Quark::width = quark_width;

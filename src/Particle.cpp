@@ -77,6 +77,8 @@ void Particle::generateQuarkPositions()
   ValenceQuarks.push_back(Quark(this,r2x,r2y,r2z));
   ValenceQuarks.push_back(Quark(this,-r1x-r2x,-r1y-r2y,-r1z-r2z));
 
+  calculateBounds();
+
   /* double cmOfQuarks[] = {0,0};
    for(int i = 0; i < 2; i++){
        ValenceQuarks.push_back(Quark(this,quarkDist->rand(),quarkDist->rand()));
@@ -169,7 +171,6 @@ double Particle::getSmoothDensity(double xg, double yg)
     return getSmoothTn(xg,yg)*fluctfactor*gluonField->getFactor(xg-x,yg-y);
   else
     return getSmoothTn(xg,yg)*fluctfactor;
-
 }
 
 void Particle::setX(double a)

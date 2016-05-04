@@ -76,7 +76,6 @@ def CutAndMoveData(plotUtilityDirectory,destination,args,name,cutFlag = True):
 	os.system('mv data/minbiasEcc_sn.db ' + destinationFolder)
 	os.system('mv ModParameters.dat ' + destinationFolder);
 
-
 if __name__ == "__main__":
 
 	Config = ConfigParser.ConfigParser()
@@ -110,7 +109,6 @@ if __name__ == "__main__":
 
 		for j in range(instances-1):
 			processes.append(subprocess.Popen(cmd,stdout = stdFile, stderr = errorFile))
-
 		os.system('./superMC.e ' + args)
 
 		for p in processes:
