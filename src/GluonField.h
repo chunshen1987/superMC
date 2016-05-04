@@ -8,7 +8,8 @@
 
 class GluonField
 {
-	static const int gridSize = 3000;
+	static const int gridSize = 600;
+	const static double binWidth = 0.1;
 	static double ImprintArrayLHC[][gridSize];
 	static double ImprintArrayRHIC[][gridSize];
 	//static double ImprintArrayProton[][600];
@@ -18,7 +19,6 @@ class GluonField
 	double energy;
 	double xOrigin;
 	double yOrigin;
-	const static double binWidth = 0.01;
 public:
 	static double distanceScalingFactor;
 	GluonField()

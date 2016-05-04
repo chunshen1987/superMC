@@ -146,4 +146,4 @@ generate_reaction_plane_avg_profile = 0    # switch to generate smooth event-ave
 gluon_field_fluctuations = 0 # Switch to turn on or off modification of the entropy
                              # density with gluon field fluctuations.
 gluon_distance_scaling = 1 # Used to artificially modifiy the correlation length. ie a -> a/gluon_distance_scaling.
-                           # The spacing of the bins is 0.01fm when gluon_distance_scaling = 1.
+                           # The spacing of the bins is 0.1fm when gluon_distance_scaling = 1.
