@@ -97,10 +97,12 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   
   proj = new Nucleus(paraRdr->getVal("Aproj"),
                     paraRdr,
-                    paraRdr->getVal("proj_deformed"));
+                    paraRdr->getVal("proj_deformed"),
+                    1);
   targ = new Nucleus(paraRdr->getVal("Atarg"),
                     paraRdr,
-                    paraRdr->getVal("targ_deformed"));
+                    paraRdr->getVal("targ_deformed"),
+                    2);
 
   // adding quark substructure Fluctuations (from Kevin Welsh)
   shape_of_entropy = paraRdr->getVal("shape_of_entropy");
@@ -122,16 +124,22 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   TA1 = new double* [Maxx];    // 2d grid for proj/targ. thickness functions
   TA2 = new double* [Maxx];
   rho_binary = new double* [Maxx];  // 2d grid for the binary density
+  spectator_1 = new double* [Maxx]; // 2d grid for spectator density from nucleus 1
+  spectator_2 = new double* [Maxx]; // 2d grid for spectator density from nucleus 2
   for(int ix=0;ix<Maxx;ix++)
   {
     TA1[ix] = new double [Maxy];
     TA2[ix] = new double [Maxy];
     rho_binary[ix] = new double [Maxy];
+    spectator_1[ix] = new double [Maxy];
+    spectator_2[ix] = new double [Maxy];
     for(int iy = 0; iy < Maxy; iy++)
     {
        TA1[ix][iy] = 0;
        TA2[ix][iy] = 0;
        rho_binary[ix][iy] = 0;
+       spectator_1[ix][iy] = 0.;
+       spectator_2[ix][iy] = 0.;
     }
   }
 
@@ -156,10 +164,14 @@ MCnucl::~MCnucl()
     delete [] TA1[ix];
     delete [] TA2[ix];
     delete [] rho_binary[ix];
+    delete [] spectator_1[ix];
+    delete [] spectator_2[ix];
   }
   delete [] TA1;
   delete [] TA2;
   delete [] rho_binary;
+  delete [] spectator_1;
+  delete [] spectator_2;
 
   delete  rho;
 
@@ -377,7 +389,7 @@ int MCnucl::hit(Particle* part1, Particle* part2)
 int MCnucl::CentralityCut()
 {
   int Nptot = Npart1 + Npart2;
-  if (Nptot<=NpartMax && Nptot>NpartMin) return 1;
+  if (Nptot<=NpartMax && Nptot>=NpartMin) return 1;
   return 0;
 }
 
@@ -517,6 +529,97 @@ void MCnucl::calculate_rho_binary()
           }
        }
    }
+}
+
+// calculate the spectator density in the transverse plane
+void MCnucl::calculate_spectator_density()
+{
+   int n_nucleon = spectators.size();
+   double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
+   double d_max;
+   if (shape_of_nucleons == 1)
+       d_max = 2.*sqrt(dsq);
+   if (shape_of_nucleons >= 2 && shape_of_nucleons <=9)
+       d_max = 5.*entropy_gaussian_width;
+   double *spectator_x, *spectator_y, *spectator_rap;
+   spectator_x = new double [n_nucleon];
+   spectator_y = new double [n_nucleon];
+   spectator_rap = new double [n_nucleon];
+   for(int inucleon = 0; inucleon < n_nucleon; inucleon++)
+   {
+       spectator_x[inucleon] = spectators[inucleon]->getX();
+       spectator_y[inucleon] = spectators[inucleon]->getY();
+       spectator_rap[inucleon] = spectators[inucleon]->getRapidity_Y();
+   }
+   for(int ir = 0; ir < Maxx; ir++)
+   {
+       for(int jr = 0; jr < Maxy; jr++)
+       {
+           spectator_1[ir][jr] = 0.0;
+           spectator_2[ir][jr] = 0.0;
+       }
+   }
+
+   for(int inucleon = 0; inucleon < n_nucleon; inucleon++)
+   {
+       double x = spectator_x[inucleon];
+       double y = spectator_y[inucleon];
+       int nucleus_id = 0;
+       if(spectator_rap[inucleon] > 0.)
+           nucleus_id = 1;
+       else
+           nucleus_id = 2;
+
+       int x_idx_left = (int)((x - d_max - Xmin)/dx);
+       int x_idx_right = (int)((x + d_max - Xmin)/dx);
+       int y_idx_left = (int)((y - d_max - Ymin)/dy);
+       int y_idx_right = (int)((y + d_max - Ymin)/dy);
+       x_idx_left = max(0, x_idx_left);
+       x_idx_right = min(Maxx, x_idx_right);
+       y_idx_left = max(0, y_idx_left);
+       y_idx_right = min(Maxy, y_idx_right);
+       for(int ir = x_idx_left; ir < x_idx_right; ir++)
+       {
+          double xg = Xmin + ir*dx;
+          for(int jr = y_idx_left; jr < y_idx_right; jr++)
+          {
+             double yg = Ymin + jr*dy;
+             double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
+             if (shape_of_nucleons == 1)
+             {
+                if(dc <= dsq) 
+                {
+                   if(nucleus_id == 1)
+                       spectator_1[ir][jr] += (10.0/siginNN);
+                   else
+                       spectator_2[ir][jr] += (10.0/siginNN);
+                }
+             }
+             else if (shape_of_nucleons>=2 && shape_of_nucleons<=9)
+             {
+                if (dc > dc_sq_max_gaussian) 
+                   continue; // skip small numbers to speed up
+
+                if(nucleus_id == 1)
+                    spectator_1[ir][jr] += GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2*entropy_gaussian_width_sq)); 
+                    // this density is normalized to 1, to be consistent with the disk-like treatment; 
+                 else
+                    spectator_2[ir][jr] += GaussianNucleonsCal::get2DHeightFromWidth(entropy_gaussian_width)*exp(-dc/(2*entropy_gaussian_width_sq)); 
+             }
+          }
+       }
+   }
+   delete [] spectator_x;
+   delete [] spectator_y;
+   delete [] spectator_rap;
+}
+
+double MCnucl::get_spectator_density(int nucleus_id, int x, int y)
+{
+    if(nucleus_id == 1)
+        return(spectator_1[x][y]);
+    else
+        return(spectator_2[x][y]);
 }
 
 // --- initializes dN/dyd2rt (or dEt/...) on 2d grid for rapidity slice iy
@@ -1004,6 +1107,7 @@ double MCnucl::Angle(const double x,const double y)
 
 void MCnucl::recenterGrid(int iy, int n)
 {
+<<<<<<< HEAD
     rho->calcCMAngle(iy, n);
     double x,y;
     rho->getCM(x,y,iy);
@@ -1027,10 +1131,15 @@ void MCnucl::recenterGrid(int iy, int n)
         binaryCollision[i]->setX(binaryCollision[i]->getX()-x);
         binaryCollision[i]->setY(binaryCollision[i]->getY()-y);
     }
+=======
+  rho->getCMAngle(iy, n);
+  rho->recenterParticle(participant, binaryCollision, spectators, iy);
+>>>>>>> 629e092950286276cc1731845e540a7b3249f161
 }
 
 void MCnucl::rotateGrid(int iy, int n)
 {
+<<<<<<< HEAD
     rho->calcCMAngle(iy,n);
     double angle = rho->getCMAngle(iy);
     recenterGrid(iy,n);
@@ -1051,6 +1160,11 @@ void MCnucl::rotateGrid(int iy, int n)
     for(int i = 0; i < binaryCollision.size(); i++)
         binaryCollision[i]->rotate(0,angle);
     
+=======
+  rho->getCMAngle(iy, n);
+  rho->recenterParticle(participant, binaryCollision, spectators, iy);
+  rho->rotateParticle(participant, binaryCollision, spectators, iy);
+>>>>>>> 629e092950286276cc1731845e540a7b3249f161
 }
 
 

@@ -19,8 +19,10 @@ using namespace std;
 //CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 // --- initializes parameters for WS/Hulthen density distribution of a nucleus
 //     function getRandomWS(x,y,z) then returns sampled nucleon coordinate
-Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in)
+Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in, int id)
 {
+  nuclID = id;
+
   flag_NN_correlation = paraRdr->getVal("include_NN_correlation");
   GaussianNucleonsCal* gaussCal = new GaussianNucleonsCal(paraRdr);
   double gaussian_entropy_width = gaussCal->width;
@@ -608,9 +610,9 @@ void Nucleus::dumpParticipants(ofstream &of)
     {
         x = woundedNucleons[i]->getX();
         y = woundedNucleons[i]->getY();
-        of  << setprecision(3) << setw(10) << x
-            << setprecision(3) << setw(10) << y << " "
-            << woundedNucleons[i]->getBoundingBox().toString() << endl;
+        of  << setprecision(3) << setw(10) << x << "   "
+            << setprecision(3) << setw(10) << y << "   " 
+            << nuclID << endl;
     }
 }
 

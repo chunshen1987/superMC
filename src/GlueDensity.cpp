@@ -134,6 +134,7 @@ void GlueDensity::calcCMAngle(const int iy, int n)
             exit(0);
     }
     int rand_orientation = rand() % n; //random integer from 0 to n-1
+    if(n == 2) rand_orientation = 0;
     AngleG[iy] = -atan2(-Num_imag, -Num_real)/n + 2*M_PI*rand_orientation/n; //AngleG takes the range from -pi to pi
     // cout << "imag=" << Num_imag << "," << "real=" << Num_real << endl;
     // cout << "new: " << AngleG[iy] << "," << "order=" << n << endl;

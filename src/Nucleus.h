@@ -26,6 +26,7 @@ protected:
     vector<Particle*> woundedNucleons;
     GaussianDistribution* quarkDist;
     int nPart;
+    int nuclID;
     
     double lastCx, lastPh;
     
@@ -50,7 +51,7 @@ protected:
 
 public:
     
-    Nucleus(int a, ParameterReader* paraRdr, int deformed=0);
+    Nucleus(int a, ParameterReader* paraRdr, int deformed=0, int id = 0);
     virtual ~Nucleus();
     double getLastCx1(){return lastCx;}
     double getLastPh1(){return lastPh;}

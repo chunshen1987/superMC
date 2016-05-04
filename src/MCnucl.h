@@ -32,6 +32,7 @@ protected:
     Large_x* val;
     double **TA1,**TA2;
     double **rho_binary;
+    double **spectator_1, **spectator_2;
     GlueDensity *rho;
     int tmax, tmaxPt;
     double dT;
@@ -137,6 +138,8 @@ public:
     void dumpBinaryTable(char filename[]);
 
     int getSpectators();
+    void calculate_spectator_density();
+    double get_spectator_density(int nucleus_id, int x, int y);
     void dumpSpectatorsTable(int event);
 
     double sampleFluctuationFactorforParticipant();

@@ -137,6 +137,7 @@ output_TATB = 1           # 1: output; 0: no output; only effective when generat
 output_rho_binary = 1     # 1: output binary collision density
 output_TA = 1             # 1: output nuclear thickness function
 output_rhob = 1           # 1: output net baryon density profile
+output_spectator_density = 1           # 1: output spectator density 
 
 generate_reaction_plane_avg_profile = 0    # switch to generate smooth event-averaged 
                                            # profile with respect to reaction plane defined 

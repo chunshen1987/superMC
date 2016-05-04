@@ -4,6 +4,7 @@
 #include <vector>
 #include "Particle.h"
 #include "CollisionPair.h"
+#include "Spectator.h"
 
 class GlueDensity
 {
@@ -49,7 +50,6 @@ public:
     
     double getCM(double& xCM, double& yCM,const int iy)
     {xCM=Xcm[iy];yCM=Ycm[iy];}
-    
 };
 
 #endif
