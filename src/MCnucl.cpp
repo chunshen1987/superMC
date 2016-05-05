@@ -1107,7 +1107,6 @@ double MCnucl::Angle(const double x,const double y)
 
 void MCnucl::recenterGrid(int iy, int n)
 {
-<<<<<<< HEAD
     rho->calcCMAngle(iy, n);
     double x,y;
     rho->getCM(x,y,iy);
@@ -1131,15 +1130,16 @@ void MCnucl::recenterGrid(int iy, int n)
         binaryCollision[i]->setX(binaryCollision[i]->getX()-x);
         binaryCollision[i]->setY(binaryCollision[i]->getY()-y);
     }
-=======
-  rho->getCMAngle(iy, n);
-  rho->recenterParticle(participant, binaryCollision, spectators, iy);
->>>>>>> 629e092950286276cc1731845e540a7b3249f161
+
+    for(int i = 0; i < spectators.size(); i++)
+    {
+        spectators[i]->setX(spectators[i]->getX() - x);
+        spectators[i]->setY(spectators[i]->getY() - y);
+    }
 }
 
 void MCnucl::rotateGrid(int iy, int n)
 {
-<<<<<<< HEAD
     rho->calcCMAngle(iy,n);
     double angle = rho->getCMAngle(iy);
     recenterGrid(iy,n);
@@ -1159,12 +1159,8 @@ void MCnucl::rotateGrid(int iy, int n)
     
     for(int i = 0; i < binaryCollision.size(); i++)
         binaryCollision[i]->rotate(0,angle);
-    
-=======
-  rho->getCMAngle(iy, n);
-  rho->recenterParticle(participant, binaryCollision, spectators, iy);
-  rho->rotateParticle(participant, binaryCollision, spectators, iy);
->>>>>>> 629e092950286276cc1731845e540a7b3249f161
+    for(int i = 0; i < spectators.size(); i++)
+        spectators[i]->rotate(0,angle);
 }
 
 
