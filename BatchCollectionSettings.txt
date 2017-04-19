@@ -1,0 +1,80 @@
+[SuperMCArgs]
+arg10: shape_of_entropy=2 Aproj=1 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg11: shape_of_entropy=2 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg12: shape_of_entropy=3 Aproj=3 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+
+[FileNames]
+
+f10: p_Au_200GeV_Intrinsic_Smooth_NoMult
+f11: d_Au_200GeV_Intrinsic_Smooth_NoMult
+f12: t_Au_200GeV_Intrinsic_Smooth_NoMult
+
+[FolderParams]
+Destination: ~/Desktop/Data5-3-16Intrinsic
+LocationOfPlotUtility: ~/Desktop/pythonPlotUtility-master
+
+[RunTimeParams]
+
+Instances: 8
+
+[Unused]
+
+arg1: shape_of_entropy=3 Aproj=1 Atarg=0 ecm=200 cc_fluctuation_model=0 nev=12500 bmax=0
+arg2: shape_of_entropy=3 Aproj=2 Atarg=0 ecm=200 cc_fluctuation_model=0 nev=12500 bmax=0
+arg3: shape_of_entropy=3 Aproj=3 Atarg=0 ecm=200 cc_fluctuation_model=0 nev=12500 bmax=0
+
+arg4: shape_of_entropy=3 Aproj=1 Atarg=0 ecm=5020 cc_fluctuation_model=0 nev=12500 bmax=0
+arg5: shape_of_entropy=3 Aproj=2 Atarg=0 ecm=5020 cc_fluctuation_model=0 nev=12500 bmax=0
+arg6: shape_of_entropy=3 Aproj=3 Atarg=0 ecm=5020 cc_fluctuation_model=0 nev=12500 bmax=0
+
+arg7: shape_of_entropy=3 Aproj=1 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg8: shape_of_entropy=3 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg9: shape_of_entropy=3 Aproj=3 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+
+arg10: shape_of_entropy=3 Aproj=1 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+arg11: shape_of_entropy=3 Aproj=2 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+arg12: shape_of_entropy=3 Aproj=3 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+
+arg13: shape_of_entropy=2 Aproj=1 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg14: shape_of_entropy=2 Aproj=2 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+arg15: shape_of_entropy=2 Aproj=3 Atarg=197 ecm=200 cc_fluctuation_Gamma_theta=0.61
+
+arg16: shape_of_entropy=2 Aproj=1 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+arg17: shape_of_entropy=2 Aproj=2 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+arg18: shape_of_entropy=2 Aproj=3 Atarg=208 ecm=5020 cc_fluctuation_Gamma_theta=0.75
+
+f1: p_Intrinsic_200GeV_Fluctuated
+f2: d_Intrinsic_200GeV_Fluctuated
+f3: t_Intrinsic_200GeV_Fluctuated
+
+f4: p_Intrinsic_5020GeV_Fluctuated
+f5: d_Intrinsic_5020GeV_Fluctuated
+f6: t_Intrinsic_5020GeV_Fluctuated
+
+f7: p_Au_200GeV_Fluctuated
+f8: d_Au_200GeV_Fluctuated
+f9: t_Au_200GeV_Fluctuated
+
+f10: p_Pb_5020GeV_Fluctuated
+f11: d_Pb_5020GeV_Fluctuated
+f12: t_Pb_5020GeV_Fluctuated
+
+f13: p_Au_200GeV_Smooth
+f14: d_Au_200GeV_Smooth
+f15: t_Au_200GeV_Smooth
+
+f16: p_Pb_5020GeV_Smooth
+f17: d_Pb_5020GeV_Smooth
+f18: t_Pb_5020GeV_Smooth
+
+#####################################
+arg19: shape_of_entropy=2 Aproj=1 Atarg=1 ecm=200 cc_fluctuation_Gamma_theta=0.61 bmax=4 maxx=4 maxy=4
+arg20: shape_of_entropy=3 Aproj=1 Atarg=1 ecm=200 cc_fluctuation_Gamma_theta=0.61 bmax=4 maxx=4 maxy=4
+arg21: shape_of_entropy=2 Aproj=1 Atarg=1 ecm=5020 cc_fluctuation_Gamma_theta=0.75 bmax=4 maxx=4 maxy=4
+arg22: shape_of_entropy=3 Aproj=1 Atarg=1 ecm=5020 cc_fluctuation_Gamma_theta=0.75 bmax=4 maxx=4 maxy=4
+
+f19: p_p_200GeV_Smooth
+f20: p_p_200GeV_Fluctuated
+f21: p_p_5020GeV_Smooth
+f22: p_p_5020GeV_Fluctuated
+

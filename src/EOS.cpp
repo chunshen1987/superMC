@@ -38,6 +38,14 @@ EOS::EOS(char* data_filename, char* coeff_filename) {
 };
 
 //----------------------------------------------------------------------
+EOS::~EOS(){
+    delete ed_table;
+    delete p_table;
+    delete sd_table;
+    delete T_table;
+}
+
+//----------------------------------------------------------------------
 void EOS::loadEOSFromFile(char* data_filename)
 // The EOS data file (data_filename) is assumed to be a 4 column file:
 // 1st column: the energy density
@@ -67,6 +75,7 @@ void EOS::loadEOSFromFile(char* data_filename)
     delta_ed = (*ed_table)[1]-(*ed_table)[0];
     max_ed = (*ed_table)[table_length-1];
     zq_global_eos = this;
+    
     delete data;
 };
 
@@ -121,6 +130,7 @@ double EOS::T(double ed0)
 
 //----------------------------------------------------------------------
 double zq_global_edFromP_hook(double ee) { return zq_global_eos->p(ee); }
+
 double EOS::edFromP(double p0)
 // Return the energe density from given pressure p0.
 {
@@ -130,6 +140,7 @@ double EOS::edFromP(double p0)
 
 //----------------------------------------------------------------------
 double zq_global_edFromSd_hook(double ee) { return zq_global_eos->sd(ee); }
+
 double EOS::edFromSd(double sd0)
 // Return the energe density from given entropy density sd0.
 {

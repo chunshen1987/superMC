@@ -3,9 +3,8 @@
 #include <vector>
 #include <fstream>
 #include "Particle.h"
-#include "OverLap.h"
+#include "Nucleus.h"
 #include "KLNModel.h"
-#include "Participant.h"
 #include "GlueDensity.h"
 #include "CollisionPair.h"
 #include "Largex.h"
@@ -23,8 +22,8 @@
 class MCnucl
 {
 protected:
-    std::vector<Particle*> nucl1,nucl2;
-    std::vector<Participant*> participant;
+    Nucleus* proj;
+    Nucleus* targ;
     std::vector<CollisionPair*> binaryCollision;
     std::vector<Spectator*> spectators;
 
@@ -51,8 +50,7 @@ protected:
     int binRapidity;
     double rapMin, rapMax;
     int iptmax;
-    int Ncoll, Npart1, Npart2;
-    int Anucl1,Anucl2;
+    int Npart1, Npart2;
     double Xcm, Ycm, angPart;
     int overSample;
     //double Bnucl;// <R^2>/3 of nucleon for Gaussian shape   // static constant double Bnucl = 0.2959
@@ -77,9 +75,8 @@ protected:
 
     // add by Kelvin Welsh
     int shape_of_entropy;
-    //quark_width^2 + quark_dist_width^2 = nucleon_width^2
-    double quark_dist_width; // quark_dist_width: the width of the Gaussian for the probability distribution of valence quark inside nucleon
-    double quark_width; // quark_width: the width of the Gaussian for the entropy (energy) deposition for each quark 
+    int forceCollisionCriterion;
+    //quark_width^2 + (2/3)*quark_dist_width^2 = nucleon_width^2
     GaussianDistribution* gaussDist;
 
     int which_mc_model;
@@ -100,7 +97,8 @@ public:
     double getRho(int i, int x,int y) {return rho->getDensity(i,x,y);}
     double getRho(int i, int x,int y, int pt) {return rho->getDensity(i,x,y,pt);}
     void setRho(int i, int x,int y, double val) {rho->setDensity(i,x,y,val);}
-    int getNcoll() {return Ncoll;}
+    Box2D getHotSpots(vector<Box2D> & hotSpots);
+    int getNcoll() {return binaryCollision.size();}
     int getNpart1() {return Npart1;}
     int getNpart2() {return Npart2;}
     double getdNdy() 
@@ -111,12 +109,16 @@ public:
 
     void setOverSample(int i) {overSample=i;}
     void setRapidity(double y) {rapidity=y;}
-    void generateNucleus(double b, OverLap* proj, OverLap* targ);
+    void generateNuclei(double b);
     void deleteNucleus();
     void setDensity(int iy, int ipt); // ipt<0: no dN/dydpt table used
-    void getTA2();
+    void addDensity(Nucleus* nucl,double** density);
+    void calculateThickness();
+    void setThickness(Nucleus* nucl, double ** TA);
     void calculate_rho_binary();    // calculate binary collision density in the transverse plane
     int  getBinaryCollision();
+    void createBinaryCollisions();
+    void selectFluctFactors(Particle* part);
     int  CentralityCut();
     void setCentralityCut(int Nmin, int Nmax)
                 {NpartMax=Nmax; NpartMin=Nmin;}
@@ -129,7 +131,7 @@ public:
     void dumpdNdyTable4Col(char filename[], double *** dNdyTable, const int iy);
     void dumpdNdydptTable5Col(char filename[], double **** dNdydptTable, const int iy);    
     double getSigEff();
-    int hit(double r);
+    int hit(Particle* part1, Particle* part2);
     static double Angle(const double x,const double y);
 
     void dumpparticipantTable(char filename[]);

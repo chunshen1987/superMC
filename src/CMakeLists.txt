@@ -5,7 +5,7 @@ add_executable (superMC.e
   GlueDensity.cpp 
   MakeDensity.cpp
   KLNModel.cpp 
-  OverLap.cpp 
+  Nucleus.cpp 
   Largex.cpp 
   Regge96.cpp 
   rcBKfunc.cpp
@@ -21,6 +21,10 @@ add_executable (superMC.e
   HulthenFunc.cpp
   GaussianDistribution.cpp
   Particle.cpp
+  Box2D.cpp
+  Quark.cpp
+  GluonField.cpp
+  GluonFields.cpp
   )
 target_link_libraries (superMC.e ${LIBS})
 

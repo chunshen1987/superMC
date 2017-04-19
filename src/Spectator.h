@@ -3,11 +3,12 @@
 
 #include <vector>
 #include "Particle.h"
+#include "MathBasics.h"
 
-class Spectator
+class Spectator: public Point3D
 {
    private:
-      double x, y, rapidity_Y;
+      double rapidity_Y;
 
    public:
       Spectator(double xi, double yi, double rapi)

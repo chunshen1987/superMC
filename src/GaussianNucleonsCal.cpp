@@ -4,10 +4,12 @@
 #include <ctime>
 #include "stdlib.h"
 
-#include "OverLap.h"
+#include "Nucleus.h"
 #include "arsenal.h"
 
 #include "GaussianNucleonsCal.h"
+#include "Particle.h"
+#include "Box2D.h"
 
 #define EulerGamma 0.5772156649
 
@@ -28,7 +30,12 @@ GaussianNucleonsCal::GaussianNucleonsCal(ParameterReader* paraRdr_in)
   int shape_of_nucleons = paraRdr->getVal("shape_of_nucleons");
   double gauss_nucl_width = paraRdr->getVal("gauss_nucl_width");
   double sigmaNN_in = paraRdr->getVal("siginNN");
-
+  
+  if(shape_of_nucleons == 1)
+  {
+    width = sqrt(0.1*sigmaNN_in/(M_PI))/2.0;
+    sigma_gg = getSigEff(sigmaNN_in, width);
+  }
   if (shape_of_nucleons==3) // see documents
   {
     double sigmaNN_in_sigam_gg_ratio = (EulerGamma + qiu_simpsons(Gamma0Integrand, lambda, lambda+100., 1e-10) + log(lambda))/lambda; // lambda+100 is used as "inf" in the fast decaying integral
@@ -45,12 +52,11 @@ GaussianNucleonsCal::GaussianNucleonsCal(ParameterReader* paraRdr_in)
     width = gauss_nucl_width; 
     sigma_gg = getSigEff(sigmaNN_in, width);
   }
-
 }
 
 
 //----------------------------------------------------------------------
-bool GaussianNucleonsCal::testCollision(double b)
+bool GaussianNucleonsCal::testSmoothCollision(double b)
 // Simulate if there is a collision at impact parameter b. The size of
 // nucleons are read from those public variables.
 {
@@ -60,6 +66,55 @@ bool GaussianNucleonsCal::testCollision(double b)
     return false;
 }
 
+/* Add up the overlap of the quarks to get the total overlap. */
+bool GaussianNucleonsCal::testFluctuatedCollision(Particle* me, Particle* you)
+{
+    double dxy = 0.02;
+    double overlap = 0;
+    vector<Quark> myQuarks = me->getQuarks();
+    vector<Quark> yourQuarks = you->getQuarks();
+    double gaussianWidthSqr = Quark::width*Quark::width;
+    double cutoffDistance = 5*Quark::width;
+    
+    for(int i = 0; i < myQuarks.size(); i++)
+    {
+        Quark mine = myQuarks[i];
+        Box2D myBox = mine.getBoundingBox();
+        for(int j = 0; j < yourQuarks.size(); j++)
+        {
+            Quark yours = yourQuarks[j];
+            double d = (mine.getX()-yours.getX())*(mine.getX()-yours.getX()) +
+                       (mine.getY()-yours.getY())*(mine.getY()-yours.getY());
+
+            overlap += (1/(4*M_PI*gaussianWidthSqr)) * exp(-d/(4*gaussianWidthSqr))/9;
+        }
+    }
+    cout << overlap << endl;
+    if(drand48() < 1.-exp(-sigma_gg*overlap))
+        return true;
+    else
+        return false;
+}
+
+bool GaussianNucleonsCal::testCollisionFromDensity(Particle* me, Particle* you)
+{
+    double dxy = 0.02;
+    double overlap = 0;
+
+    Box2D intersection = me->getBoundingBox().intersection(you->getBoundingBox());
+    for(double x = intersection.getXL(); x < intersection.getXR(); x+=dxy)
+    {
+      for(double y = intersection.getYL(); y < intersection.getYR(); y+=dxy)
+      {
+        overlap += dxy*dxy*me->getSmoothTn(x,y)*you->getSmoothTn(x,y);
+        //cout << me->getSmoothDensity(x,y) << " " << you->getSmoothDensity(x,y) << endl;
+      }
+    }
+    if(drand48() < 1.-exp(-sigma_gg*overlap))
+        return true;
+    else
+        return false;
+}
 
 //-----------------------------------------------------------------------
 double GaussianNucleonsCal::get2DHeightFromWidth(double w)
@@ -77,7 +132,7 @@ double GaussianNucleonsCal::getSigEff(double siginNN, double width)
   int N2=38;  // # of integration points
   double *xg = new double [N2];
   double *wg = new double [N2];
-  OverLap::Gauss38(0.0,1.0,xg,wg);
+  Nucleus::Gauss38(0.0,1.0,xg,wg);
   double sigin=siginNN*0.1;   // sigma_in(s) [mb --> fm^2]
   
   int ib;

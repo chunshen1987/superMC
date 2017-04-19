@@ -10,7 +10,7 @@ class RandomVariable
 {
   public:
     RandomVariable();
-    ~RandomVariable();
+    virtual ~RandomVariable();
     TableFunction *pdfTab, *invCDFTab, *envelopPdfTab, *envelopInvCDFTab;
     double drand(double, double);
     virtual double pdf(double);

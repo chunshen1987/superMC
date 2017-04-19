@@ -15,8 +15,8 @@ GaussianDistribution::GaussianDistribution(double m, double s)
 
 GaussianDistribution::~GaussianDistribution()
 {
-      delete CDF;
-      delete CDF_x;
+     delete CDF;
+     delete CDF_x;
 }
 
 
@@ -42,7 +42,8 @@ double GaussianDistribution::pdf(double x)
 
 double GaussianDistribution::rand()
 {
-	return sampleUsingInvCDF(0.0, 1.0);
+    
+    return sampleUsingInvCDF(0.0, 1.0);
 }
 
 double GaussianDistribution::invCDF(double y)
@@ -52,5 +53,10 @@ double GaussianDistribution::invCDF(double y)
    idx = binarySearch(CDF, y, true);
    x = (*CDF_x)[idx] + ((*CDF_x)[idx+1] - (*CDF_x)[idx])/((*CDF)[idx+1] - (*CDF)[idx])*(y - (*CDF)[idx]);
    return(x);
+}
+
+double GaussianDistribution::eval(double r)
+{
+    return (1/sqrt(2*M_PI*sigma*sigma))*exp(-(r-mu)*(r-mu)/(2*sigma*sigma));
 }
 
