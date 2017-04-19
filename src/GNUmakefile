@@ -35,7 +35,7 @@ SRC		=	main.cpp Bases.cpp MCnucl.cpp GlueDensity.cpp MakeDensity.cpp \
 INC		= 	ArraySaver.h Bases.h CollisionPair.h EOS.h GaussianNucleonsCal.h \
 			GlueDensity.h Integral.h KLNModel.h KLNfunc.h Largex.h \
 			MCnucl.h MakeDenstiy.h MathBasics.h NBD.h Nucleus.h \
-			ParamDefs.h ParameterReader.h Participant.h Particle.h \
+			ParamDefs.h ParameterReader.h Particle.h \
             RandomVariable.h Regge96.h Stopwatch.h Table.h TableFunction.h \
             UnintegPartonDist.h arsenal.h rcBKfunc.h Spectator.h \
             HulthenFunc.h GaussianDistribution.h Box2D.h Quark.h \
