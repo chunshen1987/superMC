@@ -25,7 +25,7 @@ class color:
 superMCParameters = {
     'which_mc_model'                :   5,
     'sub_model'                     :   1,
-    'Npmin'                         :   0,
+    'Npmin'                         :   2,
     'Npmax'                         :   1000,
     'bmin'                          :   0,
     'bmax'                          :   20,
@@ -46,9 +46,9 @@ superMCParameters = {
     'output_rho_binary'             :   1,
     'output_TA'                     :   1,
     'generate_reaction_plane_avg_profile'  :  1,
-    'nev'                           :   10000,
+    'nev'                           :   100000,
     'average_from_order'            :   2,
-    'average_to_order'              :   2,
+    'average_to_order'              :   3,
 }
 
 nucleus_name_dict = {
@@ -102,7 +102,7 @@ def translate_centrality_cut(centrality_bound, cut_type='total_entropy'):
     else:
         multiplicity_fluctuation = 'noMultFluct'
 
-    collision_energy = '%d' % superMCParameters['ecm']
+    collision_energy = '%g' % superMCParameters['ecm']
 
     Aproj = superMCParameters['Aproj']
     Atrag = superMCParameters['Atarg']
@@ -124,8 +124,8 @@ def translate_centrality_cut(centrality_bound, cut_type='total_entropy'):
             path.join(path.abspath('./centrality_cut_tables'),
                       centrality_cut_file_name))
     except IOError:
-        print "Can not find the centrality cut table for the collision system"
-        print centrality_cut_file_name
+        print("Can not find the centrality cut table for the collision system")
+        print(centrality_cut_file_name)
         exit(1)
 
     lower_idx = (
@@ -167,17 +167,17 @@ def translate_centrality_cut(centrality_bound, cut_type='total_entropy'):
     superMCParameters['bmin'] = b_min
 
     #print out information
-    print '-'*80
+    print('-'*80)
     print('%s collisions at sqrt{s} = %s A GeV with %s initial conditions'
           % (nucleus_name , collision_energy, model_name))
     print("Centrality : %g - %g"
           % (centrality_lower_bound, centrality_upper_bound) + r"%")
-    print 'centrality cut on ', cut_type
+    print('centrality cut on ', cut_type)
     if cut_type == 'total_entropy':
-        print 'dS/dy :', cut_value_low, '-', cut_value_upper
-    print "Npart: ", npart_min, '-', npart_max
-    print "b: ", b_min, '-', b_max, ' fm'
-    print '-'*80
+        print('dS/dy :', cut_value_low, '-', cut_value_upper)
+    print("Npart: ", npart_min, '-', npart_max)
+    print("b: ", b_min, '-', b_max, ' fm')
+    print('-'*80)
     return
 
 
@@ -193,7 +193,7 @@ def update_superMC_dict(model, ecm, collsys):
         superMCParameters['sub_model'] = 7
         superMCParameters['cc_fluctuation_model'] = 0
     else:
-        print sys.argv[0], ': invalid initial model type', model
+        print(sys.argv[0], ': invalid initial model type', model)
         print_help_message()
         sys.exit(1)
 
@@ -228,7 +228,7 @@ def generateAvgprofile(output_path, centrality_bounds,
     option = form_assignment_string_from_dict(superMCParameters)
     cmd = './superMC.e' + option
     superMC_folder = path.abspath('./')
-    print cmd
+    print(cmd)
     runRecord.write(cmd)
     p = subprocess.Popen(cmd, shell=True, stdout=runRecord,
                          stderr=errRecord, cwd=superMC_folder)
@@ -305,13 +305,13 @@ def generateAvgprofile(output_path, centrality_bounds,
     shutil.move('./errRecord.dat', path.join(store_folder, 'errRecord.dat'))
 
 def print_help_message():
-    print "Usage : "
+    print("Usage : ")
     print(color.bold
           + "./generateAvgprofile.py -ecm ecm "
           + "-cen cen_bounds"
           + "[-model model -collision_system collsys -cut_type cut_type]"
           + color.end)
-    print "Usage of generateAvgprofile.py command line arguments: "
+    print("Usage of generateAvgprofile.py command line arguments: ")
     print(color.bold + "-cen" + color.end
           + "   centrality bounds(%): "
           + color.purple + "20-30" + color.end)
@@ -353,11 +353,11 @@ if __name__ == "__main__":
             cut_type = str(sys.argv[1])
             del sys.argv[1]
             if cut_type not in ['total_entropy', 'Npart']:
-                print sys.argv[0], ': invalid centrality cut type', cut_type
+                print(sys.argv[0], ': invalid centrality cut type', cut_type)
                 print_help_message()
                 sys.exit(1)
         elif option == '-cen':
-            centrality_bounds = map(float, str(sys.argv[1]).split('-'))
+            centrality_bounds = [float(istr) for istr in str(sys.argv[1]).split('-')]
             del sys.argv[1]
         elif option == '-ecm':
             ecm = float(sys.argv[1])
@@ -370,7 +370,7 @@ if __name__ == "__main__":
             print_help_message()
             sys.exit(0)
         else:
-            print sys.argv[0], ': invalid option ', option
+            print(sys.argv[0], ': invalid option ', option)
             print_help_message()
             sys.exit(1)
 
