@@ -23,7 +23,7 @@ tmax_subdivision = 3      # Its reciprocal gives the step used to generate the T
 
 
 # Glauber Optns
-alpha = 0.12              # Alpha defining WN and BC mixture: (1-alpha)/2*WN + alpha*BC
+alpha = 0.14              # Alpha defining WN and BC mixture: (1-alpha)/2*WN + alpha*BC
 glb_entropy_width = 0.5   # User specified gaussian width for the deposition of entropy 
                           # in the Glauber model 
 
@@ -119,8 +119,8 @@ PT_order = 2              # =1 output the usual entropy/energy density profile; 
 d_PT = 0.1                # Step size of PT in GeV
 
 # Grid Optns
-maxx = 10.                 # Max grid value along x direction in fm
-maxy = 10.                 # Max grid value along y direction in fm 
+maxx = 13.                 # Max grid value along x direction in fm
+maxy = 13.                 # Max grid value along y direction in fm 
 dx = 0.1                   # Step size along x direction in fm
 dy = 0.1                   # Step size along y direction in fm
 ny = 1                     # Number of rapidity bins (do not set to zero)

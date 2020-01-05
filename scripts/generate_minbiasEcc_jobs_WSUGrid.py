@@ -6,7 +6,7 @@ import subprocess
 import shutil
 from glob import glob
 
-def generate_script(folder_name):
+def generate_script(folder_name, ecm):
     working_folder = path.join(path.abspath('./'), folder_name)
     walltime = '10:00:00'
 
@@ -26,13 +26,13 @@ def generate_script(folder_name):
 cd {2:s}
 rm -fr data
 mkdir data
-./superMC.e
+./superMC.e ecm={3:g} operation=9
 
-""".format(working_folder.split('/')[-1], walltime, working_folder))
+""".format(working_folder.split('/')[-1], walltime, working_folder, ecm))
     script.close()
 
 
-def generate_event_folder(working_folder, event_id):
+def generate_event_folder(working_folder, event_id, ecm):
     working_folder = path.join(
             path.abspath(working_folder), "superMC_{}".format(event_id))
     mkdir(working_folder)
@@ -49,16 +49,17 @@ def generate_event_folder(working_folder, event_id):
     shutil.copyfile(
         path.join(code_path, 'parameters.dat'),
         path.join(working_folder, 'parameters.dat'))
-    generate_script(working_folder)
+    generate_script(working_folder, ecm)
 
 if __name__ == "__main__":
     try:
         folder_name = str(sys.argv[1])
         ncore = int(sys.argv[2])
+        ecm = float(sys.argv[3])
     except IOError:
         print("./generate_jobs_guillimin.py working_folder num_of_cores")
         exit(0)
 
     for icore in range(ncore):
-        generate_event_folder(folder_name, icore)
+        generate_event_folder(folder_name, icore, ecm)
 

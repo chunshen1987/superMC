@@ -24,13 +24,13 @@ def output_centrality_cut_table_iebe_package(database, cut_type,
         )
         centrality_output = (
             open('{0}/iebe_centralityCut_{1}_{2}_alpha_{3}.dat'.format(
-                            folder_path, database_name, cut_type, alpha), 'w')
+                            folder_path, cut_type, database_name, alpha), 'w')
         )
     else:
         print('cutting centralities according to {} ....'.format(cut_type))
         centrality_output = (
             open('{0}/iebe_centralityCut_{1}_{2}.dat'.format(
-                            folder_path, database_name, cut_type), 'w')
+                            folder_path, cut_type, database_name), 'w')
         )
 
     coll_data = np.array(hf.get("collision_data"))
