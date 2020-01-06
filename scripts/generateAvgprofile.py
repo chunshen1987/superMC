@@ -4,6 +4,8 @@ import sys, shutil
 from numpy import *
 from os import path, makedirs
 import subprocess
+import re
+from glob import glob
 
 class color:
     """
@@ -38,7 +40,7 @@ superMCParameters = {
     'finalFactor'                   :   1.0,
     'use_ed'                        :   1,
     'use_sd'                        :   1,
-    'alpha'                         :   0.118,
+    'alpha'                         :   0.14,
     'lambda'                        :   0.138,
     'operation'                     :   3,
     'cc_fluctuation_model'          :   6,
@@ -203,7 +205,7 @@ def update_superMC_dict(model, ecm, collsys):
             superMCParameters['alpha'] = 0.118
         elif model == 'MCKLN':
             superMCParameters['lambda'] = 0.138
-    if ecm == 200:
+    if ecm <= 200:
         if model == 'MCGlb':
             superMCParameters['alpha'] = 0.14
         elif model == 'MCKLN':
@@ -236,71 +238,12 @@ def generateAvgprofile(output_path, centrality_bounds,
 
     # save files
     store_folder = output_path
-    from_order = superMCParameters['average_from_order']
-    to_order = superMCParameters['average_to_order']
-    for iorder in range(from_order, to_order+1):
-        if superMCParameters['use_sd']:
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'sdAvg_order_%d_block.dat' % iorder),
-                path.join(store_folder,
-                          'sdAvg_order_%d_C%s.dat' % (iorder, cen_string)))
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'rho_binary_fromSd_order_%d_block.dat' % iorder),
-                path.join(store_folder,
-                          'rho_binary_fromSd_order_%d_C%s.dat'
-                          % (iorder, cen_string)))
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'nuclear_thickness_TA_fromSd_order_%d_block.dat'
-                          % iorder),
-                path.join(store_folder,
-                          'nuclear_thickness_TA_fromSd_order_%d_C%s.dat' % (
-                              iorder, cen_string)))
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'nuclear_thickness_TB_fromSd_order_%d_block.dat'
-                          % iorder),
-                path.join(store_folder,
-                          'nuclear_thickness_TB_fromSd_order_%d_C%s.dat' % (
-                              iorder, cen_string)))
-            shutil.move(path.join(superMC_folder, 'data',
-                                  'TATB_fromSd_order_%d_block.dat' % iorder),
-                        path.join(store_folder, 'TATB_fromSd_order_%d_C%s.dat'
-                                  % (iorder, cen_string)))
-
-        if superMCParameters['use_ed']:
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'edAvg_order_%d_block.dat' % iorder),
-                path.join(store_folder,
-                          'edAvg_order_%d_C%s.dat' % (iorder, cen_string)))
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'rho_binary_fromEd_order_%d_block.dat' % iorder),
-                path.join(store_folder,
-                          'rho_binary_fromEd_order_%d_C%s.dat'
-                          % (iorder, cen_string)))
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'nuclear_thickness_TA_fromEd_order_%d_block.dat'
-                          % iorder),
-                path.join(store_folder,
-                          'nuclear_thickness_TA_fromEd_order_%d_C%s.dat' % (
-                              iorder, cen_string)))
-            shutil.move(
-                path.join(superMC_folder, 'data',
-                          'nuclear_thickness_TB_fromEd_order_%d_block.dat'
-                          % iorder),
-                path.join(store_folder,
-                          'nuclear_thickness_TB_fromEd_order_%d_C%s.dat' % (
-                              iorder, cen_string)))
-            shutil.move(path.join(superMC_folder, 'data',
-                                  'TATB_fromEd_order_%d_block.dat' % iorder),
-                        path.join(store_folder, 'TATB_fromEd_order_%d_C%s.dat'
-                                  % (iorder, cen_string)))
-
+    filelist = glob(path.join(superMC_folder, "data", "*"))
+    for ifile, filepath in enumerate(filelist):
+        filename = filepath.split("/")[-1]
+        newfilename = re.sub("block", "C{}".format(cen_string), filename)
+        print(filename, newfilename)
+        shutil.move(filepath, path.join(store_folder, newfilename))
     shutil.move('./runRecord.dat', path.join(store_folder, 'runRecord.dat'))
     shutil.move('./errRecord.dat', path.join(store_folder, 'errRecord.dat'))
 
