@@ -30,10 +30,10 @@ EOS::EOS() {};
 
 
 //----------------------------------------------------------------------
-EOS::EOS(char* filename) { loadEOSFromFile(filename); };
+EOS::EOS(string filename) { loadEOSFromFile(filename); };
 
 //----------------------------------------------------------------------
-EOS::EOS(char* data_filename, char* coeff_filename) {
+EOS::EOS(string data_filename, string coeff_filename) {
     loadEOSFromFile(data_filename, coeff_filename);
 };
 
@@ -46,7 +46,7 @@ EOS::~EOS(){
 }
 
 //----------------------------------------------------------------------
-void EOS::loadEOSFromFile(char* data_filename)
+void EOS::loadEOSFromFile(string data_filename)
 // The EOS data file (data_filename) is assumed to be a 4 column file:
 // 1st column: the energy density
 // 2nd column: the pressure
@@ -55,7 +55,7 @@ void EOS::loadEOSFromFile(char* data_filename)
 // The units are not relavent here; the external program is responsible
 // for converting to the correct units in according to the EOS data file.
 {
-    fstream fs(data_filename);
+    fstream fs(data_filename.c_str());
     if (fs.is_open()==false)
     {
         cout << "EOS::loadEOSFromFile error: the EOS data file cannot be opened." << endl;
@@ -75,20 +75,20 @@ void EOS::loadEOSFromFile(char* data_filename)
     delta_ed = (*ed_table)[1]-(*ed_table)[0];
     max_ed = (*ed_table)[table_length-1];
     zq_global_eos = this;
-    
+
     delete data;
 };
 
 
 //----------------------------------------------------------------------
-void EOS::loadEOSFromFile(char* data_filename, char* coeff_filename)
+void EOS::loadEOSFromFile(string data_filename, string coeff_filename)
 // The version takes an additional file coeff_filename, containing 6 numbers
 // p1,p2,s1,s2,T1,T2, and they are assumed to give the relations:
 // p = p1*ed^p2; s = s1*ed^s2; T = T1*ed^T2;
 // And they are used for extrapolation when EOS table is not long enough.
 {
     loadEOSFromFile(data_filename); // setup the EOS table
-    fstream fs(coeff_filename);
+    fstream fs(coeff_filename.c_str());
     if (fs.is_open()==false)
     {
         cout << "EOS::loadEOSFromFile error: the coeff file cannot be opened." << endl;

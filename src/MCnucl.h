@@ -128,14 +128,14 @@ public:
     void rotateGrid(int iy, int n=2);
     void makeTable();
     void makeTable(double, double, int);
-    void dumpdNdyTable4Col(char filename[], double *** dNdyTable, const int iy);
-    void dumpdNdydptTable5Col(char filename[], double **** dNdydptTable, const int iy);    
+    void dumpdNdyTable4Col(string filename, double *** dNdyTable, const int iy);
+    void dumpdNdydptTable5Col(string filename, double **** dNdydptTable, const int iy);
     double getSigEff();
     int hit(Particle* part1, Particle* part2);
     static double Angle(const double x,const double y);
 
-    void dumpparticipantTable(char filename[]);
-    void dumpBinaryTable(char filename[]);
+    void dumpparticipantTable(string filename);
+    void dumpBinaryTable(string filename);
 
     int getSpectators();
     void calculate_spectator_density();

@@ -1014,10 +1014,10 @@ void MCnucl::makeTable(double ptmin, double dpt, int iPtmax)
   cout << "MCnucl::makeTable(double, double, int): done" << endl;
 }
 
-void MCnucl::dumpdNdyTable4Col(char filename[], double *** dNdyTable, const int iy)
+void MCnucl::dumpdNdyTable4Col(string filename, double *** dNdyTable, const int iy)
 {
   ofstream of;
-  of.open(filename, std::ios_base::app);
+  of.open(filename.c_str(), std::ios_base::app);
 
   double y = rapMin+(rapMax-rapMin)/binRapidity*iy;
 
@@ -1037,10 +1037,10 @@ void MCnucl::dumpdNdyTable4Col(char filename[], double *** dNdyTable, const int 
      of.close();
 }
 
-void MCnucl::dumpdNdydptTable5Col(char filename[], double **** dNdydptTable, const int iy)
+void MCnucl::dumpdNdydptTable5Col(string filename, double **** dNdydptTable, const int iy)
 {
   ofstream of;
-  of.open(filename, std::ios_base::out);
+  of.open(filename.c_str(), std::ios_base::out);
 
   double y = rapMin+(rapMax-rapMin)/binRapidity*iy;
   double iptmax = MaxPT;
@@ -1165,12 +1165,12 @@ void MCnucl::rotateGrid(int iy, int n)
 }
 
 
-void MCnucl::dumpBinaryTable(char filename[])
+void MCnucl::dumpBinaryTable(string filename)
 {
   double x,y;
   ofstream of;
 
-  of.open(filename, std::ios_base::app);
+  of.open(filename.c_str(), std::ios_base::app);
   for (int idx=0; idx<binaryCollision.size(); idx++)
   {
     x = binaryCollision[idx]->getX();
@@ -1180,12 +1180,12 @@ void MCnucl::dumpBinaryTable(char filename[])
         << endl;
   }
   of.close();
-  
+
   of.open("data/wounded.data");
   proj->dumpParticipants(of);
   targ->dumpParticipants(of);
   of.close();
-  
+
   of.open("data/quarks.data",ios_base::app);
   proj->dumpQuarks(of);
   targ->dumpQuarks(of);
@@ -1198,13 +1198,13 @@ void MCnucl::dumpBinaryTable(char filename[])
   of.open("data/nucl2.data");
   targ->dumpNucleons(of);
   of.close();
-  
+
 }
 
-void MCnucl::dumpparticipantTable(char filename[])
+void MCnucl::dumpparticipantTable(string filename)
 {
   ofstream of;
-  of.open(filename, std::ios_base::app);
+  of.open(filename.c_str(), std::ios_base::app);
   proj->dumpParticipants(of);
   targ->dumpParticipants(of);
   of.close();

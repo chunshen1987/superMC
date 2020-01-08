@@ -2,36 +2,36 @@
 ########## DEFAULT PARAMETERS FILE ############
 ###############################################
 
-# Model Optns           
-which_mc_model = 5        # (1) MC-CGC 
-                          # (5) MC-Glb            
+# Model Optns
+which_mc_model = 5        # (1) MC-CGC
+                          # (5) MC-Glb
 
-# Sub-Model Optns                 
+# Sub-Model Optns
 sub_model = 1             # CGC-> (7) KLN model model described in
                           # CGC-> (100) rcbk model described in
-                          # Glb-> (1) WN entropy deposited at WN positions. 
-                          # Glb-> (2) WN entropy deposited (fractionally) amongst 
+                          # Glb-> (1) WN entropy deposited at WN positions.
+                          # Glb-> (2) WN entropy deposited (fractionally) amongst
                           # BC midpoints: Heinz, Qiu and Moreland.
 
 # KLN Sub-Model Optns
-lambda = 0.138            # Lambda in the def. of (Qs)^2 which is prop. to (x0/x)^lambda 
+lambda = 0.138            # Lambda in the def. of (Qs)^2 which is prop. to (x0/x)^lambda
 Et = 0                    # (0) Output gluon density; (1) Output energy density.
 lgX = 0                   # (0) Ignore large-x effects; (1) Include large-x effects.
-tmax = 71                 # Used to generate the T_A, T_B double integral lookup table. 
-tmax_subdivision = 3      # Its reciprocal gives the step used to generate the T_A, T_B 
+tmax = 71                 # Used to generate the T_A, T_B double integral lookup table.
+tmax_subdivision = 3      # Its reciprocal gives the step used to generate the T_A, T_B
                           # double integral lookup table
 
 
 # Glauber Optns
 alpha = 0.14              # Alpha defining WN and BC mixture: (1-alpha)/2*WN + alpha*BC
-glb_entropy_width = 0.5   # User specified gaussian width for the deposition of entropy 
+glb_entropy_width = 0.5   # User specified gaussian width for the deposition of entropy
                           # in the Glauber model 
 
 # Nucleus Optns
 Aproj = 197               # Projectile atomic number
 Atarg = 197               # Target atomic number
 proj_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
-targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp) 
+targ_deformed = 0         # (0) Spherical nucleus; (1) Deformed nucleus (see OverLap.cpp)
 
 include_NN_correlation = 0   # whether or not to include nucleon-nucleon correlation 
                              # when sample the nucleon position inside the nucleus
@@ -45,13 +45,13 @@ shape_of_nucleons = 2     # (1) Disk-like nucleons with width given by sigmaNN
                           # (5-9) Gaussian nucleons for other models (future use)
 
 collision_criterion = 2   # (1) Forces disk-like collision detection
-            						  # (2) Forces Gaussian collision detection
-            						  # (3) Forces Quark Tn collision detection
+                          # (2) Forces Gaussian collision detection
+                          # (3) Forces Quark Tn collision detection
                           # (4) Numerically integrates over the nuclear thickness
-            						  # (Other) Picks based on shape of nucleons and shape of entropy.
-            						  
+                          # (Other) Picks based on shape of nucleons and shape of entropy.
+
 shape_of_entropy = 2      # (1) Disk like entropy
-      					          # (2) Normal Gaussian nucleons
+                          # (2) Normal Gaussian nucleons
                           # (3) valence quark substructure 
 quark_width = 0.3         # valence quark entropy deposition width
 
@@ -61,8 +61,8 @@ gauss_nucl_width = 0.812  # 4-> User specified width for Gaussian nucleons
 
 # Collision Optns
 ecm = 7.7                 # Beam Energy sqrt(s) in GeV
-bmin = 0                  # Minimum sampled impact parameter
-bmax = 20.                # Maximum sampled impact parameter
+bmin = 10.                # Minimum sampled impact parameter
+bmax = 15.                # Maximum sampled impact parameter
 Npmin = 2                 # Minimum participant nucleon cut
 Npmax = 500               # Maximum participant nucleon cut
 
@@ -72,13 +72,13 @@ cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy de
 
 
 # Monte Carlo Optns
-nev = 100000                 # Number of collision events simulated
-randomSeed = -1           # If randomSeed < 0 then CPU time is used to seed
+nev = 1000                 # Number of collision events simulated
+randomSeed = -1            # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
-                          # every step. Use a neg number to turn it off
+                           # every step. Use a neg number to turn it off
 
 # Operation Mode Optns
-operation = 9             # (1) Generate n transverse density profiles for n events 
+operation = 3             # (1) Generate n transverse density profiles for n events 
                           # (input for event-by-event hydro)
                           # (2) Generate n transverse density profiles for n events 
                           # and their corresponding binary collision table and eccentricities

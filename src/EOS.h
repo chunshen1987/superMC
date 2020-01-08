@@ -19,11 +19,12 @@ class EOS
         double p1,p2,s1,s2,T1,T2;
     public:
         EOS();
-        EOS(char*);
-        EOS(char*,char*);
+        EOS(std::string);
+        EOS(std::string, std::string);
         ~EOS();
-        void loadEOSFromFile(char*);
-        void loadEOSFromFile(char*,char*);
+        void loadEOSFromFile(std::string data_filename);
+        void loadEOSFromFile(std::string data_filename,
+                             std::string coeff_filename);
         double p(double ed);
         double sd(double ed);
         double T(double ed);
