@@ -53,7 +53,7 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
       PT_order = paraRdr->getVal("PT_order");   
   else
       PT_order = 1; //does not apply when there is no PT integration
-  
+
   //.... NN cross sections in mb
   double ecm = paraRdr->getVal("ecm");
   double sig = hadronxsec::totalXsection(200.0,0);
@@ -76,7 +76,8 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
      gslRng = gsl_rng_alloc(gslRngType);
      timeval a;
      gettimeofday(&a, 0);
-     int randomSeed=a.tv_usec; // randomSeed use CPU clock
+     int randomSeed=paraRdr->getVal("randomSeed");
+     if (randomSeed<0) randomSeed=a.tv_usec; // randomSeed<0 means to use CPU clock
      gsl_rng_set (gslRng, (unsigned long int) randomSeed); //initialize random generator
      ccFluctuationGammaTheta = paraRdr->getVal("cc_fluctuation_Gamma_theta");
   }
@@ -85,7 +86,7 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   which_mc_model = paraRdr->getVal("which_mc_model");
   sub_model = paraRdr->getVal("sub_model");
   shape_of_nucleons = paraRdr->getVal("shape_of_nucleons");
-  
+
 
   gaussCal = NULL;
   entropy_gaussian_width = 0.0;
@@ -93,8 +94,8 @@ MCnucl::MCnucl(ParameterReader* paraRdr_in)
   gaussCal = new GaussianNucleonsCal(paraRdr); // for Gaussian-shaped nucleons calculations
   entropy_gaussian_width = gaussCal->width;
   entropy_gaussian_width_sq = entropy_gaussian_width*entropy_gaussian_width;
-  
-  
+
+
   proj = new Nucleus(paraRdr->getVal("Aproj"),
                     paraRdr,
                     paraRdr->getVal("proj_deformed"),
@@ -158,7 +159,7 @@ MCnucl::~MCnucl()
 {
   delete proj;
   delete targ;
-  
+
   for(int ix = 0; ix < Maxx; ix++)
   {
     delete [] TA1[ix];
@@ -216,7 +217,7 @@ void MCnucl::generateNuclei(double b)
 int MCnucl::getBinaryCollision()
 {
   bool missingNucleus = false;
-  
+
   // Handling for the intrinsic nucleus case
   if(proj->getAtomic() == 0)
   {
@@ -1110,21 +1111,21 @@ void MCnucl::recenterGrid(int iy, int n)
     rho->calcCMAngle(iy, n);
     double x,y;
     rho->getCM(x,y,iy);
-    
+
     vector<Particle*> participants = proj->getParticipants();
     for(int i = 0; i < participants.size(); i++)
     {
         participants[i]->setX(participants[i]->getX()-x);
         participants[i]->setY(participants[i]->getY()-y);
     }
-    
+
     participants = targ->getParticipants();
     for(int i = 0; i < participants.size(); i++)
     {
         participants[i]->setX(participants[i]->getX()-x);
         participants[i]->setY(participants[i]->getY()-y);
     }
-    
+
     for(int i = 0; i < binaryCollision.size(); i++)
     {
         binaryCollision[i]->setX(binaryCollision[i]->getX()-x);
@@ -1143,20 +1144,20 @@ void MCnucl::rotateGrid(int iy, int n)
     rho->calcCMAngle(iy,n);
     double angle = rho->getCMAngle(iy);
     recenterGrid(iy,n);
-    
+
     vector<Particle*> participants = proj->getParticipants();
     for(int i = 0; i < participants.size(); i++)
     {
         participants[i]->rotate(0,angle);
         participants[i]->calculateBounds();
     }
-    
+
     participants = targ->getParticipants();
     for(int i = 0; i < participants.size(); i++){
         participants[i]->rotate(0,angle);
         participants[i]->calculateBounds();
     }
-    
+
     for(int i = 0; i < binaryCollision.size(); i++)
         binaryCollision[i]->rotate(0,angle);
     for(int i = 0; i < spectators.size(); i++)

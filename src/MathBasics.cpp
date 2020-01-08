@@ -43,7 +43,7 @@ void Point3D::rotate(double costheta, double phi)
 {
   double x0=x, y0=y, z0=z;
   double cth = costheta, cphi = cos(phi);
-  double sth = sqrt(1.-cth*cth), sphi = sqrt(1.-cphi*cphi);
+  double sth = sqrt(1.-cth*cth), sphi = sin(phi);
   x = cth*cphi*x0 - sphi*y0 + sth*cphi*z0;
   y = cth*sphi*x0 + cphi*y0 + sth*sphi*z0;
   z = -sth    *x0 + 0.  *y0 + cth     *z0;

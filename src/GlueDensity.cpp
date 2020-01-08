@@ -133,9 +133,12 @@ void GlueDensity::calcCMAngle(const int iy, int n)
             << endl;
             exit(0);
     }
-    int rand_orientation = rand() % n; //random integer from 0 to n-1
-    if(n == 2) rand_orientation = 0;
-    AngleG[iy] = -atan2(-Num_imag, -Num_real)/n + 2*M_PI*rand_orientation/n; //AngleG takes the range from -pi to pi
-    // cout << "imag=" << Num_imag << "," << "real=" << Num_real << endl;
-    // cout << "new: " << AngleG[iy] << "," << "order=" << n << endl;
+    //int rand_orientation = rand() % n; //random integer from 0 to n-1
+    //if(n == 2) rand_orientation = 0;
+    //AngleG[iy] = -atan2(-Num_imag, -Num_real)/n + 2*M_PI*rand_orientation/n; //AngleG takes the range from -pi to pi
+
+    AngleG[iy] = -atan2(-Num_imag, -Num_real)/n; // I want to keep the left-right asymmetry between TA and TB
+    //cout << "Xcm = " << Xcm[iy] << "," << "Ycm = " << Ycm[iy] << endl;
+    //cout << "imag=" << Num_imag << "," << "real=" << Num_real << endl;
+    //cout << "new: " << AngleG[iy] << "," << "order=" << n << endl;
 }
