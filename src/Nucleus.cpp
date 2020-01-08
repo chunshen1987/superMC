@@ -31,9 +31,9 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in, int id)
   double quark_dist_width = sqrt((3.0/2.0)*(gaussian_entropy_width*gaussian_entropy_width-
                             quark_width*quark_width));
 
-  GFF = paraRdr->getVal("gluon_field_fluctuations")==1;
+  GFF = (paraRdr->getVal("gluon_field_fluctuations") == 1);
   GluonField::distanceScalingFactor = paraRdr->getVal("gluon_distance_scaling");
- 
+
   ifstream fin("tables/QuarkPos.txt");
   double x,y,z;
   fin >> x >> y >> z;
@@ -52,7 +52,7 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in, int id)
   Quark::width = quark_width;
   delete gaussCal;
   ecm = paraRdr->getVal("ecm");
-  
+
   // save atomic # of nucleus for later; can be recalled using: getAtomic()
   deformed = deformed_in;
   A = (double)a;
@@ -165,132 +165,120 @@ Nucleus::~Nucleus()
    clearNucleons();
 }
 
-void Nucleus::populate(double xCenter, double yCenter)
-{
+void Nucleus::populate(double xCenter, double yCenter) {
     nPart = 0;
-    
+
     double rmin=0.9*0.9; // minimal nucleon separation (squared; in fm^2).
     double cx, phi;
     double xcm=0.0, ycm=0.0, zcm=0.0;
     cx = 1.0-2.0*drand48();
     phi = 2*M_PI*drand48();
-    lastCx=cx;
-    lastPh=phi;
+    lastCx = cx;
+    lastPh = phi;
     setRotation(cx, phi);
-    if (atomic == 1)
-    {
-      nucleons.push_back(new Particle(xCenter, yCenter, 0.0)); // shift along x-axis
-    }
-    else if (atomic==2) // in the case of a deuteron (added by Brian Baker)
-    {
-      double x1, y1, z1, x2, y2, z2;
-         
-      GetDeuteronPosition(x1,y1,z1,x2,y2,z2);
-      nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1)); // shift along x-axis
-      nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
-    }
-    else if(atomic==3) // in the case of 3He
-    {
-      double x1, x2, x3, y1, y2, y3, z1, z2, z3;
-      GetTritonPosition(x1,y1,z1,x2,y2,z2,x3,y3,z3); // Triton data points from Carlson have center of mass (0,0,0).
-      nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1));
-      nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
-      nucleons.push_back(new Particle(x3+(xCenter),y3+yCenter,z3));
-    }
-    else 
-    {
-       if(flag_NN_correlation == 0 || atomic != 197 || atomic != 208)
-       {
-          // for large nuclei
-          // generate a cloud of nucleons around 0,0,0
-          // Then move them to the real center
-          for(int ia=0;ia<atomic;ia++) {
-            double x,y,z;
-            int icon=0;
-            int oversamplePosition = 0;
-            do {
-              getDeformRandomWS(x,y,z);
-              icon=0;
-              oversamplePosition = atomic*((int)nucleons.size()/atomic);
-              for(int i=oversamplePosition; i<(int)nucleons.size();i++) {
-                double x1=nucleons[i]->getX();
-                double y1=nucleons[i]->getY();
-                double z1=nucleons[i]->getZ();
-                double r2 = (x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1);
-                if(r2 < rmin) {
-                  icon=1;
-                  break;
-                }
-              }
-            } while(icon==1);
+    if (atomic == 1) {
+        nucleons.push_back(new Particle(xCenter, yCenter, 0.0)); // shift along x-axis
+    } else if (atomic == 2) {
+        // in the case of a deuteron (added by Brian Baker)
+        double x1, y1, z1, x2, y2, z2;
 
-            xcm +=x;
-            ycm +=y;
-            zcm +=z;
-            nucleons.push_back(new Particle(x,y,z));
-          }
+        GetDeuteronPosition(x1,y1,z1,x2,y2,z2);
+        // shift along x-axis
+        nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1));
+        nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
+    } else if (atomic == 3) {
+        // in the case of 3He
+        double x1, x2, x3, y1, y2, y3, z1, z2, z3;
+        // Triton data points from Carlson have center of mass (0,0,0).
+        GetTritonPosition(x1,y1,z1,x2,y2,z2,x3,y3,z3);
+        nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1));
+        nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
+        nucleons.push_back(new Particle(x3+(xCenter),y3+yCenter,z3));
+    } else {
+        if (flag_NN_correlation == 1 && (atomic == 197 || atomic == 208)) {
+            // load nucleon positions from file
+            double **nucleon_positions = new double* [atomic];
+            for (int inucleon = 0; inucleon < atomic; inucleon++) {
+                nucleon_positions[inucleon] = new double [3];
+            }
+            get_nucleon_position_with_NN_correlation(nucleon_positions);
 
-          for(int ia=0;ia<atomic;ia++) { // shift center of nucleus
-            double x = nucleons[ia]->getX() - xcm/atomic + xCenter;
-            double y = nucleons[ia]->getY() - ycm/atomic + yCenter;
-            double z = nucleons[ia]->getZ() - zcm/atomic;
-            nucleons[ia]->setX(x);
-            nucleons[ia]->setY(y);
-            nucleons[ia]->setZ(z);
-          }
-       }
-       else  // load nucleon positions from file
-       {
-          double **nucleon_positions = new double* [atomic];
-          for(int inucleon = 0; inucleon < atomic; inucleon++)
-          {
-             nucleon_positions[inucleon] = new double [3];
-          }
-          get_nucleon_position_with_NN_correlation(nucleon_positions);
+            double xcm = 0.0, ycm = 0.0, zcm = 0.0;
+            for (int ia = 0; ia < atomic; ia++) {
+                double x_local = nucleon_positions[ia][0];
+                double y_local = nucleon_positions[ia][1];
+                double z_local = nucleon_positions[ia][2];
+                xcm += x_local;
+                ycm += y_local;
+                zcm += z_local;
+                nucleons.push_back(new Particle(x_local, y_local, z_local));
+            }
 
-          double xcm = 0.0, ycm = 0.0, zcm = 0.0;
-          for(int ia = 0; ia < atomic; ia++)
-          {
-             double x_local = nucleon_positions[ia][0];
-             double y_local = nucleon_positions[ia][1];
-             double z_local = nucleon_positions[ia][2];
-             xcm += x_local;
-             ycm += y_local;
-             zcm += z_local;
-             nucleons.push_back(new Particle(x_local, y_local, z_local));
-          }
-          
-          for(int ia = 0; ia < atomic; ia++)
-          {
-             double x_local = nucleons[ia]->getX() - xcm/atomic + xCenter;
-             double y_local = nucleons[ia]->getY() - ycm/atomic + yCenter;
-             double z_local = nucleons[ia]->getZ() - zcm/atomic; 
-             nucleons[ia]->setX(x_local);
-             nucleons[ia]->setY(y_local);
-             nucleons[ia]->setZ(z_local);
-          }
+            for (int ia = 0; ia < atomic; ia++) {
+                double x_local = nucleons[ia]->getX() - xcm/atomic + xCenter;
+                double y_local = nucleons[ia]->getY() - ycm/atomic + yCenter;
+                double z_local = nucleons[ia]->getZ() - zcm/atomic;
+                nucleons[ia]->setX(x_local);
+                nucleons[ia]->setY(y_local);
+                nucleons[ia]->setZ(z_local);
+            }
 
-          // clean up
-          for(int inucleon = 0; inucleon < atomic; inucleon++)
-          {
-             delete [] nucleon_positions[inucleon];
-          }
-          delete [] nucleon_positions;
-       }
+            // clean up
+            for(int inucleon = 0; inucleon < atomic; inucleon++) {
+                delete [] nucleon_positions[inucleon];
+            }
+            delete [] nucleon_positions;
+        } else {
+            // for large nuclei
+            // generate a cloud of nucleons around 0,0,0
+            // Then move them to the real center
+            for(int ia = 0; ia < atomic; ia++) {
+                double x,y,z;
+                int icon=0;
+                int oversamplePosition = 0;
+                do {
+                    getDeformRandomWS(x, y, z);
+                    icon = 0;
+                    oversamplePosition = atomic*((int)nucleons.size()/atomic);
+                    for(int i=oversamplePosition; i<(int)nucleons.size();i++) {
+                        double x1=nucleons[i]->getX();
+                        double y1=nucleons[i]->getY();
+                        double z1=nucleons[i]->getZ();
+                        double r2 = (x-x1)*(x-x1) + (y-y1)*(y-y1) + (z-z1)*(z-z1);
+                        if(r2 < rmin) {
+                            icon=1;
+                            break;
+                        }
+                    }
+                } while(icon==1);
+
+                xcm +=x;
+                ycm +=y;
+                zcm +=z;
+                nucleons.push_back(new Particle(x,y,z));
+            }
+            for (int ia=0;ia<atomic;ia++) {
+                // shift center of nucleus
+                double x = nucleons[ia]->getX() - xcm/atomic + xCenter;
+                double y = nucleons[ia]->getY() - ycm/atomic + yCenter;
+                double z = nucleons[ia]->getZ() - zcm/atomic;
+                nucleons[ia]->setX(x);
+                nucleons[ia]->setY(y);
+                nucleons[ia]->setZ(z);
+            }
+        }
     }
-    
+
     // Sort them by their xLeft bound. This is to optimize collision detection.
-    std::sort(nucleons.begin(),nucleons.end(),sortByXLeft);
-    if(GFF)
+    std::sort(nucleons.begin(), nucleons.end(), sortByXLeft);
+    if (GFF)
       setGluonFields();
 }
 
-void Nucleus::setGluonFields()
-{
-  for(int i = 0; i < nucleons.size(); i++)
-  {
-    nucleons[i]->setGluonField(new GluonField(atomic,ecm));
-  }
+void Nucleus::setGluonFields() {
+    for(unsigned int i = 0; i < nucleons.size(); i++) {
+        nucleons[i]->setGluonField(new GluonField(atomic,ecm));
+    }
 }
 
 void Nucleus::markWounded(Particle* part)

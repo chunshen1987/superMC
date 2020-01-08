@@ -38,7 +38,7 @@ MakeDensity::MakeDensity(ParameterReader *paraRdr_in)
   cutdSdy = paraRdr->getVal("cutdSdy");
   cutdSdy_lowerBound = paraRdr->getVal("cutdSdy_lowerBound");
   cutdSdy_upperBound = paraRdr->getVal("cutdSdy_upperBound");
-  
+
   // fix grid properties
   Xmax = paraRdr->getVal("maxx");
   Ymax = paraRdr->getVal("maxy");
@@ -183,7 +183,7 @@ void MakeDensity::generate_profile_ebe_Jet(int nevent)
   int use_ed = paraRdr->getVal("use_ed");
   int use_block = paraRdr->getVal("use_block");
   int use_4col = paraRdr->getVal("use_4col");
-  
+
   int output_rho_binary = paraRdr->getVal("output_rho_binary");
   int output_TA = paraRdr->getVal("output_TA");
   int output_rhob = paraRdr->getVal("output_rhob");
@@ -765,7 +765,7 @@ void MakeDensity::generate_profile_average(int nevent)
       }
     }
   }
-  
+
   // energy profile:
   char file2_4col[] = "data/edAvg_order_%d_4col.dat";
   char file2_block[] = "data/edAvg_order_%d_block.dat";
@@ -952,7 +952,7 @@ void MakeDensity::generate_profile_average(int nevent)
           }
       }
   }
-  
+
   char file_rho_binary_sd_4col[] = "data/rho_binary_fromSd_order_%d_4col.dat";
   char file_rho_binary_sd_block[] = "data/rho_binary_fromSd_order_%d_block.dat";
   char file_rho_binary_ed_4col[] = "data/rho_binary_fromEd_order_%d_4col.dat";
@@ -977,7 +977,7 @@ void MakeDensity::generate_profile_average(int nevent)
           }
         }
       }
-      
+
       // binary density profile (rotated using energy density):
       rho_binary_ed  = new double*** [number_of_orders];
       for(int iorder=0; iorder<number_of_orders; iorder++) // iorder starts from 0
@@ -1006,7 +1006,7 @@ void MakeDensity::generate_profile_average(int nevent)
               }
             }
           }
-          
+
           // binary density profile (rotated using energy density):
           rho_binary_ed_RP  = new double*** [number_of_orders];
           for(int iorder=0; iorder<number_of_orders; iorder++) // iorder starts from 0
@@ -1022,7 +1022,7 @@ void MakeDensity::generate_profile_average(int nevent)
           }
       }
   }
-  
+
   char file_TA_sd_4col[] = "data/nuclear_thickness_TA_fromSd_order_%d_4col.dat";
   char file_TA_sd_block[] = "data/nuclear_thickness_TA_fromSd_order_%d_block.dat";
   char file_TA_ed_4col[] = "data/nuclear_thickness_TA_fromEd_order_%d_4col.dat";
@@ -1084,7 +1084,7 @@ void MakeDensity::generate_profile_average(int nevent)
           }
         }
       }
-      
+
       // nuclear thickness function profile (rotated using entropy density):
       nuclear_TB_ed  = new double*** [number_of_orders];
       for(int iorder=0; iorder<number_of_orders; iorder++) // iorder starts from 0
@@ -1113,7 +1113,7 @@ void MakeDensity::generate_profile_average(int nevent)
               }
             }
           }
-          
+
           // nuclear thickness function profile (rotated using entropy density):
           nuclear_TA_ed_RP  = new double*** [number_of_orders];
           for(int iorder=0; iorder<number_of_orders; iorder++) // iorder starts from 0
@@ -1127,7 +1127,7 @@ void MakeDensity::generate_profile_average(int nevent)
               }
             }
           }
-          
+
           // nuclear thickness function profile (rotated using entropy density):
           nuclear_TB_sd_RP  = new double*** [number_of_orders];
           for(int iorder=0; iorder<number_of_orders; iorder++) // iorder starts from 0
@@ -1141,7 +1141,7 @@ void MakeDensity::generate_profile_average(int nevent)
               }
             }
           }
-          
+
           // nuclear thickness function profile (rotated using entropy density):
           nuclear_TB_ed_RP  = new double*** [number_of_orders];
           for(int iorder=0; iorder<number_of_orders; iorder++) // iorder starts from 0
@@ -1196,7 +1196,7 @@ void MakeDensity::generate_profile_average(int nevent)
           }
         }
       }
-      
+
       // spectator density (rotated using energy density):
       spectator_density_A_ed  = new double*** [number_of_orders];
       for(int iorder=0; iorder<number_of_orders; iorder++) // iorder starts from 0
@@ -2553,7 +2553,8 @@ double MakeDensity::gettotaldSdy(const int iy)
 void MakeDensity::dumpDensity4Col(char filename[], double *** data, const int iy)
 {
   ofstream of;
-  of.open(filename, std::ios_base::app);
+  //of.open(filename, std::ios_base::app);
+  of.open(filename, std::ios_base::out);
   of  << "# <npart>= " << Npart
       << " xmax= " << Maxx << " ymax= " << Maxy
       << endl;
@@ -2564,11 +2565,11 @@ void MakeDensity::dumpDensity4Col(char filename[], double *** data, const int iy
       double x = Xmin + i*dx;
       double y = Ymin + j*dy;
       double rap = rapMin+(rapMax-rapMin)/binRapidity*iy;
-      of <<  setprecision(3) << setw(10) <<  rap
-          << setprecision(3) << setw(10) <<  x
-          << setprecision(3) << setw(10) <<  y
-          << setprecision(12) << setw(22) <<  data[iy][i][j]
-	  << endl;
+      of << setprecision(3) << setw(10) <<  rap
+         << setprecision(3) << setw(10) <<  x
+         << setprecision(3) << setw(10) <<  y
+         << setprecision(12) << setw(22) <<  data[iy][i][j]
+         << endl;
     }
   of.close();
 }
@@ -2576,7 +2577,8 @@ void MakeDensity::dumpDensity4Col(char filename[], double *** data, const int iy
 void MakeDensity::dumpDensityBlock(char filename[], double *** data, const int iy)
 {
   ofstream of;
-  of.open(filename, std::ios_base::app);
+  //of.open(filename, std::ios_base::app);
+  of.open(filename, std::ios_base::out);
   for(int i=0;i<Maxx;i++) {
     for(int j=0;j<Maxy;j++) {
       of << setprecision(12) << setw(22) << data[iy][i][j];

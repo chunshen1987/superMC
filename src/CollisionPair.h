@@ -16,7 +16,7 @@ class CollisionPair : private Point3D, public IGluonSource
     additional_weight = 0.;
   }
   ~CollisionPair() {};
-    
+
   Box2D getBoundingBox(){return boundingBox;}
     double getX(){return x;}
     double getY(){return y;}
@@ -35,9 +35,8 @@ class CollisionPair : private Point3D, public IGluonSource
     {
         z = a;
     }
-    
-    void rotate(double theta, double phi)
-    {
+
+    void rotate(double theta, double phi) {
         Point3D::rotate(cos(theta),phi);
     }
 

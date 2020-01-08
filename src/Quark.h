@@ -21,10 +21,10 @@ class Quark: private Point3D, public IGluonSource
     Box2D boundingBox;
     double fluctFactor;
     Particle* parent;
-    
+
     public:
         static double width;
-        
+
         Quark(Particle* inParent, double x0 = 0, double y0 = 0, double z0 = 0)
                 : Point3D(x0,y0,z0)
         {
@@ -48,15 +48,13 @@ class Quark: private Point3D, public IGluonSource
         void   setZ(double a){z=a;}
         void   setFluctFactor(double a){fluctFactor=a;}
         void   rotate(double theta, double phi);
-        
+
         Box2D  getBoundingBox();
         double getSmoothTn(double xg, double yg);
         double getSmoothDensity(double xg, double yg)
         {
-            
             return fluctFactor*getSmoothTn(xg,yg);
         }
-        
 };
 
 

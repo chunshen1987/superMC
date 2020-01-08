@@ -333,7 +333,7 @@ void MCnucl::createBinaryCollisions()
         Particle* part = projParticipants[i];
         double partX = part->getX();
         double partY = part->getY();
-        
+
         vector<Particle*> collidingParticles = part->getCollidingParticles();
         for(int j = 0; j < collidingParticles.size(); j++)
         {
@@ -341,10 +341,10 @@ void MCnucl::createBinaryCollisions()
             CollisionPair* pair = 
                     new CollisionPair((partX+colliding->getX())/2.0,
                                       (partY+colliding->getX())/2.0);
-            
+
             if(CCFluctuationModel > 5)
                 pair->setfluctfactor(sampleFluctuationFactorforBinaryCollision());
-            
+
             if(which_mc_model == 5 && sub_model == 2){
                 pair->additional_weight += 1/part->getNumberOfCollision();
                 pair->additional_weight += 1/colliding->getNumberOfCollision();
@@ -434,17 +434,17 @@ void MCnucl::calculateThickness()
 void MCnucl::setThickness(Nucleus* nucl, double ** TA)
 {
     vector<Particle*> participant = nucl->getParticipants();
-    
+
     double nucleon_width;
     if (shape_of_nucleons>=2 && shape_of_nucleons<=9) 
         nucleon_width = gaussCal->width;
-    
+
     double d_max;
     if (shape_of_nucleons == 1)
         d_max = 2.*sqrt(dsq);
     if (shape_of_nucleons >= 2 && shape_of_nucleons <=9)
         d_max = 5.*nucleon_width;
-    
+
     for(unsigned int ipart=0; ipart<participant.size(); ipart++)
     {
       double x = participant[ipart]->getX();
@@ -645,14 +645,14 @@ void MCnucl::setDensity(int iy, int ipt)
 
   rapidity=rapMin + (rapMax-rapMin)/binRapidity*iy;
   dndy=0.0;
- 
+
   double dc_sq_max_gaussian = 25.*entropy_gaussian_width_sq;
   double d_max;
   if (shape_of_nucleons == 1)
       d_max = 2.*sqrt(dsq);
   if (shape_of_nucleons >= 2 && shape_of_nucleons <=9)
       d_max = 5.*entropy_gaussian_width;
-  
+
   if(which_mc_model==1) // MC-KLN
   {
     for(int ir=0;ir<Maxx;ir++)  // loop over 2d transv. grid
@@ -1070,11 +1070,11 @@ void MCnucl::deleteNucleus()
 {
   proj->clearNucleons();
   targ->clearNucleons();
-  
+
   // Participants are deleted, as they
   // reference the same particles as contained in
   // proj/targ
-  
+
   for(int i=0;i<(int)spectators.size();i++) {
     delete spectators[i];
   }
@@ -1146,22 +1146,21 @@ void MCnucl::rotateGrid(int iy, int n)
     recenterGrid(iy,n);
 
     vector<Particle*> participants = proj->getParticipants();
-    for(int i = 0; i < participants.size(); i++)
-    {
-        participants[i]->rotate(0,angle);
+    for(unsigned int i = 0; i < participants.size(); i++) {
+        participants[i]->rotate(0, angle);
         participants[i]->calculateBounds();
     }
 
     participants = targ->getParticipants();
-    for(int i = 0; i < participants.size(); i++){
-        participants[i]->rotate(0,angle);
+    for(unsigned int i = 0; i < participants.size(); i++){
+        participants[i]->rotate(0, angle);
         participants[i]->calculateBounds();
     }
 
-    for(int i = 0; i < binaryCollision.size(); i++)
-        binaryCollision[i]->rotate(0,angle);
-    for(int i = 0; i < spectators.size(); i++)
-        spectators[i]->rotate(0,angle);
+    for(unsigned int i = 0; i < binaryCollision.size(); i++)
+        binaryCollision[i]->rotate(0, angle);
+    for(unsigned int i = 0; i < spectators.size(); i++)
+        spectators[i]->rotate(0, angle);
 }
 
 
@@ -1274,7 +1273,7 @@ double MCnucl::sampleFluctuationFactorforParticipant()
    double theta_part = 2./(1 - Alpha + eps)*theta;
    if(CCFluctuationModel == 6)  //Gamma distribution for MC-Glauber
       fluctfactor = gsl_ran_gamma(gslRng, k_part, theta_part);
-   
+
    return(fluctfactor);
 }
 
@@ -1287,27 +1286,27 @@ double MCnucl::sampleFluctuationFactorforBinaryCollision()
    double theta_binary = 1./(Alpha+eps)*ccFluctuationGammaTheta;
    if(CCFluctuationModel == 6)  //Gamma distribution for MC-Glauber
       fluctfactor = gsl_ran_gamma(gslRng, k_binary, theta_binary);
-   
+
    return(fluctfactor);
 }
 
 Box2D MCnucl::getHotSpots(vector<Box2D> & hotSpots)
 {
     hotSpots.clear();
-    
+
     vector<Particle*> participants = proj->getParticipants();
     for(int i = 0; i < participants.size(); i++)
         hotSpots.push_back(participants[i]->getBoundingBox());
-    
+
     participants = targ->getParticipants();
     for(int i = 0; i < participants.size(); i++)
         hotSpots.push_back(participants[i]->getBoundingBox());
-    
+
     for(int i = 0; i < binaryCollision.size(); i++)
         hotSpots.push_back(binaryCollision[i]->getBoundingBox());
-    
+
     Box2D hotSpot = hotSpots[0];
-    
+
     for(int i = 1; i < hotSpots.size(); i++)
         hotSpot.overUnion(hotSpots[i]);
     return hotSpot;

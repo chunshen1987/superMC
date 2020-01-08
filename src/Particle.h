@@ -39,7 +39,7 @@ class Particle: private Point3D, public IGluonSource
     double getYorg() {return ysave;}
     void   saveOrg() {xsave = x; ysave = y; zsave = z;}
     void resetCoordinate() {x = xsave; y = ysave; z = zsave;}
-    
+
     vector<Quark>& getQuarks(){return ValenceQuarks;}
     double getX(){return x;}
     double getY(){return y;}
@@ -47,7 +47,7 @@ class Particle: private Point3D, public IGluonSource
     void   setX(double a);
     void   setY(double a);
     void   setZ(double a);
-    
+
     Box2D  getBoundingBox() const {return boundingBox;}
     void   calculateBounds();
     void   rotate(double theta, double phi);
@@ -55,7 +55,7 @@ class Particle: private Point3D, public IGluonSource
     void setFluctfactor(double fluct) {fluctfactor = fluct;}
     void setQuarkFluctfactor(double f1, double f2, double f3);
     void resetFluctFactors();
-    
+
     std::vector<Particle*>& getCollidingParticles(){return who_hit_me;}
     double getFluctfactor() {return fluctfactor;}
     double getWidth() {return width;}

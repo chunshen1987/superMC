@@ -27,9 +27,9 @@ protected:
     GaussianDistribution* quarkDist;
     int nPart;
     int nuclID;
-    
+
     double lastCx, lastPh;
-    
+
     int deformed;
     double rad,rmaxCut,rwMax;
     double dr;
@@ -50,7 +50,7 @@ protected:
     bool GFF;
 
 public:
-    
+
     Nucleus(int a, ParameterReader* paraRdr, int deformed=0, int id = 0);
     virtual ~Nucleus();
     double getLastCx1(){return lastCx;}
@@ -64,13 +64,13 @@ public:
     void clearNucleons();
     void getRandomWS(double& x, double& y, double& z);
     void markWounded(Particle* part);
-    
+
     static void Gauss38(double xini,double xfin,double* xn,double* wn);
-    
+
     void dumpParticipants(ofstream& of);
     void dumpNucleons(ofstream& of);
     void dumpQuarks(ofstream& of);
-    
+
     void setGluonFields();
 
     //Deformation
@@ -84,7 +84,7 @@ public:
     void GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,double& y2,double& z2);
     void readin_triton_position();
     void GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3);
-    
+
     // Efficient Collision Calculations
     static bool sortByXLeft(const Particle* p1,const Particle* p2)
     {return p1->getBoundingBox().getXL() < p2->getBoundingBox().getXL();}

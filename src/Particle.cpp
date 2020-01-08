@@ -32,7 +32,7 @@ Particle::~Particle()
 void Particle::generateQuarkPositions()
 {
   ValenceQuarks.clear();
-  // Note* Quarks are generated with a position relative to 
+  // Note* Quarks are generated with a position relative to
   // their parent nucleon.
   double r1, r2, z12;
   int index = (int)250000*drand48();

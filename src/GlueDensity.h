@@ -30,7 +30,7 @@ public:
 
     void setDensity(int i, int ix, int iy,int ipt, double a) {densitypt[i][ix][iy][ipt]=a;}
     double getDensity(int iy, int i, int j, int ipt) {return densitypt[iy][i][j][ipt];}
-        
+
     double getXcm(int i) {return Xcm[i];}
     double getYcm(int i) {return Ycm[i];}
     double getXcm2(int i) {return Xcm2[i];}
@@ -47,9 +47,10 @@ public:
     void calcCMAngle(const int iy, int n=2);
     //void rotateGrid(const int ix, const int iy);
     double getCMAngle(const int iy){return AngleG[iy];}
-    
-    double getCM(double& xCM, double& yCM,const int iy)
-    {xCM=Xcm[iy];yCM=Ycm[iy];}
+
+    void getCM(double& xCM, double& yCM,const int iy) {
+        xCM = Xcm[iy]; yCM = Ycm[iy];
+    }
 };
 
 #endif
