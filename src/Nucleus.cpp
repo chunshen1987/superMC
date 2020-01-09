@@ -57,8 +57,7 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in, int id)
   deformed = deformed_in;
   A = (double)a;
   atomic = a;
-  
-  
+
   // if nucleon, nothing more needed
   if (a==1) return;
 
@@ -293,7 +292,7 @@ void Nucleus::clearNucleons()
 {
     for(int i = 0; i < nucleons.size(); i++)
         delete nucleons[i];
-    
+
     woundedNucleons.clear();
     nucleons.clear();
 }
@@ -302,7 +301,7 @@ void Nucleus::GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,do
 {
    //get proton/neutron separation d (fm)
    double d;
-   
+
    d=sample_deuteron.rand(); //now sample random rotation of deuteron
    x1 = (d/2.0);
    y1 = 0;

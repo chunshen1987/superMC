@@ -323,29 +323,26 @@ void MCnucl::selectFluctFactors(Particle* part)
     }
 }
 
-void MCnucl::createBinaryCollisions()
-{
+void MCnucl::createBinaryCollisions() {
     vector<Particle*> projParticipants = proj->getParticipants();
     // Loop through the participants for just the projectile,
     // then loop through all the particles that collided with each.
-    for(int i = 0; i < projParticipants.size(); i++)
-    {
+    for (unsigned int i = 0; i < projParticipants.size(); i++) {
         Particle* part = projParticipants[i];
         double partX = part->getX();
         double partY = part->getY();
 
         vector<Particle*> collidingParticles = part->getCollidingParticles();
-        for(int j = 0; j < collidingParticles.size(); j++)
-        {
+        for (int j = 0; j < collidingParticles.size(); j++) {
             Particle* colliding = collidingParticles[j];
-            CollisionPair* pair = 
-                    new CollisionPair((partX+colliding->getX())/2.0,
-                                      (partY+colliding->getX())/2.0);
+            CollisionPair* pair = (
+                    new CollisionPair((partX + colliding->getX())/2.0,
+                                      (partY + colliding->getY())/2.0));
 
-            if(CCFluctuationModel > 5)
+            if (CCFluctuationModel > 5)
                 pair->setfluctfactor(sampleFluctuationFactorforBinaryCollision());
 
-            if(which_mc_model == 5 && sub_model == 2){
+            if (which_mc_model == 5 && sub_model == 2) {
                 pair->additional_weight += 1/part->getNumberOfCollision();
                 pair->additional_weight += 1/colliding->getNumberOfCollision();
             }
@@ -361,7 +358,7 @@ int MCnucl::hit(Particle* part1, Particle* part2)
 {
     double b = sqrt((part2->getX()-part1->getX())*(part2->getX()-part1->getX())
                 +(part2->getY()-part1->getY())*(part2->getY()-part1->getY()));
-    
+
     switch(forceCollisionCriterion)
     {
         case 1:
