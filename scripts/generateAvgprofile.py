@@ -47,6 +47,8 @@ superMCParameters = {
     'output_TATB'                   :   1,
     'output_rho_binary'             :   1,
     'output_TA'                     :   1,
+    'output_rhob'                   :   1,
+    'output_spectator_density'      :   1,
     'generate_reaction_plane_avg_profile'  :  1,
     'nev'                           :   100000,
     'average_from_order'            :   2,
@@ -60,7 +62,7 @@ nucleus_name_dict = {
     63: 'Cu',
     1: 'p',
     2: 'd',
-    3: 'He',
+    3: 'He3',
 }
 
 nucleus_number_dict = {
@@ -70,7 +72,7 @@ nucleus_number_dict = {
     'Cu': 63,
     'p': 1,
     'd': 2,
-    'He': 3,
+    'He3': 3,
 }
 
 
@@ -161,8 +163,10 @@ def translate_centrality_cut(centrality_bound, cut_type='total_entropy'):
         superMCParameters['cutdSdy_upperBound'] = cut_value_upper
     elif cut_type == 'Npart':
         superMCParameters['cutdSdy'] = 0
-        b_min = min(centrality_cut_file[lower_idx-1:upper_idx+1, 4])
-        b_max = max(centrality_cut_file[lower_idx-1:upper_idx+1, 5])
+        b_min = min(centrality_cut_file[lower_idx-1:upper_idx+1, 2])
+        b_max = max(centrality_cut_file[lower_idx-1:upper_idx+1, 3])
+        npart_min = cut_value_low
+        npart_max = cut_value_upper
     superMCParameters['Npmax'] = npart_max
     superMCParameters['Npmin'] = npart_min
     superMCParameters['bmax'] = b_max
@@ -272,14 +276,15 @@ def print_help_message():
     print(color.bold + "-collision_system" + color.end
           + " type of collision system: "
           + color.purple + color.bold + " Pb+Pb[default]" + color.end
-          + color.purple + ", Au+Au, Cu+Au, U+U, p+Pb, p+Au, d+Au, He+Au"
+          + color.purple + ", Au+Au, Cu+Au, U+U, p+Pb, p+Au, d+Au, He3+Au"
           + color.end)
 
 
 if __name__ == "__main__":
     # set default values
     model = 'MCGlb'
-    cut_type = 'total_entropy'
+    #cut_type = 'total_entropy'
+    cut_type = 'Npart'
     collsys = 'Pb+Pb'.split('+')
     output_path = path.abspath('./RESULTS/')
 
