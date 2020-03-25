@@ -2259,6 +2259,8 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     double *momp_real = new double[max_order];
     double *momp_imag = new double[max_order];
     double *normp = new double[max_order]; // normp is <r^n>
+    std::vector<double> rn(max_order, 0);    // <r^n> = (int d^2r den*r^n)/(int d^2r den)
+    double density_norm = 0.;
     // initialize:
     for(int i = 0; i < max_order; i++)
     {
@@ -2277,6 +2279,22 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
         total += density[iy][i][j];
     }
     xc /= total; yc /= total;
+
+    // compute <r^n>
+    for (int ix = 0; ix < Maxx; ix++) {
+        double x_o = Xmin + ix*dx - xc;
+        for (int j = 0; j < Maxy; j++) {
+            double y_o = Ymin + j*dy - yc;
+            double r_o = sqrt(x_o*x_o + y_o*y_o);
+            for (int iorder = 0; iorder < max_order; iorder++) {
+                rn[iorder] += pow(r_o, iorder)*density[iy][ix][j];
+            }
+            density_norm += density[iy][ix][j];
+        }
+    }
+    for (int iorder = 0; iorder < max_order; iorder++) {
+        rn[iorder] /= density_norm;
+    }
 
 /*
     // for overlapping area:
@@ -2419,6 +2437,7 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
                 << setprecision(8) << setw(16) << mom_imag[order]
                 << setprecision(8) << setw(16) << momp_real[order]
                 << setprecision(8) << setw(16) << momp_imag[order]
+                << setprecision(8) << setw(16) << rn[order]
                 << setprecision(5) << setw(10) << Npart_current
                 << setprecision(5) << setw(10) << Nbin_current
                 << setprecision(8) << setw(16) << total*dx*dy // integrated profile measure
@@ -2436,14 +2455,15 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
         }
         else
         {
-            of  << setprecision(8) << setw(16) <<  mom_real[order]
-                << setprecision(8) << setw(16) <<  mom_imag[order]
-                << setprecision(8) << setw(16) <<  momp_real[order]
-                << setprecision(8) << setw(16) <<  momp_imag[order]
-                << setprecision(5) << setw(10) <<  Npart_current
-                << setprecision(5) << setw(10) <<  Nbin_current
-                << setprecision(8) << setw(16) <<  total*dx*dy // integrated profile measure
-                << setprecision(8) << setw(16) <<  b
+            of  << setprecision(8) << setw(16) << mom_real[order]
+                << setprecision(8) << setw(16) << mom_imag[order]
+                << setprecision(8) << setw(16) << momp_real[order]
+                << setprecision(8) << setw(16) << momp_imag[order]
+                << setprecision(8) << setw(16) << rn[order]
+                << setprecision(5) << setw(10) << Npart_current
+                << setprecision(5) << setw(10) << Nbin_current
+                << setprecision(8) << setw(16) << total*dx*dy // integrated profile measure
+                << setprecision(8) << setw(16) << b
                 << endl;
         }
         of.close();
@@ -2456,7 +2476,7 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
             << setprecision(8) << setw(16) <<  mom_imag[order]
             << setprecision(8) << setw(16) <<  momp_real[order]
             << setprecision(8) << setw(16) <<  momp_imag[order]
-            << setprecision(8) << setw(16) <<  normp[order];
+            << setprecision(8) << setw(16) <<  rn[order];
     }
 
     if (deformedFlag) {

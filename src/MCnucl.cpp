@@ -380,6 +380,7 @@ int MCnucl::hit(Particle* part1, Particle* part2)
                 goto gauss;
             if(shape_of_entropy == 3)
                 goto fluctuated;
+            goto disk;
     }
 }
 // checks whether Npart1+Npart2 is in the desired range
