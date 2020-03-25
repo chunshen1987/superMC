@@ -26,24 +26,18 @@ EOS *zq_global_eos;
 using namespace std;
 
 //----------------------------------------------------------------------
-EOS::EOS() {};
-
+EOS::EOS() {}
 
 //----------------------------------------------------------------------
-EOS::EOS(string filename) { loadEOSFromFile(filename); };
+EOS::EOS(string filename) { loadEOSFromFile(filename); }
 
 //----------------------------------------------------------------------
 EOS::EOS(string data_filename, string coeff_filename) {
     loadEOSFromFile(data_filename, coeff_filename);
-};
+}
 
 //----------------------------------------------------------------------
-EOS::~EOS(){
-    delete ed_table;
-    delete p_table;
-    delete sd_table;
-    delete T_table;
-}
+EOS::~EOS(){}
 
 //----------------------------------------------------------------------
 void EOS::loadEOSFromFile(string data_filename)
@@ -62,22 +56,17 @@ void EOS::loadEOSFromFile(string data_filename)
         exit(-1);
     }
     vector< vector<double>* >* data = readBlockData(fs);
-    if ((*data).size()!=4)
-    {
-        cout << "EOS::loadEOSFromFile error: the EOS data file is not a valid 4-column data file." << endl;
-        exit(-1);
-    }
-    ed_table = (*data)[0];
-    p_table = (*data)[1];
-    sd_table = (*data)[2];
-    T_table = (*data)[3];
-    table_length = ed_table->size();
-    delta_ed = (*ed_table)[1]-(*ed_table)[0];
-    max_ed = (*ed_table)[table_length-1];
+    ed_table = *((*data)[0]);
+    p_table = *((*data)[1]);
+    sd_table = *((*data)[2]);
+    T_table = *((*data)[3]);
+    table_length = ed_table.size();
+    delta_ed = ed_table[1] - ed_table[0];
+    max_ed = ed_table[table_length-1];
     zq_global_eos = this;
 
     delete data;
-};
+}
 
 
 //----------------------------------------------------------------------
@@ -98,13 +87,50 @@ void EOS::loadEOSFromFile(string data_filename, string coeff_filename)
     //cout << p1 <<" "<< p2 <<" "<< s1 <<" "<< s2 <<" "<< T1 <<" "<< T2 << endl; // for debug
 }
 
+
+//----------------------------------------------------------------------
+void EOS::loadEOSFromBinaryFile(string data_filename) {
+// The EOS data file (data_filename) is assumed to be a 4 column file:
+// 1st column: the energy density
+// 2nd column: the pressure
+// 3rd column: the entropy density
+// 4th column: the temprature
+// The units are not relavent here; the external program is responsible
+// for converting to the correct units in according to the EOS data file.
+    std::ifstream eos_file;
+    eos_file.open(data_filename.c_str(), std::ios::binary);
+    if (!eos_file) {
+        cout << "EOS::loadEOSFromBinaryFile error: the EOS data file cannot be opened." << endl;
+        cout << "filename: " << data_filename << endl;
+        exit(-1);
+    }
+    const int tb_length = 100000;
+    double temp;
+    for (int ii = 0; ii < tb_length; ii++) {
+        eos_file.read((char*)&temp, sizeof(double));  // e
+        ed_table.push_back(temp);
+        eos_file.read((char*)&temp, sizeof(double));  // P
+        p_table.push_back(temp);
+        eos_file.read((char*)&temp, sizeof(double));  // s
+        sd_table.push_back(temp);
+        eos_file.read((char*)&temp, sizeof(double));  // T
+        T_table.push_back(temp);
+    }
+    table_length = ed_table.size();
+    delta_ed = ed_table[1] - ed_table[0];
+    max_ed = ed_table[table_length-1];
+
+    zq_global_eos = this;
+};
+
 //----------------------------------------------------------------------
 double EOS::p(double ed0)
 // Return the pressure from the energy density ed0.
 {
-    if (ed0<=(*ed_table)[0]) return ed0/(*ed_table)[0]*(*p_table)[0]; // linear interpolation to 0
+    if (ed0<=ed_table[0]) return ed0/ed_table[0]*p_table[0]; // linear interpolation to 0
     if (ed0>=max_ed) return p1*pow(ed0,p2); // log-fitted
-    return interpCubicDirect(ed_table, p_table, ed0);
+
+    return interpCubicDirect(&ed_table, &p_table, ed0);
 };
 
 
@@ -112,9 +138,9 @@ double EOS::p(double ed0)
 double EOS::sd(double ed0)
 // Return the entropy density from the energy density ed0.
 {
-    if (ed0<=(*ed_table)[0]) return ed0/(*ed_table)[0]*(*sd_table)[0]; // linear interpolation to 0
+    if (ed0<=ed_table[0]) return ed0/ed_table[0]*sd_table[0]; // linear interpolation to 0
     if (ed0>=max_ed) return s1*pow(ed0,s2); // log-fitted
-    return interpCubicDirect(ed_table, sd_table, ed0);
+    return interpCubicDirect(&ed_table, &sd_table, ed0);
 };
 
 
@@ -122,9 +148,9 @@ double EOS::sd(double ed0)
 double EOS::T(double ed0)
 // Return the temperature from the energy density ed0.
 {
-    if (ed0<=(*ed_table)[0]) return ed0/(*ed_table)[0]*(*T_table)[0]; // linear interpolation to 0
+    if (ed0<=ed_table[0]) return ed0/ed_table[0]*T_table[0]; // linear interpolation to 0
     if (ed0>=max_ed) return T1*pow(ed0,T2); // log-fitted
-    return interpCubicDirect(ed_table, T_table, ed0);
+    return interpCubicDirect(&ed_table, &T_table, ed0);
 };
 
 
@@ -134,7 +160,7 @@ double zq_global_edFromP_hook(double ee) { return zq_global_eos->p(ee); }
 double EOS::edFromP(double p0)
 // Return the energe density from given pressure p0.
 {
-    return invertFunc(&zq_global_edFromP_hook, p0, (*ed_table)[0], (*ed_table)[table_length-1], delta_ed, (*ed_table)[INIT_GUESS], ACCURACY);
+    return invertFunc(&zq_global_edFromP_hook, p0, ed_table[0], ed_table[table_length-1], delta_ed, ed_table[INIT_GUESS], ACCURACY);
 }
 
 
@@ -144,7 +170,7 @@ double zq_global_edFromSd_hook(double ee) { return zq_global_eos->sd(ee); }
 double EOS::edFromSd(double sd0)
 // Return the energe density from given entropy density sd0.
 {
-    return invertFunc(&zq_global_edFromSd_hook, sd0, (*ed_table)[0], (*ed_table)[table_length-1], delta_ed, (*ed_table)[INIT_GUESS], ACCURACY);
+    return invertFunc(&zq_global_edFromSd_hook, sd0, ed_table[0], ed_table[table_length-1], delta_ed, ed_table[INIT_GUESS], ACCURACY);
 };
 
 
@@ -153,7 +179,7 @@ double zq_global_edFromT_hook(double ee) { return zq_global_eos->T(ee); }
 double EOS::edFromT(double T0)
 // Return the energe density from given temperature T0.
 {
-    return invertFunc(&zq_global_edFromT_hook, T0, (*ed_table)[0], (*ed_table)[table_length-1], delta_ed, (*ed_table)[INIT_GUESS], ACCURACY);
+    return invertFunc(&zq_global_edFromT_hook, T0, ed_table[0], ed_table[table_length-1], delta_ed, ed_table[INIT_GUESS], ACCURACY);
 };
 
 // Ver 1.1:

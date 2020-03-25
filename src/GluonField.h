@@ -53,6 +53,7 @@ public:
 		else
 			// This is not a correct treatment, but mearly a temporary one.
 			return ImprintArrayProton[x][y];*/
+        return(-1);
 	}
 };
 

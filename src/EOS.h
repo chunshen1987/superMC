@@ -10,10 +10,10 @@
 class EOS
 {
     private:
-        std::vector<double>* ed_table;
-        std::vector<double>* p_table;
-        std::vector<double>* sd_table;
-        std::vector<double>* T_table;
+        std::vector<double> ed_table;
+        std::vector<double> p_table;
+        std::vector<double> sd_table;
+        std::vector<double> T_table;
         long table_length;
         double delta_ed, max_ed;
         double p1,p2,s1,s2,T1,T2;
@@ -25,6 +25,7 @@ class EOS
         void loadEOSFromFile(std::string data_filename);
         void loadEOSFromFile(std::string data_filename,
                              std::string coeff_filename);
+        void loadEOSFromBinaryFile(string data_filename);
         double p(double ed);
         double sd(double ed);
         double T(double ed);
