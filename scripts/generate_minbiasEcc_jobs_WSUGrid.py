@@ -26,7 +26,7 @@ def generate_script(folder_name, ecm):
 cd {2:s}
 rm -fr data
 mkdir data
-./superMC.e ecm={3:g} operation=9
+./superMC.e ecm={3:g} operation=9 ecc_from_order=1 ecc_to_order=9 bmin=0. bmax=20.
 
 """.format(working_folder.split('/')[-1], walltime, working_folder, ecm))
     script.close()
@@ -57,9 +57,10 @@ if __name__ == "__main__":
         ncore = int(sys.argv[2])
         ecm = float(sys.argv[3])
     except IndexError:
-        print("./generate_jobs_guillimin.py working_folder num_of_cores")
+        print("{} working_folder num_of_cores ecm".format(str(sys.argv[0])))
         exit(0)
 
+    mkdir(folder_name)
     for icore in range(ncore):
         generate_event_folder(folder_name, icore, ecm)
 
