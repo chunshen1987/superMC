@@ -2324,14 +2324,14 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     int nYpoints = (int)((region.getYR()-region.getYL())/dy);
     int nXpoints = (int)((region.getXR()-region.getXL())/dx);
     //cout << region.toString() << endl;
-    
+
     bool ** importantRegions = new bool*[nXpoints];
     for(int i = 0; i < nXpoints; i++){
         importantRegions[i] = new bool[nYpoints];
         for(int j = 0; j < nYpoints; j++)
             importantRegions[i][j] = false;
     }
-        
+
     for(int i = 0; i < hotSpots.size(); i++)
     {
         for(int x_i = (int)((hotSpots[i].getXL()-region.getXL())/dx); x_i < (int)((hotSpots[i].getXR()-region.getXL())/dx); x_i++)
@@ -2366,7 +2366,7 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     }
     of.close();*/
 
-    
+
     for (order=from_order; order<=to_order; order++)
     {
         for(int iRegion = 0; iRegion < nXpoints; iRegion++)
@@ -2379,7 +2379,7 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
                     // indeces in the density array
                     int i = iRegion + (int)((region.getXL()-Xmin)/dx);
                     int j = jRegion + (int)((region.getYL()-Ymin)/dy);
-                    
+
                     x = Xmin + i*dx - xc; y = Ymin + j*dy - yc; // shift to center
                     r = sqrt(x*x + y*y); theta = atan2(y,x);
                     if(i < Maxx && i >=0 && j < Maxy && j >= 0){
@@ -2415,20 +2415,20 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
 
         if(deformedFlag)
         {
-            of  << setprecision(8) << setw(16) <<  mom_real[order]
-                << setprecision(8) << setw(16) <<  mom_imag[order]
-                << setprecision(8) << setw(16) <<  momp_real[order]
-                << setprecision(8) << setw(16) <<  momp_imag[order]
-                << setprecision(5) << setw(10)  <<  Npart_current
-                << setprecision(5) << setw(10) <<  Nbin_current
-                << setprecision(8) << setw(16) <<  total*dx*dy // integrated profile measure
-                << setprecision(8) << setw(16) <<  b
+            of  << setprecision(8) << setw(16) << mom_real[order]
+                << setprecision(8) << setw(16) << mom_imag[order]
+                << setprecision(8) << setw(16) << momp_real[order]
+                << setprecision(8) << setw(16) << momp_imag[order]
+                << setprecision(5) << setw(10) << Npart_current
+                << setprecision(5) << setw(10) << Nbin_current
+                << setprecision(8) << setw(16) << total*dx*dy // integrated profile measure
+                << setprecision(8) << setw(16) << b
 //                << setprecision(8) << setw(16) <<  overlap_area1
 //                << setprecision(8) << setw(16) <<  overlap_area2
-                << setprecision(8) << setw(16) <<  mc->lastCx1
-                << setprecision(8) << setw(16) <<  mc->lastPh1
-                << setprecision(8) << setw(16) <<  mc->lastCx2
-	          << setprecision(8) << setw(16) <<  mc->lastPh2
+                << setprecision(8) << setw(16) << mc->lastCx1
+                << setprecision(8) << setw(16) << mc->lastPh1
+                << setprecision(8) << setw(16) << mc->lastCx2
+                << setprecision(8) << setw(16) << mc->lastPh2
 //                << setprecision(8) << setw(16) <<  xc
 //                << setprecision(8) << setw(16) <<  yc
 //                << setprecision(3) << setw(12) <<  rapMin+(rapMax-rapMin)/binRapidity*iy
@@ -2451,31 +2451,29 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
 
     sprintf(buffer, base_filename, max_order);
     of.open(buffer, std::ios_base::app);
-    for (order=1; order < max_order; order++)
-    {
+    for (order=1; order < max_order; order++) {
         of  << setprecision(8) << setw(16) <<  mom_real[order]
             << setprecision(8) << setw(16) <<  mom_imag[order]
             << setprecision(8) << setw(16) <<  momp_real[order]
-            << setprecision(8) << setw(16) <<  momp_imag[order];
+            << setprecision(8) << setw(16) <<  momp_imag[order]
+            << setprecision(8) << setw(16) <<  normp[order];
     }
-    if(deformedFlag)
-    {
-        of  << setprecision(5) << setw(10)  <<  Npart_current
-            << setprecision(5) << setw(10) <<  Nbin_current
-            << setprecision(8) << setw(16) <<  total*dx*dy // integrated profile measure
-            << setprecision(8) << setw(16) <<  b
-            << setprecision(8) << setw(16) <<  mc->lastCx1
-            << setprecision(8) << setw(16) <<  mc->lastPh1
-            << setprecision(8) << setw(16) <<  mc->lastCx2
-	      << setprecision(8) << setw(16) <<  mc->lastPh2
+
+    if (deformedFlag) {
+        of  << setprecision(5) << setw(10) << Npart_current
+            << setprecision(5) << setw(10) << Nbin_current
+            << setprecision(8) << setw(16) << total*dx*dy // integrated profile measure
+            << setprecision(8) << setw(16) << b
+            << setprecision(8) << setw(16) << mc->lastCx1
+            << setprecision(8) << setw(16) << mc->lastPh1
+            << setprecision(8) << setw(16) << mc->lastCx2
+            << setprecision(8) << setw(16) << mc->lastPh2
             << endl;
-    }
-    else
-    {
-        of  << setprecision(5) << setw(10) <<  Npart_current
-            << setprecision(5) << setw(10) <<  Nbin_current
-            << setprecision(8) << setw(16) <<  total*dx*dy // integrated profile measure
-            << setprecision(8) << setw(16) <<  b
+    } else {
+        of  << setprecision(5) << setw(10) << Npart_current
+            << setprecision(5) << setw(10) << Nbin_current
+            << setprecision(8) << setw(16) << total*dx*dy // integrated profile measure
+            << setprecision(8) << setw(16) << b
             << endl;
     }
     of.close();
@@ -2486,8 +2484,8 @@ void MakeDensity::dumpEccentricities(char* base_filename, double*** density, con
     delete[] momp_real;
     delete[] momp_imag;
     delete[] normp;
-    for(int i = 0; i < nXpoints; i++)
-      delete[] importantRegions[i];
+    for (int i = 0; i < nXpoints; i++)
+        delete[] importantRegions[i];
     delete[] importantRegions;
 }
 
