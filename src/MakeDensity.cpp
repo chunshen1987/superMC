@@ -2205,7 +2205,7 @@ void MakeDensity::generateEccTable(int nevent)
           de_dt = 50/sw.takeTime();
 
         int eta = (nevent-event)/de_dt;
-        
+
         int progress = (int)(10*event/nevent);
         string bars = "";
         for(int nBars = 0; nBars < progress; nBars++)
