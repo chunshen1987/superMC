@@ -208,8 +208,8 @@ MCnucl::~MCnucl()
 void MCnucl::generateNuclei(double b)
 {
     for(int ie=0;ie<overSample;ie++) {
-        proj->populate(-b/2.0,0);
-        targ->populate(b/2.0,0);
+        proj->populate(b/2.0,0);
+        targ->populate(-b/2.0,0);
     }
 }
 
