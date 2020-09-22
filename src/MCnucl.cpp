@@ -701,32 +701,27 @@ void MCnucl::setDensity(int iy, int ipt)
           }
       }
       // wounded nucleon treatment:
-      if (sub_model==1) // "classical" Glb
-      {
-          addDensity(proj,rhop);
-          addDensity(targ,rhop);
+      if (sub_model==1) { // "classical" Glb
+          addDensity(proj, rhop);
+          addDensity(targ, rhop);
           //rhop = (TA1[ir][jr]+TA2[ir][jr])*(1.0-Alpha)/2;
-          
+
           double prefactor = (1.0 - Alpha)/2.;
           for(int ir = 0; ir < Maxx; ir++)
               for(int jr = 0; jr < Maxy; jr++)
                   rhop[ir][jr] = rhop[ir][jr]*prefactor;
-      }
-      else if (sub_model==2) // "Ulrich" Glb
-      {
+      } else if (sub_model==2) {
+          // "Ulrich" Glb
           for(int ir = 0; ir < Maxx; ir++)
               for(int jr = 0; jr < Maxy; jr++)
                   rhop[ir][jr] = 0.0; // no "wounded" contribution
-      }
-      else
-      {
+      } else {
           cerr << "MCnucl::setDensity error: which_mc_model is set to " << which_mc_model << ", but the associated sub_model " << sub_model << " is not recognized." << endl;
           exit(-1);
       }
 
       // binary collision treatment:
-      if(Alpha > 1e-8)
-      {
+      if (Alpha > 1e-8) {
           double fluctfactor = 1.0;
           for(int icoll=0;icoll<binaryCollision.size();icoll++)
           {
@@ -762,9 +757,7 @@ void MCnucl::setDensity(int iy, int ipt)
                  }
               }
           }
-      } 
-      else
-      {
+      } else {
           for(int ir = 0; ir < Maxx; ir++)
               for(int jr = 0; jr < Maxy; jr++)
                   tab[ir][jr] = 0.;
@@ -778,18 +771,47 @@ void MCnucl::setDensity(int iy, int ipt)
               rho->setDensity(iy,ir,jr,density);
               dndy += density;
           }
-      for(int ir = 0; ir < Maxx; ir++)
-      {
+      for(int ir = 0; ir < Maxx; ir++) {
           delete [] rhop[ir];
           delete [] tab[ir];
       }
       delete [] rhop;
       delete [] tab;
+  } else if (which_mc_model == 7) {  // Trento Scaling
+      double **rho_A, **rho_B;
+      rho_A = new double * [Maxx];
+      rho_B = new double * [Maxx];
+      for (int ir = 0; ir < Maxx; ir++) {
+          rho_A[ir] = new double [Maxy];
+          rho_B[ir] = new double [Maxy];
+          for (int jr = 0; jr < Maxy; jr++) {
+              rho_A[ir][jr] = 0.0;
+              rho_B[ir][jr] = 0.0;
+          }
+      }
+
+      addDensity(proj, rho_A);
+      addDensity(targ, rho_B);
+
+      // set density profile
+      for (int ir = 0; ir < Maxx; ir++) {
+          for (int jr = 0; jr < Maxy; jr++) {
+              double density = sqrt(rho_A[ir][jr]*rho_B[ir][jr]);
+              rho->setDensity(iy, ir, jr, density);
+              dndy += density;
+          }
+      }
+
+      for (int ir = 0; ir < Maxx; ir++) {
+          delete[] rho_A[ir];
+          delete[] rho_B[ir];
+      }
+      delete[] rho_A;
+      delete[] rho_B;
   }
-  if(dndy<1e-15)
-  {
+  if (dndy<1e-15) {
     cerr << "MCnucl::setDensity dndy = 0 !!  y= " << rapidity
-     << " dndy= " << dndy << endl;
+         << " dndy= " << dndy << endl;
     exit(0);
   }
 
@@ -797,59 +819,49 @@ void MCnucl::setDensity(int iy, int ipt)
   if (CCFluctuationModel>0 && CCFluctuationModel <= 5) fluctuateCurrentDensity(iy);
 }
 
-void MCnucl::addDensity(Nucleus* nucl, double** dens)
-{
+void MCnucl::addDensity(Nucleus* nucl, double** dens) {
     vector<Particle*> participant = nucl->getParticipants();
-    for(unsigned int ipart=0; ipart<participant.size(); ipart++) 
-    {
+    for (unsigned int ipart=0; ipart<participant.size(); ipart++) {
         Particle* part = participant[ipart];
         Box2D partBox = part->getBoundingBox();
-      double x = part->getX();
-      double y = part->getY();
-      int x_idx_left = (int)((partBox.getXL() - Xmin)/dx);
-      int x_idx_right = (int)((partBox.getXR() - Xmin)/dx);
-      int y_idx_left = (int)((partBox.getYL() - Ymin)/dy);
-      int y_idx_right = (int)((partBox.getYR() - Ymin)/dy);
-      if(x_idx_left < 0 || y_idx_left < 0 || x_idx_left > Maxx || y_idx_left > Maxy)
-      {
-        cerr << "Wounded nucleon extends out of grid bounds " << "("<< part->getX() << "," << part->getY() << ")" << endl;
-      }
-      x_idx_left = max(0, x_idx_left);
-      x_idx_right = min(Maxx, x_idx_right);
-      y_idx_left = max(0, y_idx_left);
-      y_idx_right = min(Maxy, y_idx_right);
+        double x = part->getX();
+        double y = part->getY();
+        int x_idx_left = (int)((partBox.getXL() - Xmin)/dx);
+        int x_idx_right = (int)((partBox.getXR() - Xmin)/dx);
+        int y_idx_left = (int)((partBox.getYL() - Ymin)/dy);
+        int y_idx_right = (int)((partBox.getYR() - Ymin)/dy);
+        if (x_idx_left < 0 || y_idx_left < 0
+            || x_idx_left > Maxx || y_idx_left > Maxy) {
+            cerr << "Wounded nucleon extends out of grid bounds " << "("
+                 << part->getX() << "," << part->getY() << ")" << endl;
+        }
+        x_idx_left = max(0, x_idx_left);
+        x_idx_right = min(Maxx, x_idx_right);
+        y_idx_left = max(0, y_idx_left);
+        y_idx_right = min(Maxy, y_idx_right);
 
-
-      for(int ir = x_idx_left; ir < x_idx_right; ir++)
-      {
-         double xg = Xmin + ir*dx;
-         for(int jr = y_idx_left; jr < y_idx_right; jr++)
-         {
-             double yg = Ymin + jr*dy;
-             double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
-             if (shape_of_entropy==1) // "Checker" nucleons:
-             {
-               if(dc>dsq) 
-                   continue;
-
-               double areai = 10.0/siginNN;
-               dens[ir][jr] += areai*participant[ipart]->getFluctfactor();
-             }
-             else if (shape_of_entropy>=2 && shape_of_entropy<=9) // Gaussian nucleons:
-             {
-               double density;
-               if (shape_of_entropy == 3)
-               {
-                  density = participant[ipart]->getFluctuatedDensity(xg,yg);
-               }
-               else
-               {
-                  density = participant[ipart]->getSmoothDensity(xg,yg);
-               }
-               dens[ir][jr] += density;
-             }
-         }
-      }
+        for (int ir = x_idx_left; ir < x_idx_right; ir++) {
+            double xg = Xmin + ir*dx;
+            for (int jr = y_idx_left; jr < y_idx_right; jr++) {
+                double yg = Ymin + jr*dy;
+                double dc = (x-xg)*(x-xg) + (y-yg)*(y-yg);
+                if (shape_of_entropy==1) { // "Checker" nucleons:
+                   if(dc > dsq)
+                       continue;
+                   double areai = 10.0/siginNN;
+                   dens[ir][jr] += areai*participant[ipart]->getFluctfactor();
+                } else if (shape_of_entropy>=2 && shape_of_entropy<=9) {
+                    // Gaussian nucleons:
+                   double density;
+                   if (shape_of_entropy == 3) {
+                       density = participant[ipart]->getFluctuatedDensity(xg, yg);
+                   } else {
+                       density = participant[ipart]->getSmoothDensity(xg, yg);
+                   }
+                   dens[ir][jr] += density;
+                }
+            }
+        }
     }
 }
 

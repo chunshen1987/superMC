@@ -3,8 +3,9 @@
 ###############################################
 
 # Model Optns
-which_mc_model = 5        # (1) MC-CGC
+which_mc_model = 7        # (1) MC-CGC
                           # (5) MC-Glb
+                          # (7) sqrt(TATB) scaling
 
 # Sub-Model Optns
 sub_model = 1             # CGC-> (7) KLN model model described in
@@ -60,8 +61,8 @@ gauss_nucl_width = 0.812  # 4-> User specified width for Gaussian nucleons
 
 
 # Collision Optns
-ecm = 5020                 # Beam Energy sqrt(s) in GeV
-bmin = 0.                # Minimum sampled impact parameter
+ecm = 5020                # Beam Energy sqrt(s) in GeV
+bmin = 0.                 # Minimum sampled impact parameter
 bmax = 20.                # Maximum sampled impact parameter
 Npmin = 2                 # Minimum participant nucleon cut
 Npmax = 500               # Maximum participant nucleon cut
@@ -72,7 +73,7 @@ cutdSdy_upperBound =  889.53       # upper bound of the allowed total entropy de
 
 
 # Monte Carlo Optns
-nev = 50000                # Number of collision events simulated
+nev = 1000                 # Number of collision events simulated
 randomSeed = -1            # If randomSeed < 0 then CPU time is used to seed
 backup_number = 100000     # Backs up the averaged profile every "n" events. 0 means 
                            # every step. Use a neg number to turn it off
@@ -89,7 +90,7 @@ operation = 9             # (1) Generate n transverse density profiles for n eve
                           # the data in a table
 
 # Operation Mode Sub-Optns
-finalFactor = 40.0        # 1,3,9-> Scale the final density profile by this factor
+finalFactor = 1.0         # 1,3,9-> Scale the final density profile by this factor
 average_from_order = 2    # 3-> Generate rotated and averaged profiles for each order 
                           # beginning with this order
 average_to_order = 3      # 3-> Generate rotated and averaged profiles for each order 
