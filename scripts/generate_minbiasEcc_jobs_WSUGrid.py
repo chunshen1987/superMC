@@ -8,25 +8,25 @@ from glob import glob
 
 def generate_script(folder_name, ecm):
     working_folder = path.join(path.abspath('./'), folder_name)
-    walltime = '10:00:00'
+    walltime = '20:00:00'
 
     script = open(path.join(working_folder, "submit_job.pbs"), "w")
     script.write(
 """#!/usr/bin/env bash
-#PBS -N {0:s}
-#PBS -l select=1:ncpus=1:mem=4GB:cpu_type=Intel
-##PBS -l walltime={1:s}
-#PBS -S /bin/bash
-#PBS -e test.err
-#PBS -o test.log
-#PBS -q ecsxq
-##PBS -m bea
-##PBS -M chunshen1987@gmail.com
+#SBATCH --job-name {0:s}
+#SBATCH -q primary
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH --mem=4G
+#SBATCH --constraint=intel
+#SBATCH -t {1:s}
+#SBATCH -e job.err
+#SBATCH -o job.log
 
 cd {2:s}
 rm -fr data
 mkdir data
-./superMC.e ecm={3:g} operation=9 ecc_from_order=1 ecc_to_order=9 bmin=0. bmax=20.
+./superMC.e ecm={3:g} operation=9 ecc_from_order=1 ecc_to_order=9 bmin=0. bmax=20. finalFactor=1.0
 
 """.format(working_folder.split('/')[-1], walltime, working_folder, ecm))
     script.close()
