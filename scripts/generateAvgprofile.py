@@ -102,6 +102,8 @@ def translate_centrality_cut(centrality_bound, cut_type='total_entropy'):
         model_name = 'MCGlb'
     elif superMCParameters['which_mc_model'] == 1:
         model_name = 'MCKLN'
+    elif superMCParameters['which_mc_model'] == 7:
+        model_name = "Trento"
 
     if superMCParameters['cc_fluctuation_model'] != 0:
         multiplicity_fluctuation = 'withMultFluct'
@@ -200,6 +202,8 @@ def update_superMC_dict(model, ecm, collsys):
         superMCParameters['which_mc_model'] = 1
         superMCParameters['sub_model'] = 7
         superMCParameters['cc_fluctuation_model'] = 0
+    elif model == 'Trento':
+        superMCParameters['which_mc_model'] = 7
     else:
         print(sys.argv[0], ': invalid initial model type', model)
         print_help_message()
@@ -284,7 +288,8 @@ def print_help_message():
 
 if __name__ == "__main__":
     # set default values
-    model = 'MCGlb'
+    #model = 'MCGlb'
+    model = 'Trento'
     cut_type = 'total_entropy'
     #cut_type = 'Npart'
     collsys = 'Pb+Pb'.split('+')
