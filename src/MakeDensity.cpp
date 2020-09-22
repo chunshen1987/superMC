@@ -556,7 +556,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
   int use_ed = paraRdr->getVal("use_ed");
   int use_block = paraRdr->getVal("use_block");
   int use_4col = paraRdr->getVal("use_4col");
-  
+
   int use_5col = 0;
   int use_ptCol = 0;
   // sub-switch
@@ -650,7 +650,7 @@ void MakeDensity::generate_profile_ebe(int nevent)
 
     //calculate pT unintegrated particle distribution
     if((PTinte<0 or MixedMode>0) and cutdSdypassFlag)
-    {               
+    {
       for(int iy=0;iy<binRapidity;iy++) 
       {
         for(int ipt=0;ipt<MaxPT;ipt++) 
@@ -1540,7 +1540,7 @@ void MakeDensity::generate_profile_average(int nevent)
               }
               mc->rotateGrid(iy, order); // rotate grid according to energy density. Note that different rapidity slices are rotated separately, and this does not quite make sense.
               mc->calculateThickness();
-              
+
               for(int ipt = 0; ipt < MaxPT; ipt++)
                 mc->setDensity(iy,ipt); // now it's after rotation
               setEd(dens_tmp_pt, iy); // includes factor multiplication
@@ -2527,7 +2527,8 @@ void MakeDensity::setEd(double*** data, const int iy)
     for(int i=0;i<Maxx;i++)
     for(int j=0;j<Maxy;j++)
     {
-        data[iy][i][j] = eos.edFromSd(mc->getRho(iy,i,j)*finalFactor);
+        //data[iy][i][j] = eos.edFromSd(mc->getRho(iy,i,j)*finalFactor);
+        data[iy][i][j] = mc->getRho(iy,i,j)*finalFactor;
     }
 }
 
