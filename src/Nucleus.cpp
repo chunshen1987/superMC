@@ -103,6 +103,11 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in, int id)
     rad = 6.67;
     dr = 0.44;
     density0 = 0.161;
+  }else if(a==129){
+    //Reparametrization (Xe)
+    rad = 5.36;
+    dr = 0.590;
+    density0 = 0.17;
   }
 
   // default deformation parameters, 0: no deform, 1: deform (05/03/2010 by TH)
@@ -125,6 +130,10 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in, int id)
       //(Cu)
       beta2 = 0.162;
       beta4 = 0.006;
+    }else if(atomic == 129){
+      //(Xe)
+      beta2 = 0.162;
+      beta4 = -0.003;
     }else if(atomic == 238){
       //(U)
       beta2 = 0.28;

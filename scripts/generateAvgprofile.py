@@ -58,6 +58,7 @@ superMCParameters = {
 nucleus_name_dict = {
     208: 'Pb',
     197: 'Au',
+    129: 'Xe',
     238: 'U',
     63: 'Cu',
     1: 'p',
@@ -68,6 +69,7 @@ nucleus_name_dict = {
 nucleus_number_dict = {
     'Pb': 208,
     'Au': 197,
+    'Xe': 129,
     'U': 238,
     'Cu': 63,
     'p': 1,
@@ -283,8 +285,8 @@ def print_help_message():
 if __name__ == "__main__":
     # set default values
     model = 'MCGlb'
-    #cut_type = 'total_entropy'
-    cut_type = 'Npart'
+    cut_type = 'total_entropy'
+    #cut_type = 'Npart'
     collsys = 'Pb+Pb'.split('+')
     output_path = path.abspath('./RESULTS/')
 
