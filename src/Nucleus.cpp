@@ -147,10 +147,21 @@ Nucleus::Nucleus(int a, ParameterReader* paraRdr, int deformed_in, int id)
     beta2 = 0.0; beta4 = 0.0;
   }
 
-  if (atomic == 3) // read in triton position
-  {
-    readin_triton_position();
-  }
+    if (atomic == 3) {
+        // read in triton position
+        //readin_triton_position();
+        // read in helium3 position
+        readin_helium3_position();
+    } else if (atomic == 4) {
+        // read in helium4 position
+        readin_helium4_position();
+    } else if (atomic == 12) {
+        // read in carbon position
+        readin_carbon_position();
+    } else if (atomic == 16) {
+        // read in oxygen position
+        readin_oxygen_position();
+    }
 
   if(flag_NN_correlation == 1 && (atomic == 197 || atomic == 208))
   {
@@ -184,24 +195,46 @@ void Nucleus::populate(double xCenter, double yCenter) {
     lastCx = cx;
     lastPh = phi;
     setRotation(cx, phi);
+    vector<double> xpos;
+    vector<double> ypos;
+    vector<double> zpos;
     if (atomic == 1) {
         nucleons.push_back(new Particle(xCenter, yCenter, 0.0)); // shift along x-axis
     } else if (atomic == 2) {
         // in the case of a deuteron (added by Brian Baker)
         double x1, y1, z1, x2, y2, z2;
-
-        GetDeuteronPosition(x1,y1,z1,x2,y2,z2);
+        GetDeuteronPosition(x1, y1, z1, x2, y2, z2);
         // shift along x-axis
         nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1));
         nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
     } else if (atomic == 3) {
         // in the case of 3He
-        double x1, x2, x3, y1, y2, y3, z1, z2, z3;
-        // Triton data points from Carlson have center of mass (0,0,0).
-        GetTritonPosition(x1,y1,z1,x2,y2,z2,x3,y3,z3);
-        nucleons.push_back(new Particle(x1+(xCenter),y1+yCenter,z1));
-        nucleons.push_back(new Particle(x2+(xCenter),y2+yCenter,z2));
-        nucleons.push_back(new Particle(x3+(xCenter),y3+yCenter,z3));
+        GetNucleonPosition(he3_pos, xpos, ypos, zpos);
+        for (int i = 0; i < atomic; i++) {
+            nucleons.push_back(
+                new Particle(xpos[i] + xCenter, ypos[i] + yCenter, zpos[i]));
+        }
+    } else if (atomic == 4) {
+        // in the case of 4He
+        GetNucleonPosition(he4_pos, xpos, ypos, zpos);
+        for (int i = 0; i < atomic; i++) {
+            nucleons.push_back(
+                new Particle(xpos[i] + xCenter, ypos[i] + yCenter, zpos[i]));
+        }
+    } else if (atomic == 12) {
+        // in the case of C
+        GetNucleonPosition(carbon_pos, xpos, ypos, zpos);
+        for (int i = 0; i < atomic; i++) {
+            nucleons.push_back(
+                new Particle(xpos[i] + xCenter, ypos[i] + yCenter, zpos[i]));
+        }
+    } else if (atomic == 16) {
+        // in the case of O
+        GetNucleonPosition(oxygen_pos, xpos, ypos, zpos);
+        for (int i = 0; i < atomic; i++) {
+            nucleons.push_back(
+                new Particle(xpos[i] + xCenter, ypos[i] + yCenter, zpos[i]));
+        }
     } else {
         if (flag_NN_correlation == 1 && (atomic == 197 || atomic == 208)) {
             // load nucleon positions from file
@@ -325,103 +358,221 @@ void Nucleus::GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,do
    z2 = -z1;
 }
 
-void Nucleus::readin_triton_position()
-{
-   ifstream triton_position("tables/triton_positions.dat");
-   double x1, y1, z1, x2, y2, z2, x3, y3, z3;
-   triton_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
-   while(!triton_position.eof())
-   {
-       vector<double> temp;
-       temp.push_back(x1);
-       temp.push_back(y1);
-       temp.push_back(z1);
-       temp.push_back(x2);
-       temp.push_back(y2);
-       temp.push_back(z2);
-       temp.push_back(x3);
-       temp.push_back(y3);
-       temp.push_back(z3);
-       triton_pos.push_back(temp);
-       triton_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
-   }
+
+void Nucleus::readin_triton_position() {
+    ifstream triton_position("tables/triton_positions.dat");
+    double x1, y1, z1, x2, y2, z2, x3, y3, z3;
+    triton_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
+    while (!triton_position.eof()) {
+        vector<double> temp;
+        temp.push_back(x1);
+        temp.push_back(y1);
+        temp.push_back(z1);
+        temp.push_back(x2);
+        temp.push_back(y2);
+        temp.push_back(z2);
+        temp.push_back(x3);
+        temp.push_back(y3);
+        temp.push_back(z3);
+        triton_pos.push_back(temp);
+        triton_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3;
+    }
 }
 
-void Nucleus::readin_nucleon_positions()
-{
-   cout << "read in nucleon positions with nucleon-nucleon correlation..." << flush;
-   ostringstream filename;
-   if(atomic == 197)
-   {
-      filename << "tables/au197-sw-full_3Bchains-conf1820.dat";
-      n_configuration = 1820;
-   }
-   else if(atomic == 208)
-   {
-      //int temp = rand() % 10 + 1;
-      int temp = 1;
-      filename << "tables/pb208-" << temp << ".dat";
-      n_configuration = 10000;
-   }
-   else
-      return;
 
-   nucleon_pos_array = new double** [n_configuration];
-   for(int iconf = 0; iconf < n_configuration; iconf++)
-   {
-      nucleon_pos_array[iconf] = new double* [atomic];
-      for(int ia = 0; ia < atomic; ia++)
-         nucleon_pos_array[iconf][ia] = new double [3];
-   }
-
-   ifstream input(filename.str().c_str());
-   for(int iconf = 0; iconf < n_configuration; iconf++)
-   {
-      for(int ia = 0; ia < atomic; ia++)
-      {
-         double x_local, y_local, z_local;
-         int isospin;
-         int dummy;
-         if(atomic == 208)
-            input >> x_local >> y_local >> z_local >> isospin;
-         else
-            input >> x_local >> y_local >> z_local >> isospin >> dummy;
-         nucleon_pos_array[iconf][ia][0] = x_local;
-         nucleon_pos_array[iconf][ia][1] = y_local;
-         nucleon_pos_array[iconf][ia][2] = z_local;
-      }
-   }
-   input.close();
-   cout << " done." << endl;
+void Nucleus::readin_helium3_position() {
+    ifstream he3_position("tables/he3_plaintext.dat");
+    if (!he3_position.is_open()) {
+        cout << "Error: tables/he3_plaintext.dat does not find!" << endl;
+        exit(1);
+    }
+    double x1, y1, z1, x2, y2, z2, x3, y3, z3;
+    double dummy;
+    he3_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3
+                 >> dummy >> dummy >> dummy >> dummy;
+    while (!he3_position.eof()) {
+        vector<double> temp;
+        temp.push_back(x1);
+        temp.push_back(y1);
+        temp.push_back(z1);
+        temp.push_back(x2);
+        temp.push_back(y2);
+        temp.push_back(z2);
+        temp.push_back(x3);
+        temp.push_back(y3);
+        temp.push_back(z3);
+        he3_pos.push_back(temp);
+        he3_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3
+                     >> dummy >> dummy >> dummy >> dummy;
+    }
 }
 
-void Nucleus::GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3)
-{
-   int num_configuration = triton_pos.size();
-   int rand_num = rand() % num_configuration;
 
-   x1 = triton_pos[rand_num][0];
-   y1 = triton_pos[rand_num][1];
-   z1 = triton_pos[rand_num][2];
-   x2 = triton_pos[rand_num][3];
-   y2 = triton_pos[rand_num][4];
-   z2 = triton_pos[rand_num][5];
-   x3 = triton_pos[rand_num][6];
-   y3 = triton_pos[rand_num][7];
-   z3 = triton_pos[rand_num][8];
-
-   Point3D p3d1(x1,y1,z1);
-   p3d1.rotate(ctr, phir);
-   x1 = p3d1.x; y1 = p3d1.y; z1 = p3d1.z;
-
-   Point3D p3d2(x2,y2,z2);
-   p3d2.rotate(ctr, phir);
-   x2 = p3d2.x; y2 = p3d2.y; z2 = p3d2.z;
-
-   Point3D p3d3(x3,y3,z3);
-   p3d3.rotate(ctr, phir);
-   x3 = p3d3.x; y3 = p3d3.y; z3 = p3d3.z;
+void Nucleus::readin_helium4_position() {
+    ifstream he4_position("tables/he4_plaintext.dat");
+    if (!he4_position.is_open()) {
+        cout << "Error: tables/he4_plaintext.dat does not find!" << endl;
+        exit(1);
+    }
+    double x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+    he4_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3
+                 >> x4 >> y4 >> z4;
+    while (!he4_position.eof()) {
+        vector<double> temp;
+        temp.push_back(x1);
+        temp.push_back(y1);
+        temp.push_back(z1);
+        temp.push_back(x2);
+        temp.push_back(y2);
+        temp.push_back(z2);
+        temp.push_back(x3);
+        temp.push_back(y3);
+        temp.push_back(z3);
+        temp.push_back(x4);
+        temp.push_back(y4);
+        temp.push_back(z4);
+        he4_pos.push_back(temp);
+        he4_position >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3
+                     >> x4 >> y4 >> z4;
+    }
 }
+
+
+void Nucleus::readin_carbon_position() {
+    ifstream C_position("tables/carbon_plaintext.dat");
+    if (!C_position.is_open()) {
+        cout << "Error: tables/carbon_plaintext.dat does not find!" << endl;
+        exit(1);
+    }
+    const int A = 12;
+    vector<double> pos(3*A, 0);
+    double dummy;
+    C_position >> dummy >> dummy;
+    for (int i = 0; i < 3*A; i++)
+        C_position >> pos[i];
+    while (!C_position.eof()) {
+        carbon_pos.push_back(pos);
+        C_position >> dummy >> dummy;
+        for (int i = 0; i < 3*A; i++)
+            C_position >> pos[i];
+    }
+}
+
+
+void Nucleus::readin_oxygen_position() {
+    ifstream O_position("tables/oxygen_plaintext.dat");
+    if (!O_position.is_open()) {
+        cout << "Error: tables/oxygen_plaintext.dat does not find!" << endl;
+        exit(1);
+    }
+    const int A = 16;
+    vector<double> pos(3*A, 0);
+    double dummy;
+    for (int i = 0; i < 3*A; i++)
+        O_position >> pos[i];
+    while (!O_position.eof()) {
+        oxygen_pos.push_back(pos);
+        for (int i = 0; i < 3*A; i++)
+            O_position >> pos[i];
+    }
+}
+
+
+void Nucleus::readin_nucleon_positions() {
+    cout << "read in nucleon positions with nucleon-nucleon correlation..."
+         << flush;
+    ostringstream filename;
+    if (atomic == 197) {
+        filename << "tables/au197-sw-full_3Bchains-conf1820.dat";
+        n_configuration = 1820;
+    } else if (atomic == 208) {
+        //int temp = rand() % 10 + 1;
+        int temp = 1;
+        filename << "tables/pb208-" << temp << ".dat";
+        n_configuration = 10000;
+    } else {
+        return;
+    }
+
+    nucleon_pos_array = new double** [n_configuration];
+    for (int iconf = 0; iconf < n_configuration; iconf++) {
+        nucleon_pos_array[iconf] = new double* [atomic];
+        for (int ia = 0; ia < atomic; ia++)
+            nucleon_pos_array[iconf][ia] = new double [3];
+    }
+
+    ifstream input(filename.str().c_str());
+    for (int iconf = 0; iconf < n_configuration; iconf++) {
+        for (int ia = 0; ia < atomic; ia++) {
+            double x_local, y_local, z_local;
+            int isospin;
+            int dummy;
+            if (atomic == 208) {
+                input >> x_local >> y_local >> z_local >> isospin;
+            } else {
+                input >> x_local >> y_local >> z_local >> isospin >> dummy;
+            }
+            nucleon_pos_array[iconf][ia][0] = x_local;
+            nucleon_pos_array[iconf][ia][1] = y_local;
+            nucleon_pos_array[iconf][ia][2] = z_local;
+        }
+    }
+    input.close();
+    cout << " done." << endl;
+}
+
+
+void Nucleus::GetTritonPosition(double &x1, double &y1, double &z1,
+                                double &x2, double &y2, double &z2,
+                                double &x3, double &y3, double &z3) {
+    int num_configuration = triton_pos.size();
+    int rand_num = rand() % num_configuration;
+
+    x1 = triton_pos[rand_num][0];
+    y1 = triton_pos[rand_num][1];
+    z1 = triton_pos[rand_num][2];
+    x2 = triton_pos[rand_num][3];
+    y2 = triton_pos[rand_num][4];
+    z2 = triton_pos[rand_num][5];
+    x3 = triton_pos[rand_num][6];
+    y3 = triton_pos[rand_num][7];
+    z3 = triton_pos[rand_num][8];
+
+    Point3D p3d1(x1,y1,z1);
+    p3d1.rotate(ctr, phir);
+    x1 = p3d1.x; y1 = p3d1.y; z1 = p3d1.z;
+
+    Point3D p3d2(x2,y2,z2);
+    p3d2.rotate(ctr, phir);
+    x2 = p3d2.x; y2 = p3d2.y; z2 = p3d2.z;
+
+    Point3D p3d3(x3,y3,z3);
+    p3d3.rotate(ctr, phir);
+    x3 = p3d3.x; y3 = p3d3.y; z3 = p3d3.z;
+}
+
+
+void Nucleus::GetNucleonPosition(const vector< vector<double> > posList,
+        vector<double> &x, vector<double> &y, vector<double> &z) {
+    x.clear();
+    y.clear();
+    z.clear();
+    int num_configuration = posList.size();
+    int atomic = posList[0].size();
+    int eventid = rand() % num_configuration;
+
+    for (int i = 0; i < atomic; i++) {
+        double x_i = posList[eventid][3*i];
+        double y_i = posList[eventid][3*i+1];
+        double z_i = posList[eventid][3*i+2];
+        Point3D p3d1(x_i, y_i, z_i);
+        p3d1.rotate(ctr, phir);
+        x.push_back(p3d1.x);
+        y.push_back(p3d1.y);
+        z.push_back(p3d1.z);
+    }
+}
+
 
 // *** this function applies to deformed nuclei ***
 void Nucleus::getDeformRandomWS(double& x, double& y, double& z)

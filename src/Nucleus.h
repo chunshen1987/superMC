@@ -43,6 +43,10 @@ protected:
 
     HulthenFunc sample_deuteron;
     vector< vector<double> > triton_pos;
+    vector< vector<double> > he3_pos;
+    vector< vector<double> > he4_pos;
+    vector< vector<double> > carbon_pos;
+    vector< vector<double> > oxygen_pos;
 
     int flag_NN_correlation;
     int n_configuration;
@@ -83,7 +87,18 @@ public:
     // nucleon positions for light nuclei
     void GetDeuteronPosition(double& x1,double& y1,double& z1,double& x2,double& y2,double& z2);
     void readin_triton_position();
-    void GetTritonPosition(double& x1,double& y1,double& z1,double &x2,double& y2,double& z2, double &x3, double &y3, double &z3);
+    void readin_helium3_position();
+    void readin_helium4_position();
+    void readin_carbon_position();
+    void readin_oxygen_position();
+
+    void GetTritonPosition(double &x1, double &y1, double &z1,
+                           double &x2, double &y2, double &z2,
+                           double &x3, double &y3, double &z3);
+
+    void GetNucleonPosition(const vector< vector<double> > posList,
+                            vector<double> &x, vector<double> &y,
+                            vector<double> &z);
 
     // Efficient Collision Calculations
     static bool sortByXLeft(const Particle* p1,const Particle* p2)
