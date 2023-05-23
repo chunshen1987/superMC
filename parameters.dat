@@ -120,8 +120,8 @@ PT_order = 2              # =1 output the usual entropy/energy density profile; 
 d_PT = 0.1                # Step size of PT in GeV
 
 # Grid Optns
-maxx = 13.                 # Max grid value along x direction in fm
-maxy = 13.                 # Max grid value along y direction in fm 
+maxx = 15.                 # Max grid value along x direction in fm
+maxy = 15.                 # Max grid value along y direction in fm 
 dx = 0.1                   # Step size along x direction in fm
 dy = 0.1                   # Step size along y direction in fm
 ny = 1                     # Number of rapidity bins (do not set to zero)
